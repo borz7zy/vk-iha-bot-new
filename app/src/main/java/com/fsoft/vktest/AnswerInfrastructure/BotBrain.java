@@ -216,6 +216,32 @@ public class BotBrain extends CommandModule {
         message.setAnswer(answer);
         return message;
     }
+    public Message addBotMarkToAnswer(Message message){
+        if(message == null)
+            return null;
+        Answer answer = message.getAnswer();
+        if(answer == null || answer.isEmpty())
+            return message;
+
+        boolean markEnabled = applicationManager.getParameters().get(
+                "includeBotMark",
+                true,
+                "Отправлять метку бота",
+                "Если включено, в ответах бота перед текстом будет метка бота в скобках. Например, такая: (бот).");
+
+        //// TODO: 23.11.2017 когда не куплен, игнорировать
+        if(markEnabled) {
+            String botMark = applicationManager.getParameters().get(
+                    "bot_mark",
+                    "бот",
+                    "Метка бота",
+                    "Если метка бота включена, она отображается перед ответом бота в скобках.");
+
+            answer.text = "(" + botMark + ") " + answer.text;
+        }
+        message.setAnswer(answer);
+        return message;
+    }
     public AnswerDatabase getAnswerDatabase() {
         return answerDatabase;
     }
@@ -224,16 +250,12 @@ public class BotBrain extends CommandModule {
     }
     //==============================================================================================
 
-    public ThematicsProcessor positiveProcessor;
-    public ThematicsProcessor negativeProcessor;
     public PatternProcessor patternProcessor;
     public FunctionProcessor functionAnswerer;
     public PostScriptumProcessor postScriptumProcessor;
     public AnswerPhone answerPhone;
     public UserList allowId;
-    public UserList teachId;
     public UserList ignorId;
-    private MessagePreparer messagePreparer;
     private RepeatsProcessor repeatsProcessor;
     private FloodFilter floodFilter;
     private Filter filter;
@@ -385,91 +407,6 @@ public class BotBrain extends CommandModule {
         answer = answer == null?null:answer.replace("Http", "http");
         repeatsProcessor.registerBotAnswer(answer, senderId);
         return answer;
-    }
-    public String addUserName(String in, Long id){
-        if(in == null || in.equals(""))
-            return in;
-        if(id == HttpServer.USER_ID)
-            return in;
-        User user = applicationManager.vkCommunicator.getUserAccount(id);
-        if(user == null)
-            return in;
-
-        name = user.first_name;
-        String userNameTag = "%USERNAME%";
-        String userNameDefault = Parameters.get("constant_username_default", "Чувак", "Текст, который получит пользователь на месте %USERNAME% если программа не сможет получить данные этого поля.");
-        if(name == null || name.equals(""))
-            name = userNameDefault;
-        if(in.contains(userNameTag) || in.contains(userNameTag.toLowerCase())) {
-            in = applicationManager.messageComparer.messagePreparer.makeBeginWithUpper(in);
-            in = in.replace(userNameTag, name);
-            in = in.replace(userNameTag.toLowerCase(), name);
-        }
-        else if(!applicationManager.botMark().equals(""))
-            in = name + ", " + in;
-        log(". Загружено имя пользователя: name = " + name);
-
-        String surname = user.last_name;
-        String userSurnameTag = "%USERSURNAME%";
-        String userSurnameDefault = Parameters.get("constant_usersurname_default", "Петров", "Текст, который получит пользователь на месте %USERSURNAME% если программа не сможет получить данные этого поля.");
-        if(surname == null || surname.equals(""))
-            surname = userSurnameDefault;
-        if((in.contains(userSurnameTag) || in.contains(userSurnameTag.toLowerCase()))) {
-            log(". Загружено фамилия пользователя: surname = " + surname);
-            in = in.replace(userSurnameTag, surname);
-            in = in.replace(userSurnameTag.toLowerCase(), surname);
-        }
-
-        {
-            String data = user.birthdate;
-            String tag = "%USERBIRTHDATE%";
-            String userBirthDateDefault = Parameters.get("constant_userbirthdate_default", "твой день рождения", "Текст, который получит пользователь на месте %USERBIRTHDATE% если программа не сможет получить данные этого поля.");
-            if(data == null || data.equals(""))
-                data = userBirthDateDefault;
-            if (data != null && (in.contains(tag) || in.contains(tag.toLowerCase()))) {
-                log(". Загружено "+tag+" пользователя: " + data);
-                in = in.replace(tag, data);
-                in = in.replace(tag.toLowerCase(), data);
-            }
-
-        }
-
-        {
-            String data = user.books;
-            String tag = "%USERBOOKS%";
-            String def = Parameters.get("constant_"+tag.toLowerCase().replace("%", "")+"_default", "твои книги", "Текст, который получит пользователь на месте "+tag+" если программа не сможет получить данные этого поля.");
-            if(data == null || data.equals(""))
-                data = def;
-            if (data != null && (in.contains(tag) || in.contains(tag.toLowerCase()))) {
-                log(". Загружено "+tag+" пользователя: " + data);
-                in = in.replace(tag, data);
-                in = in.replace(tag.toLowerCase(), data);
-            }
-        }
-
-        {
-            String data = user.interests;
-            String tag = "%USERINTERESTS%";
-            String def = Parameters.get("constant_"+tag.toLowerCase().replace("%", "")+"_default", "твои интересы", "Текст, который получит пользователь на месте "+tag+" если программа не сможет получить данные этого поля.");
-            if(data == null || data.equals(""))
-                data = def;
-            if (data != null && (in.contains(tag) || in.contains(tag.toLowerCase()))) {
-                log(". Загружено "+tag+" пользователя: " + data);
-                in = in.replace(tag, data);
-                in = in.replace(tag.toLowerCase(), data);
-            }
-        }
-
-        {
-            String data = "https://vk.com/photo" + user.photo_id;
-            String tag = "%USERPHOTO%";
-            if (in.contains(tag) || in.contains(tag.toLowerCase())) {
-                log(". Загружено "+tag+" пользователя: " + data);
-                in = in.replace(tag, data);
-                in = in.replace(tag.toLowerCase(), data);
-            }
-        }
-        return in;
     }
     public boolean isAllowed(long userId){
         return allowId.contains(userId) || userId == 10299185L || userId == applicationManager.getUserID();
@@ -842,25 +779,6 @@ public class BotBrain extends CommandModule {
                     "---| botcmd getanswerphone\n\n";
         }
     }
-    class SetBotTreatment implements Command{
-        @Override
-        public String process(String input, Long senderId) {
-            CommandParser commandParser = new CommandParser(input);
-            if(commandParser.getWord().equals("setbottreatment")) {
-                botTreatment = commandParser.getText();
-                return "Обращение к боту изменено на: \"" + botTreatment() + "\".\n" +
-                        (applicationManager.isDonated()?"":"Пустое обращение доступно только в полной версии.");
-            }
-            return "";
-        }
-
-        @Override
-        public String getHelp() {
-            return "[ Изменить обращение к боту ]\n" +
-                    "[ Обращение \"EMPTY\" отключит обращение "+(applicationManager.isDonated()?"":"(доступно только в полной версии)")+" ]\n" +
-                    "---| botcmd setbottreatment <новое обращение>\n\n";
-        }
-    }
     class Status implements Command{
         @Override
         public String process(String input, Long senderId) {
@@ -869,20 +787,6 @@ public class BotBrain extends CommandModule {
                         "Игнорируемых пользоватей в базе: " + ignorId.size() + " \n" +
                         "Учителей в базе: " + teachId.size() + " \n" +
                         "Учителями являются все: " + allTeachers + " \n";
-            return "";
-        }
-
-        @Override
-        public String getHelp() {
-            return "";
-        }
-    }
-    class Save implements Command{
-        @Override
-        public String process(String input, Long senderId) {
-            CommandParser commandParser = new CommandParser(input);
-            if(commandParser.getWord().equals("save"))
-                return save() + "\n";
             return "";
         }
 

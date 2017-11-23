@@ -38,6 +38,7 @@ import java.util.*;
 /**
  * manage components
  * Created by Dr. Failov on 05.08.2014.
+ * Edited  by Dr. Failov on 23.11.2017.
  */
 /**
  * Спустя два года самое время всё нахуй переписать.
@@ -218,15 +219,8 @@ public class ApplicationManager {
     //--------------------------- STATIC DATA --------------------------
     static public String programName = "DrFailov_VK_iHA_bot";
     static public String botcmd = "botcmd,bcd";
-    static public String constAutoRun = "autorun";
 
     //--------------------------- CONTEXT DATA --------------------------
-    public Handler handler = new Handler();
-    private String botMark = "bot";
-    public boolean running = true; // снимать только при закрытии программы
-
-    public boolean loaded = false;//обозначается как true когда функция load была успешно выполнена
-    public boolean dontsave = false;
 
     //--------------------------- PUBLIC FUNCTIONS --------------------------
 
@@ -443,15 +437,6 @@ public class ApplicationManager {
         return message;
     }
 
-
-
-    public void setBotMark(String botMark) {
-        this.botMark = botMark;
-        save();
-    }
-    public String getBotMark() {
-        return botMark;
-    }
 
     //--------------------------- PRIVATE FUNCTIONS --------------------------
     private void startAutoSaving(){

@@ -165,8 +165,17 @@ public class BotModule extends CommandModule {
             return null;
         return brain.addTreatmentToAnswer(message);
     }
+    private Message addBotMarkToAnswer(Message message){
+        if(applicationManager == null)
+            return null;
+        BotBrain brain = applicationManager.getBrain();
+        if(brain == null)
+            return null;
+        return brain.addBotMarkToAnswer(message);
+    }
     protected Message prepare(Message message){
         message = addTreatmentToAnswer(message);
+        message = addBotMarkToAnswer(message);
         return message;
     }
 }
