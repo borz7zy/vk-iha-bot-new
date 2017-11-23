@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/main_background"
-    android:gravity="left"
+    android:gravity="right"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
     android:paddingTop="5dp"
@@ -13,23 +13,9 @@
 
     <FrameLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/bubble_in_avatar"
-            android:src="@drawable/example_avatar"/>
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/mask_round"/>
-    </FrameLayout>
-
-    <FrameLayout
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:background="@drawable/bubble_in_background">
+        android:layout_marginRight="10dp"
+        android:background="@drawable/bubble_out_background">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -41,7 +27,7 @@
             android:paddingTop="0dp">
 
             <TextView
-                android:id="@+id/bubble_in_username"
+                android:id="@+id/bubble_out_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
@@ -51,7 +37,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/bubble_in_text"
+                android:id="@+id/bubble_out_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
@@ -68,7 +54,7 @@
                 android:gravity="center_vertical">
 
                 <TextView
-                    android:id="@+id/bubble_in_time"
+                    android:id="@+id/bubble_out_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="00:00"
@@ -76,14 +62,29 @@
                     android:textSize="14sp" />
 
                 <ImageView
+                    android:id="@+id/bubble_out_check"
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:layout_marginLeft="5dp"
-                    android:src="@drawable/ic_check"
-                    android:id="@+id/bubble_in_check" />
+                    android:src="@drawable/ic_check" />
             </LinearLayout>
 
         </LinearLayout>
     </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/bubble_out_avatar"
+            android:src="@drawable/example_avatar"/>
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/mask_round"/>
+    </FrameLayout>
+
 
 </LinearLayout>
