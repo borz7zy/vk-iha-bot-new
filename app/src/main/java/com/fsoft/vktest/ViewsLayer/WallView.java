@@ -58,35 +58,35 @@ public class WallView extends View {
         {
             TextView textView = textViewActive = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("активен = " + isActive());
+            textView.setText("Р°РєС‚РёРІРµРЅ = " + isActive());
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = textViewStatus = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("Состояние = " + wallStatus);
+            textView.setText("РЎРѕСЃС‚РѕСЏРЅРёРµ = " + wallStatus);
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = textViewPostTotal = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("новых записей = " + messagesDetected);
+            textView.setText("РЅРѕРІС‹С… Р·Р°РїРёСЃРµР№ = " + messagesDetected);
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = textViewCommentTotal = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("новых комментариев = " + commentsDetected);
+            textView.setText("РЅРѕРІС‹С… РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ = " + commentsDetected);
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = textViewRepliedTotal = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("опубликовано ответов = " + messagesReplied);
+            textView.setText("РѕРїСѓР±Р»РёРєРѕРІР°РЅРѕ РѕС‚РІРµС‚РѕРІ = " + messagesReplied);
             textView.setTextSize(10);
             addView(textView);
         }
@@ -107,7 +107,7 @@ public class WallView extends View {
         builder.setView(scrollView);
         {
             TextView textView = new TextView(context);
-            textView.setText("Стена " + getWallName());
+            textView.setText("РЎС‚РµРЅР° " + getWallName());
             textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             textView.setGravity(Gravity.CENTER);
             textView.setTextSize(20);
@@ -116,17 +116,17 @@ public class WallView extends View {
             linearLayout.addView(getDelimiter(context));
         }
 
-        linearLayout.addView(getOnOffRow("Активный ("+active+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("РђРєС‚РёРІРЅС‹Р№ ("+active+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
-                wallStatus = "Состояние изменено вручную.";
+                wallStatus = "РЎРѕСЃС‚РѕСЏРЅРёРµ РёР·РјРµРЅРµРЅРѕ РІСЂСѓС‡РЅСѓСЋ.";
                 active = (true);
                 closeDialog();
             }
         }, new OnClickListener() {
             @Override
             public void onClick(View view) {
-                wallStatus = "Состояние изменено вручную.";
+                wallStatus = "РЎРѕСЃС‚РѕСЏРЅРёРµ РёР·РјРµРЅРµРЅРѕ РІСЂСѓС‡РЅСѓСЋ.";
                 active = (false);
                 closeDialog();
             }
@@ -134,7 +134,7 @@ public class WallView extends View {
 
         {
             Button button = new Button(context);
-            button.setText("Удалить");
+            button.setText("РЈРґР°Р»РёС‚СЊ");
             button.setTextColor(Color.RED);
             button.setOnClickListener(new OnClickListener() {
                 @Override
@@ -158,13 +158,13 @@ public class WallView extends View {
         textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
 
         Button buttonOn = new Button(context);
-        buttonOn.setText("вкл");
+        buttonOn.setText("РІРєР»");
         buttonOn.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0));
         buttonOn.setTextColor(Color.GREEN);
         buttonOn.setOnClickListener(onClickListener);
 
         Button buttonOff = new Button(context);
-        buttonOff.setText("выкл");
+        buttonOff.setText("РІС‹РєР»");
         buttonOff.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0));
         buttonOff.setTextColor(Color.YELLOW);
         buttonOff.setOnClickListener(offClickListener);
@@ -184,7 +184,7 @@ public class WallView extends View {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setPositiveButton("OK", null);
                 builder.setMessage(text);
-                builder.setTitle("Результат");
+                builder.setTitle("Р РµР·СѓР»СЊС‚Р°С‚");
                 builder.show();
             }
         });

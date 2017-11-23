@@ -6,7 +6,7 @@ import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 
 /**
- * случайным образом отвечает процентики. А народ радуется.
+ * СЃР»СѓС‡Р°Р№РЅС‹Рј РѕР±СЂР°Р·РѕРј РѕС‚РІРµС‡Р°РµС‚ РїСЂРѕС†РµРЅС‚РёРєРё. Рђ РЅР°СЂРѕРґ СЂР°РґСѓРµС‚СЃСЏ.
  * Created by Dr. Failov on 12.02.2017.
  */
 public class Infa extends Function {
@@ -27,7 +27,7 @@ public class Infa extends Function {
             text = text.replace(getInvoker(), "");
             if(text.length() > 200)
                 return super.processMessage(messageOriginal);
-            message.setAnswer(new Answer("Инфа " + infa + "%."));
+            message.setAnswer(new Answer("РРЅС„Р° " + infa + "%."));
             message = prepare(message);
             return message;
         }
@@ -36,13 +36,13 @@ public class Infa extends Function {
 
     @Override
     public String defaultInvoker() {
-        return "инфа";
+        return "РёРЅС„Р°";
     }
 
     @Override public String getName() {
         return "infa";
     }
     @Override public String getDescription() {
-        return "Подбор случайной вероятности по запросу \""+getInvoker()+"...\".";
+        return "РџРѕРґР±РѕСЂ СЃР»СѓС‡Р°Р№РЅРѕР№ РІРµСЂРѕСЏС‚РЅРѕСЃС‚Рё РїРѕ Р·Р°РїСЂРѕСЃСѓ \""+getInvoker()+"...\".";
     }
 }

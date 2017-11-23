@@ -13,7 +13,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
- * Этот обьект должен принимать на вход аккаунт и показывать его состояние
+ * Р­С‚РѕС‚ РѕР±СЊРµРєС‚ РґРѕР»Р¶РµРЅ РїСЂРёРЅРёРјР°С‚СЊ РЅР° РІС…РѕРґ Р°РєРєР°СѓРЅС‚ Рё РїРѕРєР°Р·С‹РІР°С‚СЊ РµРіРѕ СЃРѕСЃС‚РѕСЏРЅРёРµ
  * Created by Dr. Failov on 21.02.2017.
  */
 public class AccountView extends LinearLayout {
@@ -49,126 +49,126 @@ public class AccountView extends LinearLayout {
         {
             TextView textView = new TextView(context);
             textView.setTextColor(isActive() ? color : Color.rgb(255, 100, 100));
-            textView.setText("Состояние: " + (isActive() ? "активен" : "выключен") + " (" + getState() + ")");
+            textView.setText("РЎРѕСЃС‚РѕСЏРЅРёРµ: " + (isActive() ? "Р°РєС‚РёРІРµРЅ" : "РІС‹РєР»СЋС‡РµРЅ") + " (" + getState() + ")");
             textView.setTextSize(isActive()?10:13);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("Использование: " + (isReady()?"свободен":"занят"));
+            textView.setText("РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ: " + (isReady()?"СЃРІРѕР±РѕРґРµРЅ":"Р·Р°РЅСЏС‚"));
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("обращений к API: " + getApiCounter() + " запросов");
+            textView.setText("РѕР±СЂР°С‰РµРЅРёР№ Рє API: " + getApiCounter() + " Р·Р°РїСЂРѕСЃРѕРІ");
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("обработка сообщений: " + (messageProcessing ? "включено" : "отключено"));
+            textView.setText("РѕР±СЂР°Р±РѕС‚РєР° СЃРѕРѕР±С‰РµРЅРёР№: " + (messageProcessing ? "РІРєР»СЋС‡РµРЅРѕ" : "РѕС‚РєР»СЋС‡РµРЅРѕ"));
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("работа в беседах: " + (processChats ? "включено" : "отключено"));
+            textView.setText("СЂР°Р±РѕС‚Р° РІ Р±РµСЃРµРґР°С…: " + (processChats ? "РІРєР»СЋС‡РµРЅРѕ" : "РѕС‚РєР»СЋС‡РµРЅРѕ"));
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("пересылать сообщение собеседника в чатах: " + (replyMessagesInChats ? "включено" : "отключено"));
+            textView.setText("РїРµСЂРµСЃС‹Р»Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ СЃРѕР±РµСЃРµРґРЅРёРєР° РІ С‡Р°С‚Р°С…: " + (replyMessagesInChats ? "РІРєР»СЋС‡РµРЅРѕ" : "РѕС‚РєР»СЋС‡РµРЅРѕ"));
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("отвечать инструкцией: " + (replyAnyMessage?"включено":"отключено"));
+            textView.setText("РѕС‚РІРµС‡Р°С‚СЊ РёРЅСЃС‚СЂСѓРєС†РёРµР№: " + (replyAnyMessage?"РІРєР»СЋС‡РµРЅРѕ":"РѕС‚РєР»СЋС‡РµРЅРѕ"));
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("принято сообщений: " + messageCounter);
+            textView.setText("РїСЂРёРЅСЏС‚Рѕ СЃРѕРѕР±С‰РµРЅРёР№: " + messageCounter);
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("отправлено сообщений: " + messageSent);
+            textView.setText("РѕС‚РїСЂР°РІР»РµРЅРѕ СЃРѕРѕР±С‰РµРЅРёР№: " + messageSent);
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("принято друзей: " + acceptedRequests);
+            textView.setText("РїСЂРёРЅСЏС‚Рѕ РґСЂСѓР·РµР№: " + acceptedRequests);
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("отклонено подписок: " + rejectedFolowers);
+            textView.setText("РѕС‚РєР»РѕРЅРµРЅРѕ РїРѕРґРїРёСЃРѕРє: " + rejectedFolowers);
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("заблокировано удалившихся друзей: " + blacklistedFolowers);
+            textView.setText("Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅРѕ СѓРґР°Р»РёРІС€РёС…СЃСЏ РґСЂСѓР·РµР№: " + blacklistedFolowers);
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("трансляция статуса: " + (statusBroadcasting?"включено":"отключено"));
+            textView.setText("С‚СЂР°РЅСЃР»СЏС†РёСЏ СЃС‚Р°С‚СѓСЃР°: " + (statusBroadcasting?"РІРєР»СЋС‡РµРЅРѕ":"РѕС‚РєР»СЋС‡РµРЅРѕ"));
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("принятие всех друзей: " + (acceptAnyRequest?"включено":"отключено"));
+            textView.setText("РїСЂРёРЅСЏС‚РёРµ РІСЃРµС… РґСЂСѓР·РµР№: " + (acceptAnyRequest?"РІРєР»СЋС‡РµРЅРѕ":"РѕС‚РєР»СЋС‡РµРЅРѕ"));
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("отклонение подписок: " + (rejectFollowers?"включено":"отключено"));
+            textView.setText("РѕС‚РєР»РѕРЅРµРЅРёРµ РїРѕРґРїРёСЃРѕРє: " + (rejectFollowers?"РІРєР»СЋС‡РµРЅРѕ":"РѕС‚РєР»СЋС‡РµРЅРѕ"));
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("отправка в ЧС тех кто удалил из друзей: " + (blacklistFollowers?(rejectFollowers?"включено":"требуется включить отклонение подписок"):"отключено"));
+            textView.setText("РѕС‚РїСЂР°РІРєР° РІ Р§РЎ С‚РµС… РєС‚Рѕ СѓРґР°Р»РёР» РёР· РґСЂСѓР·РµР№: " + (blacklistFollowers?(rejectFollowers?"РІРєР»СЋС‡РµРЅРѕ":"С‚СЂРµР±СѓРµС‚СЃСЏ РІРєР»СЋС‡РёС‚СЊ РѕС‚РєР»РѕРЅРµРЅРёРµ РїРѕРґРїРёСЃРѕРє"):"РѕС‚РєР»СЋС‡РµРЅРѕ"));
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("выход из бесед где не общаются с ботом: " + (exitFromOfftopChats?"включено":"отключено"));
+            textView.setText("РІС‹С…РѕРґ РёР· Р±РµСЃРµРґ РіРґРµ РЅРµ РѕР±С‰Р°СЋС‚СЃСЏ СЃ Р±РѕС‚РѕРј: " + (exitFromOfftopChats?"РІРєР»СЋС‡РµРЅРѕ":"РѕС‚РєР»СЋС‡РµРЅРѕ"));
             textView.setTextSize(10);
             addView(textView);
         }
         {
             TextView textView = new TextView(context);
             textView.setTextColor(color);
-            textView.setText("выход из бесед с ботами: " + (exitFromBotsChats?"включено":"отключено"));
+            textView.setText("РІС‹С…РѕРґ РёР· Р±РµСЃРµРґ СЃ Р±РѕС‚Р°РјРё: " + (exitFromBotsChats?"РІРєР»СЋС‡РµРЅРѕ":"РѕС‚РєР»СЋС‡РµРЅРѕ"));
             textView.setTextSize(10);
             addView(textView);
         }
@@ -189,7 +189,7 @@ public class AccountView extends LinearLayout {
         builder.setView(scrollView);
         {
             TextView textView = new TextView(context);
-            textView.setText("Аккаунт " + userName);
+            textView.setText("РђРєРєР°СѓРЅС‚ " + userName);
             textView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             textView.setGravity(Gravity.CENTER);
             textView.setTextSize(20);
@@ -198,22 +198,22 @@ public class AccountView extends LinearLayout {
             linearLayout.addView(getDelimiter(context));
         }
 
-        linearLayout.addView(getOnOffRow("Активный ("+isActive()+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("РђРєС‚РёРІРЅС‹Р№ ("+isActive()+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
-                setActive(true, "Включено вручную");
+                setActive(true, "Р’РєР»СЋС‡РµРЅРѕ РІСЂСѓС‡РЅСѓСЋ");
                 closeDialog();
             }
         }, new OnClickListener() {
             @Override
             public void onClick(View view) {
-                setActive(false, "Выключено вручную");
+                setActive(false, "Р’С‹РєР»СЋС‡РµРЅРѕ РІСЂСѓС‡РЅСѓСЋ");
                 closeDialog();
             }
         }));
 
 
-        linearLayout.addView(getOnOffRow("Отвечать инструкцией ("+replyAnyMessage+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("РћС‚РІРµС‡Р°С‚СЊ РёРЅСЃС‚СЂСѓРєС†РёРµР№ ("+replyAnyMessage+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
                 replyAnyMessage = (true);
@@ -228,7 +228,7 @@ public class AccountView extends LinearLayout {
         }));
 
 
-        linearLayout.addView(getOnOffRow("Принимать все заявки ("+acceptAnyRequest+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("РџСЂРёРЅРёРјР°С‚СЊ РІСЃРµ Р·Р°СЏРІРєРё ("+acceptAnyRequest+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
                 setAcceptAnyRequest(true);
@@ -243,7 +243,7 @@ public class AccountView extends LinearLayout {
         }));
 
 
-        linearLayout.addView(getOnOffRow("Трансляция статуса ("+statusBroadcasting+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("РўСЂР°РЅСЃР»СЏС†РёСЏ СЃС‚Р°С‚СѓСЃР° ("+statusBroadcasting+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
                 setStatusBroadcasting(true);
@@ -258,7 +258,7 @@ public class AccountView extends LinearLayout {
         }));
 
 
-        linearLayout.addView(getOnOffRow("Обрабатывать сообщения ("+messageProcessing+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("РћР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ ("+messageProcessing+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
                 setMessageProcessing(true);
@@ -273,7 +273,7 @@ public class AccountView extends LinearLayout {
         }));
 
 
-        linearLayout.addView(getOnOffRow("Выходить из оффтопных бесед ("+exitFromOfftopChats+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("Р’С‹С…РѕРґРёС‚СЊ РёР· РѕС„С„С‚РѕРїРЅС‹С… Р±РµСЃРµРґ ("+exitFromOfftopChats+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
                 exitFromOfftopChats = (true);
@@ -288,7 +288,7 @@ public class AccountView extends LinearLayout {
         }));
 
 
-        linearLayout.addView(getOnOffRow("Выходить из бесед с ботами ("+exitFromBotsChats+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("Р’С‹С…РѕРґРёС‚СЊ РёР· Р±РµСЃРµРґ СЃ Р±РѕС‚Р°РјРё ("+exitFromBotsChats+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
                 exitFromBotsChats = (true);
@@ -303,7 +303,7 @@ public class AccountView extends LinearLayout {
         }));
 
 
-        linearLayout.addView(getOnOffRow("Отвечать в беседах ("+processChats+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("РћС‚РІРµС‡Р°С‚СЊ РІ Р±РµСЃРµРґР°С… ("+processChats+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
                 processChats = (true);
@@ -318,7 +318,7 @@ public class AccountView extends LinearLayout {
         }));
 
 
-        linearLayout.addView(getOnOffRow("Отписываться от удаливших из друзей ("+rejectFollowers+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("РћС‚РїРёСЃС‹РІР°С‚СЊСЃСЏ РѕС‚ СѓРґР°Р»РёРІС€РёС… РёР· РґСЂСѓР·РµР№ ("+rejectFollowers+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
                 setRejectFollowers(true);
@@ -333,7 +333,7 @@ public class AccountView extends LinearLayout {
         }));
 
 
-        linearLayout.addView(getOnOffRow("Отправлять в ЧС тех кто удалил из друзей ("+(rejectFollowers && blacklistFollowers)+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("РћС‚РїСЂР°РІР»СЏС‚СЊ РІ Р§РЎ С‚РµС… РєС‚Рѕ СѓРґР°Р»РёР» РёР· РґСЂСѓР·РµР№ ("+(rejectFollowers && blacklistFollowers)+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
                 setRejectFollowers(true);
@@ -349,7 +349,7 @@ public class AccountView extends LinearLayout {
         }));
 
 
-        linearLayout.addView(getOnOffRow("Пересылать сообщение собеседника в чатах ("+(replyMessagesInChats)+")",new OnClickListener() {
+        linearLayout.addView(getOnOffRow("РџРµСЂРµСЃС‹Р»Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ СЃРѕР±РµСЃРµРґРЅРёРєР° РІ С‡Р°С‚Р°С… ("+(replyMessagesInChats)+")",new OnClickListener() {
             @Override
             public void onClick(View view) {
                 replyMessagesInChats = (true);
@@ -366,7 +366,7 @@ public class AccountView extends LinearLayout {
 
         {
             Button button = new Button(context);
-            button.setText("Перезайти в аккаунт");
+            button.setText("РџРµСЂРµР·Р°Р№С‚Рё РІ Р°РєРєР°СѓРЅС‚");
             button.setTextColor(Color.YELLOW);
             button.setOnClickListener(new OnClickListener() {
                 @Override
@@ -379,7 +379,7 @@ public class AccountView extends LinearLayout {
         }
         {
             Button button = new Button(context);
-            button.setText("Удалить");
+            button.setText("РЈРґР°Р»РёС‚СЊ");
             button.setTextColor(Color.RED);
             button.setOnClickListener(new OnClickListener() {
                 @Override
@@ -403,13 +403,13 @@ public class AccountView extends LinearLayout {
         textView.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
 
         Button buttonOn = new Button(context);
-        buttonOn.setText("вкл");
+        buttonOn.setText("РІРєР»");
         buttonOn.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0));
         buttonOn.setTextColor(Color.GREEN);
         buttonOn.setOnClickListener(onClickListener);
 
         Button buttonOff = new Button(context);
-        buttonOff.setText("выкл");
+        buttonOff.setText("РІС‹РєР»");
         buttonOff.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 0));
         buttonOff.setTextColor(Color.YELLOW);
         buttonOff.setOnClickListener(offClickListener);

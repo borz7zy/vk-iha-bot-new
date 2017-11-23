@@ -6,7 +6,7 @@ import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 
 /**
- * переводчик на Кирпич и с Кирпича
+ * РїРµСЂРµРІРѕРґС‡РёРє РЅР° РљРёСЂРїРёС‡ Рё СЃ РљРёСЂРїРёС‡Р°
  * Created by Dr. Failov on 12.02.2017.
  */
 public class BrickLanguage extends Function {
@@ -29,13 +29,13 @@ public class BrickLanguage extends Function {
                 char c = input.charAt(i);
                 output += c;
 
-                String oralk = "уеыаоэиюя";
+                String oralk = "СѓРµС‹Р°РѕСЌРёСЋСЏ";
                 if(oralk.indexOf(c) >= 0)
-                    output += "с" + c;
+                    output += "СЃ" + c;
 
-                String oralkb = "УЕЫАОЭИЮЯ";
+                String oralkb = "РЈР•Р«РђРћР­РР®РЇ";
                 if(oralkb.indexOf(c) >= 0)
-                    output += "С" + c;
+                    output += "РЎ" + c;
 
                 String orall = "eyuioa";
                 if(orall.indexOf(c) >= 0)
@@ -45,22 +45,22 @@ public class BrickLanguage extends Function {
                 if(orallb.indexOf(c) >= 0)
                     output += "S" + c;
             }
-            message.setAnswer(new Answer("Ваша фраза на \"кирпиче\":\n" + output));
+            message.setAnswer(new Answer("Р’Р°С€Р° С„СЂР°Р·Р° РЅР° \"РєРёСЂРїРёС‡Рµ\":\n" + output));
             message = prepare(message);
             return message;
         }
-        if(text.startsWith("де"+getInvoker()+" ") && text.length() < 400){
-            String input = text.replace("де"+getInvoker()+" ", "");
+        if(text.startsWith("РґРµ"+getInvoker()+" ") && text.length() < 400){
+            String input = text.replace("РґРµ"+getInvoker()+" ", "");
             String output = "";
             for (int i = 0; i < input.length(); i++) {
                 char c = input.charAt(i);
                 output += c;
-                String oral = "уеыаоэиюя" + "УЕЫАОЭИЮЯ" + "eyuioa" + "EYUIOA";
+                String oral = "СѓРµС‹Р°РѕСЌРёСЋСЏ" + "РЈР•Р«РђРћР­РР®РЇ" + "eyuioa" + "EYUIOA";
                 if(oral.indexOf(c) >= 0)
                     i += 2;
             }
 
-            message.setAnswer(new Answer("Ваша фраза переведена с \"кирпича\":\n" + output));
+            message.setAnswer(new Answer("Р’Р°С€Р° С„СЂР°Р·Р° РїРµСЂРµРІРµРґРµРЅР° СЃ \"РєРёСЂРїРёС‡Р°\":\n" + output));
             message = prepare(message);
             return message;
         }
@@ -69,7 +69,7 @@ public class BrickLanguage extends Function {
 
     @Override
     protected String defaultInvoker() {
-        return "кирпич";
+        return "РєРёСЂРїРёС‡";
     }
 
     @Override
@@ -79,9 +79,9 @@ public class BrickLanguage extends Function {
 
     @Override
     public String getDescription() {
-        return "Шифратор/дешифратор языка \"кирпич\", доступный по командам \""+
+        return "РЁРёС„СЂР°С‚РѕСЂ/РґРµС€РёС„СЂР°С‚РѕСЂ СЏР·С‹РєР° \"РєРёСЂРїРёС‡\", РґРѕСЃС‚СѓРїРЅС‹Р№ РїРѕ РєРѕРјР°РЅРґР°Рј \""+
                 applicationManager.getBrain().getTreatment() + getInvoker() +" ...\"" +
-                " и \"" +
-                applicationManager.getBrain().getTreatment() + "де" + getInvoker() + " ...\"";
+                " Рё \"" +
+                applicationManager.getBrain().getTreatment() + "РґРµ" + getInvoker() + " ...\"";
     }
 }

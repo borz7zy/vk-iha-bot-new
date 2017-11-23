@@ -5,6 +5,7 @@ import android.os.Environment;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Modules.Commands.Command;
+import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.ResourceFileReader;
 
@@ -24,16 +25,16 @@ public class FileManager extends CommandModule {
     }
     @Override public ArrayList<CommandDesc> getHelp() {
         ArrayList<CommandDesc> result = new ArrayList<CommandDesc>();
-        result.add(new CommandDesc("Начать управление файлами",
-                "[ list - список файлов]\n" +
-                        "[ up - подняться на уровень вверх ]\n" +
-                        "[ cd ... - перейти в папку ]\n" +
-                        "[ get ... - получить файл ]\n" +
-                        "[ put (1) (2) - загрузить прикрепленный файл(2) в папку под именем (1) ]\n" +
-                        "[ del ... - удалить файл или папку ]\n" +
-                        "[ read ... - вывести содержимое текстового файла ]\n" +
-                        "[ write ... ... - Записать текст (2) в файл (1)]\n" +
-                        "[ end - закончить сеанс управления файлами ]\n",
+        result.add(new CommandDesc("РќР°С‡Р°С‚СЊ СѓРїСЂР°РІР»РµРЅРёРµ С„Р°Р№Р»Р°РјРё",
+                "[ list - СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ]\n" +
+                        "[ up - РїРѕРґРЅСЏС‚СЊСЃСЏ РЅР° СѓСЂРѕРІРµРЅСЊ РІРІРµСЂС… ]\n" +
+                        "[ cd ... - РїРµСЂРµР№С‚Рё РІ РїР°РїРєСѓ ]\n" +
+                        "[ get ... - РїРѕР»СѓС‡РёС‚СЊ С„Р°Р№Р» ]\n" +
+                        "[ put (1) (2) - Р·Р°РіСЂСѓР·РёС‚СЊ РїСЂРёРєСЂРµРїР»РµРЅРЅС‹Р№ С„Р°Р№Р»(2) РІ РїР°РїРєСѓ РїРѕРґ РёРјРµРЅРµРј (1) ]\n" +
+                        "[ del ... - СѓРґР°Р»РёС‚СЊ С„Р°Р№Р» РёР»Рё РїР°РїРєСѓ ]\n" +
+                        "[ read ... - РІС‹РІРµСЃС‚Рё СЃРѕРґРµСЂР¶РёРјРѕРµ С‚РµРєСЃС‚РѕРІРѕРіРѕ С„Р°Р№Р»Р° ]\n" +
+                        "[ write ... ... - Р—Р°РїРёСЃР°С‚СЊ С‚РµРєСЃС‚ (2) РІ С„Р°Р№Р» (1)]\n" +
+                        "[ end - Р·Р°РєРѕРЅС‡РёС‚СЊ СЃРµР°РЅСЃ СѓРїСЂР°РІР»РµРЅРёСЏ С„Р°Р№Р»Р°РјРё ]\n",
                 "botcmd filemanager"
                 ));
         return result;
@@ -44,9 +45,9 @@ public class FileManager extends CommandModule {
         if(isOpened(senderId)){
             if(input.equals("end")){
                 if(endSession(senderId))
-                    return "Сессия для "+applicationManager.vkCommunicator.getUserName(senderId)+" закрыта.";
+                    return "РЎРµСЃСЃРёСЏ РґР»СЏ "+applicationManager.vkCommunicator.getUserName(senderId)+" Р·Р°РєСЂС‹С‚Р°.";
                 else
-                    return "Сессия для "+applicationManager.vkCommunicator.getUserName(senderId)+" не закрыта. А она вообще была открыта?";
+                    return "РЎРµСЃСЃРёСЏ РґР»СЏ "+applicationManager.vkCommunicator.getUserName(senderId)+" РЅРµ Р·Р°РєСЂС‹С‚Р°. Рђ РѕРЅР° РІРѕРѕР±С‰Рµ Р±С‹Р»Р° РѕС‚РєСЂС‹С‚Р°?";
             }
             FileSession fileSession = getSession(senderId);
             if(fileSession != null)
@@ -55,9 +56,9 @@ public class FileManager extends CommandModule {
         else if(input.equals("filemanager")){
             FileSession fileSession = openSession(senderId);
             if(fileSession != null)
-                return "Сессия файл-менеджера для пользователя "+applicationManager.vkCommunicator.getUserName(senderId)+" открыта. Вот краткая инструкция:\n (каждую команду писать начиная с botcmd)\n"+getHelp()+"\n" + fileSession.list();
+                return "РЎРµСЃСЃРёСЏ С„Р°Р№Р»-РјРµРЅРµРґР¶РµСЂР° РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ "+applicationManager.vkCommunicator.getUserName(senderId)+" РѕС‚РєСЂС‹С‚Р°. Р’РѕС‚ РєСЂР°С‚РєР°СЏ РёРЅСЃС‚СЂСѓРєС†РёСЏ:\n (РєР°Р¶РґСѓСЋ РєРѕРјР°РЅРґСѓ РїРёСЃР°С‚СЊ РЅР°С‡РёРЅР°СЏ СЃ botcmd)\n"+getHelp()+"\n" + fileSession.list();
             else
-                return "Сессия для "+applicationManager.vkCommunicator.getUserName(senderId)+" не открыта. Не знаю почему.";
+                return "РЎРµСЃСЃРёСЏ РґР»СЏ "+applicationManager.vkCommunicator.getUserName(senderId)+" РЅРµ РѕС‚РєСЂС‹С‚Р°. РќРµ Р·РЅР°СЋ РїРѕС‡РµРјСѓ.";
         }
         return "";
     }
@@ -130,18 +131,18 @@ public class FileManager extends CommandModule {
         }
 
         private String write(String file, String text){
-            String result = "Запись в файл " + file + " текста  " + text + "... \n";
+            String result = "Р—Р°РїРёСЃСЊ РІ С„Р°Р№Р» " + file + " С‚РµРєСЃС‚Р°  " + text + "... \n";
             try{
-                result += "Открытие файла...\n";
+                result += "РћС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»Р°...\n";
                 FileWriter fileWriter = new FileWriter(new File(currentFile + File.separator + file));
-                result += "Запись...\n";
+                result += "Р—Р°РїРёСЃСЊ...\n";
                 fileWriter.write(text);
                 fileWriter.close();
-                result += "Готово.\n";
+                result += "Р“РѕС‚РѕРІРѕ.\n";
             }
             catch (Exception e){
                 e.printStackTrace();
-                result += "Ошибка записи: " + e.toString();
+                result += "РћС€РёР±РєР° Р·Р°РїРёСЃРё: " + e.toString();
             }
             return result;
         }
@@ -150,54 +151,54 @@ public class FileManager extends CommandModule {
             if(next.isFile()){
                 if(next.length() < 4000) {
                     String result = ResourceFileReader.readFromFile(next.getPath());
-                    return "Содержимое файла: " + result;
+                    return "РЎРѕРґРµСЂР¶РёРјРѕРµ С„Р°Р№Р»Р°: " + result;
                 }
                 else
-                    return "Файл "+file+" слишком большой";
+                    return "Р¤Р°Р№Р» "+file+" СЃР»РёС€РєРѕРј Р±РѕР»СЊС€РѕР№";
             }
             else
-                return "Файла  "+file+" нет";
+                return "Р¤Р°Р№Р»Р°  "+file+" РЅРµС‚";
         }
         private String put(String dest, String src){
             File dloaded = applicationManager.vkCommunicator.downloadFileFromVk(src);
             if(dloaded != null && dloaded.isFile()){
                 File destination = new File(currentFile + File.separator + dest);
                 boolean copied = ResourceFileReader.copyFile(dloaded.getPath(), destination.getPath());
-                return "Загрузка файла из " + src + " в " + destination + " результат: " + copied;
+                return "Р—Р°РіСЂСѓР·РєР° С„Р°Р№Р»Р° РёР· " + src + " РІ " + destination + " СЂРµР·СѓР»СЊС‚Р°С‚: " + copied;
             }
             else
-                return "Файла "+dloaded+" нет в загрузках";
+                return "Р¤Р°Р№Р»Р° "+dloaded+" РЅРµС‚ РІ Р·Р°РіСЂСѓР·РєР°С…";
         }
         private String del(String file){
             File next = new File(currentFile + File.separator + file);
             if(next.isFile() || next.isDirectory()){
                 String result = deleteFile(next.getPath());
-                return "Удаление файла: " + result;
+                return "РЈРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р°: " + result;
             }
             else
-                return "Файла или папки "+file+" нет";
+                return "Р¤Р°Р№Р»Р° РёР»Рё РїР°РїРєРё "+file+" РЅРµС‚";
         }
         private String get(String file){
             File next = new File(currentFile + File.separator + file);
             if(next.isFile()){
                 String result = applicationManager.vkCommunicator.uploadDocument(next);
-                return "Документ загружен: " + result;
+                return "Р”РѕРєСѓРјРµРЅС‚ Р·Р°РіСЂСѓР¶РµРЅ: " + result;
             }
             else
-                return "Файла "+file+" нет";
+                return "Р¤Р°Р№Р»Р° "+file+" РЅРµС‚";
         }
         private String getList(File path){
-            String result = "Папка " + path.getPath() + ":\n";
+            String result = "РџР°РїРєР° " + path.getPath() + ":\n";
             if(path.isDirectory()){
                 File[] list = path.listFiles();
                 if(list != null)
                     for (File file:list)
                         result += (file.isDirectory()?"+":"-")+" "+file.getName()+"\n";
                 else
-                    result += "Папка пуста.";
+                    result += "РџР°РїРєР° РїСѓСЃС‚Р°.";
             }
             else
-                result += "Это не папка.";
+                result += "Р­С‚Рѕ РЅРµ РїР°РїРєР°.";
             return result;
         }
         private String list(){
@@ -208,7 +209,7 @@ public class FileManager extends CommandModule {
             if(upper != null)
                 currentFile = upper;
             else
-                return "Выше некуда.";
+                return "Р’С‹С€Рµ РЅРµРєСѓРґР°.";
             return list();
         }
         private String cd(String folder){
@@ -222,7 +223,7 @@ public class FileManager extends CommandModule {
                 return list();
             }
             else
-                return "Папки "+folder+" нет";
+                return "РџР°РїРєРё "+folder+" РЅРµС‚";
         }
         private File getCurrentFolder(){
             return currentFile;
@@ -231,18 +232,18 @@ public class FileManager extends CommandModule {
             return Environment.getExternalStorageDirectory();
         }
         private String deleteFile(String in){
-            String result = "Удаление обьекта...\n";
+            String result = "РЈРґР°Р»РµРЅРёРµ РѕР±СЊРµРєС‚Р°...\n";
             File file = new File(in);
             if(file.isDirectory()){
-                result += "Тип обьекта: папка\n";
-                result += "Удаление: " + deleteDirectory(file);
+                result += "РўРёРї РѕР±СЊРµРєС‚Р°: РїР°РїРєР°\n";
+                result += "РЈРґР°Р»РµРЅРёРµ: " + deleteDirectory(file);
             }
             else if(file.isFile()){
-                result += "Тип обьекта: файл\n";
-                result += "Удаление: " + file.delete();
+                result += "РўРёРї РѕР±СЊРµРєС‚Р°: С„Р°Р№Р»\n";
+                result += "РЈРґР°Р»РµРЅРёРµ: " + file.delete();
             }
             else {
-                result += "Тип обьекта определить не удалось.\n";
+                result += "РўРёРї РѕР±СЊРµРєС‚Р° РѕРїСЂРµРґРµР»РёС‚СЊ РЅРµ СѓРґР°Р»РѕСЃСЊ.\n";
             }
             return result;
         }

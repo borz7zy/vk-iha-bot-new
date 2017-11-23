@@ -33,7 +33,7 @@ public class Answer{
     }
 
     public ArrayList<String> getAttachmentStrings(){
-        //позволяет получить массив типа:
+        //РїРѕР·РІРѕР»СЏРµС‚ РїРѕР»СѓС‡РёС‚СЊ РјР°СЃСЃРёРІ С‚РёРїР°:
         //doc000_000
         //photo000_000
         //doc001_001

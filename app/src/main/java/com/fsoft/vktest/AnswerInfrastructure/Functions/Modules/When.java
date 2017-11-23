@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.Random;
 
 /**
- * отвечает случайными датами из будушего
+ * РѕС‚РІРµС‡Р°РµС‚ СЃР»СѓС‡Р°Р№РЅС‹РјРё РґР°С‚Р°РјРё РёР· Р±СѓРґСѓС€РµРіРѕ
  * Created by Dr. Failov on 17.09.2017.
  */
 
@@ -40,19 +40,19 @@ public class When extends Function {
             Random random = new Random();
             int variant = random.nextInt(6);
             if (variant == 0){
-                String result = "Примерно через " + (random.nextInt(30) + 1) + " дней.";
+                String result = "РџСЂРёРјРµСЂРЅРѕ С‡РµСЂРµР· " + (random.nextInt(30) + 1) + " РґРЅРµР№.";
                 message.setAnswer(new Answer(result));
                 message = prepare(message);
                 return message;
             }
             if (variant == 1){
-                String result = "Где-то через " + (random.nextInt(10)+1) +" месяцев.";
+                String result = "Р“РґРµ-С‚Рѕ С‡РµСЂРµР· " + (random.nextInt(10)+1) +" РјРµСЃСЏС†РµРІ.";
                 message.setAnswer(new Answer(result));
                 message = prepare(message);
                 return message;
             }
             if (variant == 2){
-                String result = "Походу, никогда.";
+                String result = "РџРѕС…РѕРґСѓ, РЅРёРєРѕРіРґР°.";
                 message.setAnswer(new Answer(result));
                 message = prepare(message);
                 return message;
@@ -67,12 +67,12 @@ public class When extends Function {
             DateFormatSymbols myDateFormatSymbols = new DateFormatSymbols(){
                 @Override
                 public String[] getMonths() {
-                    return new String[]{"января", "февраля", "марта", "апреля", "мая", "июня",
-                            "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+                    return new String[]{"СЏРЅРІР°СЂСЏ", "С„РµРІСЂР°Р»СЏ", "РјР°СЂС‚Р°", "Р°РїСЂРµР»СЏ", "РјР°СЏ", "РёСЋРЅСЏ",
+                            "РёСЋР»СЏ", "Р°РІРіСѓСЃС‚Р°", "СЃРµРЅС‚СЏР±СЂСЏ", "РѕРєС‚СЏР±СЂСЏ", "РЅРѕСЏР±СЂСЏ", "РґРµРєР°Р±СЂСЏ"};
                 }
             };
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy", myDateFormatSymbols);
-            String result = "Примерно " + simpleDateFormat.format(randomDate) + " года.";
+            String result = "РџСЂРёРјРµСЂРЅРѕ " + simpleDateFormat.format(randomDate) + " РіРѕРґР°.";
             message.setAnswer(new Answer(result));
             message = prepare(message);
             return message;
@@ -82,7 +82,7 @@ public class When extends Function {
 
     @Override
     public String defaultInvoker() {
-        return "когда";
+        return "РєРѕРіРґР°";
     }
 
     @Override
@@ -91,6 +91,6 @@ public class When extends Function {
     }
     @Override
     public String getDescription() {
-        return "Вывод случайной даты для конструкции \"" + applicationManager.getBrain().getTreatment() + " " +getInvoker()+" ...?\".";
+        return "Р’С‹РІРѕРґ СЃР»СѓС‡Р°Р№РЅРѕР№ РґР°С‚С‹ РґР»СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёРё \"" + applicationManager.getBrain().getTreatment() + " " +getInvoker()+" ...?\".";
     }
 }

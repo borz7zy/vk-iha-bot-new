@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Answer.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Filter.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Functions/Function.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Functions/Modules/BanMe.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Functions/Modules/BrickLanguage.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Functions/Modules/Infa.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Functions/Modules/PseudoGraphic.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Functions/Modules/Rendom.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Functions/Modules/SmileAnswerer.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Functions/Modules/When.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Functions/Modules/WhichDayOfMonth.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/Functions/Modules/WhichDayOfWeek.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/AnswerInfrastructure/MessageComparison/JaroWinkler.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/Communication/Account/VK/AccountView.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/Communication/Account/VK/CaptchaHandler.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/Modules/Commands/CommandDesc.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/Modules/Commands/Decode.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/Modules/FileManager.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/Modules/UnknownStorage.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/Utils/NumberToText.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/fsoft/vktest/ViewsLayer/WallView.java" charset="UTF-8" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

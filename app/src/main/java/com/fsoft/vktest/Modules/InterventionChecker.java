@@ -51,7 +51,7 @@ public class InterventionChecker implements Command {
     }
     private boolean checkActivityName(){//FP iHA bot
         String actual = applicationManager.activity.getResources().getString(R.string.app_name).toLowerCase();
-        String expected = f()+p()+_()+i()+h()+a()+_()+b()+o()+t();
+        String expected = f()+p()+ _space()+i()+h()+a()+ _space()+b()+o()+t();
         if(DEBUG) {
             log(". Activity name actual = "+actual);
             log(". Activity name expected = "+expected);
@@ -166,7 +166,7 @@ public class InterventionChecker implements Command {
     private String b(){return "b";}
     private String n(){return "n";}
     private String m(){return "m";}
-    private String _(){return " ";}
+    private String _space(){return " ";}
     private String log(String text){
         return ApplicationManager.log(text);
     }

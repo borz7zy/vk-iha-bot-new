@@ -11,7 +11,7 @@ import com.fsoft.vktest.Utils.ResourceFileReader;
 import java.util.ArrayList;
 
 /**
- * Этот модуль рисует красивые тексты псевдографикой
+ * Р­С‚РѕС‚ РјРѕРґСѓР»СЊ СЂРёСЃСѓРµС‚ РєСЂР°СЃРёРІС‹Рµ С‚РµРєСЃС‚С‹ РїСЃРµРІРґРѕРіСЂР°С„РёРєРѕР№
  * Created by Dr. Failov on 29.09.2017.
  */
 
@@ -33,23 +33,23 @@ public class PseudoGraphic extends Function {
         if(commandParser.getWord().equalsIgnoreCase(getInvoker())){
             String text = commandParser.getText().toLowerCase();
             if(text.length() > 70) {
-                message.setAnswer(new Answer("Сообщение не может быть нарисовано, потому что оно слишком длинное."));
+                message.setAnswer(new Answer("РЎРѕРѕР±С‰РµРЅРёРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅР°СЂРёСЃРѕРІР°РЅРѕ, РїРѕС‚РѕРјСѓ С‡С‚Рѕ РѕРЅРѕ СЃР»РёС€РєРѕРј РґР»РёРЅРЅРѕРµ."));
                 message = prepare(message);
                 return message;
             }
-//           проверку перед написание аски не обязательно проводить, т.к. VK не сможет это никак проконтролировать
+//           РїСЂРѕРІРµСЂРєСѓ РїРµСЂРµРґ РЅР°РїРёСЃР°РЅРёРµ Р°СЃРєРё РЅРµ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РїСЂРѕРІРѕРґРёС‚СЊ, С‚.Рє. VK РЅРµ СЃРјРѕР¶РµС‚ СЌС‚Рѕ РЅРёРєР°Рє РїСЂРѕРєРѕРЅС‚СЂРѕР»РёСЂРѕРІР°С‚СЊ
 //            if(!applicationManager.brain.filter.isAllowedSymbol(text, true))
-//                return "Сообщение не может быть показано.";
+//                return "РЎРѕРѕР±С‰РµРЅРёРµ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРѕРєР°Р·Р°РЅРѕ.";
             if(text.length() == 0) {
-                message.setAnswer(new Answer("Вы забыли написать сообщение после слова \"" + getInvoker() + "\"."));
+                message.setAnswer(new Answer("Р’С‹ Р·Р°Р±С‹Р»Рё РЅР°РїРёСЃР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РїРѕСЃР»Рµ СЃР»РѕРІР° \"" + getInvoker() + "\"."));
                 message = prepare(message);
                 return message;
             }
-            //да похуй.
+            //РґР° РїРѕС…СѓР№.
 //            if(isNegative(text))
-//                return "Я не буду этого писать!";
+//                return "РЇ РЅРµ Р±СѓРґСѓ СЌС‚РѕРіРѕ РїРёСЃР°С‚СЊ!";
             String[] line = text.split("\\n");
-            String result = "Результат: \n";
+            String result = "Р РµР·СѓР»СЊС‚Р°С‚: \n";
             for (int i = 0; i < line.length; i++) {
                 result +=getText(line[i]) + "\n";
             }
@@ -61,7 +61,7 @@ public class PseudoGraphic extends Function {
     }
     @Override
     public String defaultInvoker() {
-        return "напиши";
+        return "РЅР°РїРёС€Рё";
     }
     @Override
     public String getName() {
@@ -69,8 +69,8 @@ public class PseudoGraphic extends Function {
     }
     @Override
     public String getDescription() {
-        //// TODO: 29.09.2017 слишком мало информацици. Описание необходимо дополнить
-        return "Рисование слов по запросу \""+getInvoker()+"...\".\n" +
+        //// TODO: 29.09.2017 СЃР»РёС€РєРѕРј РјР°Р»Рѕ РёРЅС„РѕСЂРјР°С†РёС†Рё. РћРїРёСЃР°РЅРёРµ РЅРµРѕР±С…РѕРґРёРјРѕ РґРѕРїРѕР»РЅРёС‚СЊ
+        return "Р РёСЃРѕРІР°РЅРёРµ СЃР»РѕРІ РїРѕ Р·Р°РїСЂРѕСЃСѓ \""+getInvoker()+"...\".\n" +
                 "";
     }
 

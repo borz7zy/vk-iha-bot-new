@@ -10,7 +10,7 @@ import java.util.Calendar;
 import java.util.Random;
 
 /**
- * отвечает тира "понедельник", "вторник". ...
+ * РѕС‚РІРµС‡Р°РµС‚ С‚РёСЂР° "РїРѕРЅРµРґРµР»СЊРЅРёРє", "РІС‚РѕСЂРЅРёРє". ...
  * Created by Dr. Failov on 16.09.2017.
  */
 
@@ -25,53 +25,53 @@ public class WhichDayOfWeek extends Function {
             return super.processMessage(messageOriginal);
         Message message = remTreatment(messageOriginal);
 
-        //// TODO: 26.09.2017 не понижает ли подобная конструкция производительность драматически?
+        //// TODO: 26.09.2017 РЅРµ РїРѕРЅРёР¶Р°РµС‚ Р»Рё РїРѕРґРѕР±РЅР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚СЊ РґСЂР°РјР°С‚РёС‡РµСЃРєРё?
         String[] variants = {
-                "По моим данным, сегодня %DAY%.",
-                "Кажется, сегодня %DAY%.",
-                "Сегодня %DAY%.",
-                "Сегодняшний день недели: %DAY%.",
-                "%DAY% сегодня.",
-                "Лучшее время для приключений - %DAY%."
+                "РџРѕ РјРѕРёРј РґР°РЅРЅС‹Рј, СЃРµРіРѕРґРЅСЏ %DAY%.",
+                "РљР°Р¶РµС‚СЃСЏ, СЃРµРіРѕРґРЅСЏ %DAY%.",
+                "РЎРµРіРѕРґРЅСЏ %DAY%.",
+                "РЎРµРіРѕРґРЅСЏС€РЅРёР№ РґРµРЅСЊ РЅРµРґРµР»Рё: %DAY%.",
+                "%DAY% СЃРµРіРѕРґРЅСЏ.",
+                "Р›СѓС‡С€РµРµ РІСЂРµРјСЏ РґР»СЏ РїСЂРёРєР»СЋС‡РµРЅРёР№ - %DAY%."
         };
         variants = applicationManager.getParameters().get(
                 "dayofweek_variants",
                 variants,
-                "Список вариантов ответа на вопрос \"Какой сегодня день?\".",
-                "На вопросы типа \"Какой сегодня день?\" бот может основываясь на имеющихся данных дать отсмысленный ответ.\n" +
-                        "При ответе на этот вопрос бот использует один из этих шаблонов ответа.\n" +
-                        "Фрагмент %DAY% в шаблоне заменится на текущий день недели.");
+                "РЎРїРёСЃРѕРє РІР°СЂРёР°РЅС‚РѕРІ РѕС‚РІРµС‚Р° РЅР° РІРѕРїСЂРѕСЃ \"РљР°РєРѕР№ СЃРµРіРѕРґРЅСЏ РґРµРЅСЊ?\".",
+                "РќР° РІРѕРїСЂРѕСЃС‹ С‚РёРїР° \"РљР°РєРѕР№ СЃРµРіРѕРґРЅСЏ РґРµРЅСЊ?\" Р±РѕС‚ РјРѕР¶РµС‚ РѕСЃРЅРѕРІС‹РІР°СЏСЃСЊ РЅР° РёРјРµСЋС‰РёС…СЃСЏ РґР°РЅРЅС‹С… РґР°С‚СЊ РѕС‚СЃРјС‹СЃР»РµРЅРЅС‹Р№ РѕС‚РІРµС‚.\n" +
+                        "РџСЂРё РѕС‚РІРµС‚Рµ РЅР° СЌС‚РѕС‚ РІРѕРїСЂРѕСЃ Р±РѕС‚ РёСЃРїРѕР»СЊР·СѓРµС‚ РѕРґРёРЅ РёР· СЌС‚РёС… С€Р°Р±Р»РѕРЅРѕРІ РѕС‚РІРµС‚Р°.\n" +
+                        "Р¤СЂР°РіРјРµРЅС‚ %DAY% РІ С€Р°Р±Р»РѕРЅРµ Р·Р°РјРµРЅРёС‚СЃСЏ РЅР° С‚РµРєСѓС‰РёР№ РґРµРЅСЊ РЅРµРґРµР»Рё.");
 
         String text = message.getText().toLowerCase().trim().replace("?", "").replace("!", "");
         int cnt = 0;
-        if(text.contains("день"))
+        if(text.contains("РґРµРЅСЊ"))
             cnt++;
-        if(text.contains("какой"))
+        if(text.contains("РєР°РєРѕР№"))
             cnt++;
-        if(text.contains("недели"))
+        if(text.contains("РЅРµРґРµР»Рё"))
             cnt++;
-        if(text.contains("сегодня"))
+        if(text.contains("СЃРµРіРѕРґРЅСЏ"))
             cnt++;
         if(cnt >= 2){
-            //суббота - 7
+            //СЃСѓР±Р±РѕС‚Р° - 7
             Calendar calendar = Calendar.getInstance();
-            String dayName = "Неизвестен";
+            String dayName = "РќРµРёР·РІРµСЃС‚РµРЅ";
             int dayNumber = calendar.get(Calendar.DAY_OF_WEEK);
 
             if(dayNumber == Calendar.MONDAY)
-                dayName = "Понедельник";
+                dayName = "РџРѕРЅРµРґРµР»СЊРЅРёРє";
             if(dayNumber == Calendar.TUESDAY)
-                dayName = "Вторник";
+                dayName = "Р’С‚РѕСЂРЅРёРє";
             if(dayNumber == Calendar.WEDNESDAY)
-                dayName = "Среда";
+                dayName = "РЎСЂРµРґР°";
             if(dayNumber == Calendar.THURSDAY)
-                dayName = "Четверг";
+                dayName = "Р§РµС‚РІРµСЂРі";
             if(dayNumber == Calendar.FRIDAY)
-                dayName = "Пятница";
+                dayName = "РџСЏС‚РЅРёС†Р°";
             if(dayNumber == Calendar.SATURDAY)
-                dayName = "Суббота";
+                dayName = "РЎСѓР±Р±РѕС‚Р°";
             if(dayNumber == Calendar.SUNDAY)
-                dayName = "Воскресенье";
+                dayName = "Р’РѕСЃРєСЂРµСЃРµРЅСЊРµ";
 
             Random random = new Random();
             String result = variants[random.nextInt(variants.length)].replace("%DAY%", dayName);
@@ -88,6 +88,6 @@ public class WhichDayOfWeek extends Function {
         return "dayofweek";
     }
     @Override public String getDescription() {
-        return "Вывод дня недели по запросу \"Какой сегодня день?\".";
+        return "Р’С‹РІРѕРґ РґРЅСЏ РЅРµРґРµР»Рё РїРѕ Р·Р°РїСЂРѕСЃСѓ \"РљР°РєРѕР№ СЃРµРіРѕРґРЅСЏ РґРµРЅСЊ?\".";
     }
 }

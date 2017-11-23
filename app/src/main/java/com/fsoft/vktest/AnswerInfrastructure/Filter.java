@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Этот класс фильтрует базар бота, чтобы он не сказал ничего запрещенного.
+ * Р­С‚РѕС‚ РєР»Р°СЃСЃ С„РёР»СЊС‚СЂСѓРµС‚ Р±Р°Р·Р°СЂ Р±РѕС‚Р°, С‡С‚РѕР±С‹ РѕРЅ РЅРµ СЃРєР°Р·Р°Р» РЅРёС‡РµРіРѕ Р·Р°РїСЂРµС‰РµРЅРЅРѕРіРѕ.
  * Created by Dr. Failov on 30.03.2017.
  */
 public class Filter implements Command{
@@ -39,7 +39,7 @@ public class Filter implements Command{
     ResourceFileReader blacklistResourceFileReader = new ResourceFileReader(applicationManager.activity.getResources(), R.raw.blacklist, name);
 
     public String processMessage(String in, long sender){
-        if(in != null && isFilterOn() && !isAllowed(sender) && sender != HttpServer.USER_ID && !teachId.contains(sender)) { //надо ли фильтровать
+        if(in != null && isFilterOn() && !isAllowed(sender) && sender != HttpServer.USER_ID && !teachId.contains(sender)) { //РЅР°РґРѕ Р»Рё С„РёР»СЊС‚СЂРѕРІР°С‚СЊ
             String out = in;
             out = passOnlyAllowedSymbols(out);
             out = out.replace(".", ". ");
@@ -47,23 +47,23 @@ public class Filter implements Command{
             out = out.replace(". . . ", "...");
             out = out.replace("vk. com", "vk.com");
             if(!isAllowedSymbol(out, true)){
-                //log("! Система защиты: Исходное сообщение: " + out);
-                applicationManager.messageBox("Сообщение для " + sender + " ("+applicationManager.vkCommunicator.getUserName(sender)+") опасно.\n" +
+                //log("! РЎРёСЃС‚РµРјР° Р·Р°С‰РёС‚С‹: РСЃС…РѕРґРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ: " + out);
+                applicationManager.messageBox("РЎРѕРѕР±С‰РµРЅРёРµ РґР»СЏ " + sender + " ("+applicationManager.vkCommunicator.getUserName(sender)+") РѕРїР°СЃРЅРѕ.\n" +
                         "--------------\n" +
                         out + "\n" +
                         "--------------\n" +
                         securityReport);
-                String warningMessage = Parameters.get("security_warning_message","\nСистема защиты: ваше поведение сомнительно. \n" +
-                        "Если это не так, сообщите подробности разработчику.\n" +
-                        "Вы получаете предупреждение:", "Текст который получит пользователь если в ответ на его сообщение бот отправит опасную фразу");
+                String warningMessage = Parameters.get("security_warning_message","\nРЎРёСЃС‚РµРјР° Р·Р°С‰РёС‚С‹: РІР°С€Рµ РїРѕРІРµРґРµРЅРёРµ СЃРѕРјРЅРёС‚РµР»СЊРЅРѕ. \n" +
+                        "Р•СЃР»Рё СЌС‚Рѕ РЅРµ С‚Р°Рє, СЃРѕРѕР±С‰РёС‚Рµ РїРѕРґСЂРѕР±РЅРѕСЃС‚Рё СЂР°Р·СЂР°Р±РѕС‚С‡РёРєСѓ.\n" +
+                        "Р’С‹ РїРѕР»СѓС‡Р°РµС‚Рµ РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ:", "РўРµРєСЃС‚ РєРѕС‚РѕСЂС‹Р№ РїРѕР»СѓС‡РёС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РµСЃР»Рё РІ РѕС‚РІРµС‚ РЅР° РµРіРѕ СЃРѕРѕР±С‰РµРЅРёРµ Р±РѕС‚ РѕС‚РїСЂР°РІРёС‚ РѕРїР°СЃРЅСѓСЋ С„СЂР°Р·Сѓ");
                 if(warnings.containsKey(sender)){
                     int currentWarnings = warnings.get(sender);
                     currentWarnings ++;
                     warnings.put(sender, currentWarnings);
-                    if(currentWarnings >= Parameters.get("security_warning_count", 3, "Количество предупреждений о попытке сломать бота до момента автоматического бана.")){
-                        String result = applicationManager.processCommands("ignor add " + sender + " подозрительное поведение", applicationManager.getUserID());
-                        out = Parameters.get("security_banned_message", "Ваша страница заблокирована: RESULT",
-                                "Сообщение, которое получит пользователь когда он будет заблокирован за попытку сломать бота.").replace("RESULT", result);
+                    if(currentWarnings >= Parameters.get("security_warning_count", 3, "РљРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёР№ Рѕ РїРѕРїС‹С‚РєРµ СЃР»РѕРјР°С‚СЊ Р±РѕС‚Р° РґРѕ РјРѕРјРµРЅС‚Р° Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ Р±Р°РЅР°.")){
+                        String result = applicationManager.processCommands("ignor add " + sender + " РїРѕРґРѕР·СЂРёС‚РµР»СЊРЅРѕРµ РїРѕРІРµРґРµРЅРёРµ", applicationManager.getUserID());
+                        out = Parameters.get("security_banned_message", "Р’Р°С€Р° СЃС‚СЂР°РЅРёС†Р° Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР°: RESULT",
+                                "РЎРѕРѕР±С‰РµРЅРёРµ, РєРѕС‚РѕСЂРѕРµ РїРѕР»СѓС‡РёС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РєРѕРіРґР° РѕРЅ Р±СѓРґРµС‚ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ Р·Р° РїРѕРїС‹С‚РєСѓ СЃР»РѕРјР°С‚СЊ Р±РѕС‚Р°.").replace("RESULT", result);
                     }
                     else {
                         out = warningMessage + currentWarnings + ".";
@@ -86,41 +86,41 @@ public class Filter implements Command{
         boolean warning = false;
         for (int i = 0; i < fuckingWords.size(); i++) {
             if(tmp.contains(fuckingWords.get(i))) {
-                securityReport += log("! Система защиты: обнаружен подозрительный фрагмент: " + fuckingWords.get(i)) + "\n";
+                securityReport += log("! РЎРёСЃС‚РµРјР° Р·Р°С‰РёС‚С‹: РѕР±РЅР°СЂСѓР¶РµРЅ РїРѕРґРѕР·СЂРёС‚РµР»СЊРЅС‹Р№ С„СЂР°РіРјРµРЅС‚: " + fuckingWords.get(i)) + "\n";
                 warning = true;
             }
         }
         if(!warning)
-            securityReport = ". Угроз не обнаружено.";
+            securityReport = ". РЈРіСЂРѕР· РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅРѕ.";
         return !warning;
     }
     public @Override String process(String input, Long senderId) {
         CommandParser commandParser = new CommandParser(input);
         switch (commandParser.getWord()) {
             case "status":
-                return "Фильтр сомнительного содержания включён: " + isFilterOn() + "\n"+
-                        "Шаблонов черного списка: "+(fuckingWords == null?"еще не загружено":fuckingWords.size())+"\n"+
-                        "Разрешенных символов: "+(allowedSymbols == null?"еще не загружено":allowedSymbols.length())+"\n"+
-                        "Пользователей получили предупреждения: "+ warnings.size() +"\n";
+                return "Р¤РёР»СЊС‚СЂ СЃРѕРјРЅРёС‚РµР»СЊРЅРѕРіРѕ СЃРѕРґРµСЂР¶Р°РЅРёСЏ РІРєР»СЋС‡С‘РЅ: " + isFilterOn() + "\n"+
+                        "РЁР°Р±Р»РѕРЅРѕРІ С‡РµСЂРЅРѕРіРѕ СЃРїРёСЃРєР°: "+(fuckingWords == null?"РµС‰Рµ РЅРµ Р·Р°РіСЂСѓР¶РµРЅРѕ":fuckingWords.size())+"\n"+
+                        "Р Р°Р·СЂРµС€РµРЅРЅС‹С… СЃРёРјРІРѕР»РѕРІ: "+(allowedSymbols == null?"РµС‰Рµ РЅРµ Р·Р°РіСЂСѓР¶РµРЅРѕ":allowedSymbols.length())+"\n"+
+                        "РџРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РїРѕР»СѓС‡РёР»Рё РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёСЏ: "+ warnings.size() +"\n";
             case "warning":
                 switch (commandParser.getWord()){
                     case "get":
-                        String result = "Счетчик предупреждений:\n";
+                        String result = "РЎС‡РµС‚С‡РёРє РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёР№:\n";
                         Iterator<Map.Entry<Long, Integer>> iterator = warnings.entrySet().iterator();
                         while (iterator.hasNext()) {
                             Map.Entry<Long, Integer> cur = iterator.next();
-                            result += "- Пользователь vk.com/id" + cur.getKey() + " получил " + cur.getValue() + " предупреждений.\n";
+                            result += "- РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ vk.com/id" + cur.getKey() + " РїРѕР»СѓС‡РёР» " + cur.getValue() + " РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёР№.\n";
                         }
                         return result;
                     case "reset": {
                         Long id = applicationManager.getUserID(commandParser.getWord());
-                        return "Счетчик сброшен для пользователя " + id + " : " + warnings.remove(id);
+                        return "РЎС‡РµС‚С‡РёРє СЃР±СЂРѕС€РµРЅ РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ " + id + " : " + warnings.remove(id);
                     }
                     case "set": {
                         Long id = applicationManager.getUserID(commandParser.getWord());
                         int num = commandParser.getInt();
                         warnings.put(id, num);
-                        return "Счетчик для пользователя " + id + " : " + num;
+                        return "РЎС‡РµС‚С‡РёРє РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ " + id + " : " + num;
                     }
                 }
             case "enablefilter":
@@ -128,29 +128,29 @@ public class Filter implements Command{
                 boolean oldState = isFilterOn();
                 storage.put("enableFilter", newState);
                 storage.commit();
-                return "Фильтр симнительного содержания.\nБыло: " + oldState + "\nСтало: " + newState;
+                return "Р¤РёР»СЊС‚СЂ СЃРёРјРЅРёС‚РµР»СЊРЅРѕРіРѕ СЃРѕРґРµСЂР¶Р°РЅРёСЏ.\nР‘С‹Р»Рѕ: " + oldState + "\nРЎС‚Р°Р»Рѕ: " + newState;
             case "addblacklistword":
                 String word = commandParser.getText();
                 word = (word).toLowerCase().replace("|", "");
                 word = replaceTheSameSymbols(word);
                 fuckingWords.add(word);
-                return "Добавлено слово в черный список слов: "+word+" \n" + save();
+                return "Р”РѕР±Р°РІР»РµРЅРѕ СЃР»РѕРІРѕ РІ С‡РµСЂРЅС‹Р№ СЃРїРёСЃРѕРє СЃР»РѕРІ: "+word+" \n" + save();
         }
         return "";
     }
     public @Override String getHelp() {
-        return "[ Сбросить значение счетчика предупреждений для пользователя ]\n" +
-                "---| botcmd warning reset <id пользователя>\n\n"+
-                "[ Получить значения счетчика предупреждений ]\n" +
+        return "[ РЎР±СЂРѕСЃРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ СЃС‡РµС‚С‡РёРєР° РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёР№ РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ ]\n" +
+                "---| botcmd warning reset <id РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ>\n\n"+
+                "[ РџРѕР»СѓС‡РёС‚СЊ Р·РЅР°С‡РµРЅРёСЏ СЃС‡РµС‚С‡РёРєР° РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёР№ ]\n" +
                 "---| botcmd warning get\n\n"+
-                "[ Задать значение счетчика предупреждений для пользователя ]\n" +
-                "---| botcmd warning set <id пользователя> <новое значение счетчика>\n\n"+
-                "[ Включить или выключить фильтр сомнительного содержания ]\n" +
-                "[ Это тот фильтр, который пишет \"ваше поведение сомнительно.\" ]\n" +
-                "[ Этот фильтр отключать не рекомендуется, т.к. без него Ваш ВК аккаунт могут заблокировать за рассылку подозрительных сообщений ]\n" +
+                "[ Р—Р°РґР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ СЃС‡РµС‚С‡РёРєР° РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёР№ РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ ]\n" +
+                "---| botcmd warning set <id РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ> <РЅРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ СЃС‡РµС‚С‡РёРєР°>\n\n"+
+                "[ Р’РєР»СЋС‡РёС‚СЊ РёР»Рё РІС‹РєР»СЋС‡РёС‚СЊ С„РёР»СЊС‚СЂ СЃРѕРјРЅРёС‚РµР»СЊРЅРѕРіРѕ СЃРѕРґРµСЂР¶Р°РЅРёСЏ ]\n" +
+                "[ Р­С‚Рѕ С‚РѕС‚ С„РёР»СЊС‚СЂ, РєРѕС‚РѕСЂС‹Р№ РїРёС€РµС‚ \"РІР°С€Рµ РїРѕРІРµРґРµРЅРёРµ СЃРѕРјРЅРёС‚РµР»СЊРЅРѕ.\" ]\n" +
+                "[ Р­С‚РѕС‚ С„РёР»СЊС‚СЂ РѕС‚РєР»СЋС‡Р°С‚СЊ РЅРµ СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ, С‚.Рє. Р±РµР· РЅРµРіРѕ Р’Р°С€ Р’Рљ Р°РєРєР°СѓРЅС‚ РјРѕРіСѓС‚ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ Р·Р° СЂР°СЃСЃС‹Р»РєСѓ РїРѕРґРѕР·СЂРёС‚РµР»СЊРЅС‹С… СЃРѕРѕР±С‰РµРЅРёР№ ]\n" +
                 "---| botcmd enablefilter <on/off>\n\n"+
-                "[ Добавить слово в реестр запрещённых слов ]\n" +
-                "---| botcmd addblacklistword <|слово которое добавить|>\n\n";
+                "[ Р”РѕР±Р°РІРёС‚СЊ СЃР»РѕРІРѕ РІ СЂРµРµСЃС‚СЂ Р·Р°РїСЂРµС‰С‘РЅРЅС‹С… СЃР»РѕРІ ]\n" +
+                "---| botcmd addblacklistword <|СЃР»РѕРІРѕ РєРѕС‚РѕСЂРѕРµ РґРѕР±Р°РІРёС‚СЊ|>\n\n";
     }
 
     private boolean isFilterOn(){
@@ -161,11 +161,11 @@ public class Filter implements Command{
         for (int i = 0; i < allowedWords.length; i++)
             tmp = tmp.replace(allowedWords[i], "");
         tmp = replaceTheSameSymbols(tmp);
-        //составить список разрешенных символов а все остальные удалить нах
-        String allowed = "qwertyuiopasdfghjklzxcvbnmйцукенгшщзхъфывапролджэячсмитьбюієё1234567890";
+        //СЃРѕСЃС‚Р°РІРёС‚СЊ СЃРїРёСЃРѕРє СЂР°Р·СЂРµС€РµРЅРЅС‹С… СЃРёРјРІРѕР»РѕРІ Р° РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ СѓРґР°Р»РёС‚СЊ РЅР°С…
+        String allowed = "qwertyuiopasdfghjklzxcvbnmР№С†СѓРєРµРЅРіС€С‰Р·С…СЉС„С‹РІР°РїСЂРѕР»РґР¶СЌСЏС‡СЃРјРёС‚СЊР±СЋС–С”С‘1234567890";
         for (int i = 0; i < tmp.length(); i++) {
             char c = tmp.charAt(i);
-            //проверить есть ли этот символ в списке разрешенных
+            //РїСЂРѕРІРµСЂРёС‚СЊ РµСЃС‚СЊ Р»Рё СЌС‚РѕС‚ СЃРёРјРІРѕР» РІ СЃРїРёСЃРєРµ СЂР°Р·СЂРµС€РµРЅРЅС‹С…
             boolean isAllowed = false;
             for (int j = 0; j < allowed.length(); j++) {
                 char ca = allowed.charAt(j);
@@ -175,53 +175,53 @@ public class Filter implements Command{
             if(!isAllowed)
                 tmp = tmp.replace(c, ' ');
         }
-        //заменить пробелы
+        //Р·Р°РјРµРЅРёС‚СЊ РїСЂРѕР±РµР»С‹
         tmp = tmp.replace(" ", "");
         return tmp;
     }
     private String replaceTheSameSymbols(String in){
         String out = in;
-        out = out.replace("й", "i");
-        out = out.replace("ц", "c");
-        out = out.replace("у", "y");
-        out = out.replace("к", "k");
-        out = out.replace("е", "e");
-        out = out.replace("г", "g");
-        out = out.replace("ш", "sh");
-        out = out.replace("щ", "sch");
-        out = out.replace("ъ", "");
-        out = out.replace("ф", "f");
-        out = out.replace("ы", "y");
-        out = out.replace("в", "v");
-        out = out.replace("а", "a");
-        out = out.replace("п", "p");
-        out = out.replace("л", "l");
-        out = out.replace("д", "d");
-        out = out.replace("ж", "z");
-        out = out.replace("э", "e");
-        out = out.replace("я", "ya");
-        out = out.replace("ч", "ch");
-        out = out.replace("т", "t");
-        out = out.replace("ь", "i");
-        out = out.replace("ю", "y");
+        out = out.replace("Р№", "i");
+        out = out.replace("С†", "c");
+        out = out.replace("Сѓ", "y");
+        out = out.replace("Рє", "k");
+        out = out.replace("Рµ", "e");
+        out = out.replace("Рі", "g");
+        out = out.replace("С€", "sh");
+        out = out.replace("С‰", "sch");
+        out = out.replace("СЉ", "");
+        out = out.replace("С„", "f");
+        out = out.replace("С‹", "y");
+        out = out.replace("РІ", "v");
+        out = out.replace("Р°", "a");
+        out = out.replace("Рї", "p");
+        out = out.replace("Р»", "l");
+        out = out.replace("Рґ", "d");
+        out = out.replace("Р¶", "z");
+        out = out.replace("СЌ", "e");
+        out = out.replace("СЏ", "ya");
+        out = out.replace("С‡", "ch");
+        out = out.replace("С‚", "t");
+        out = out.replace("СЊ", "i");
+        out = out.replace("СЋ", "y");
 
-        out = out.replace("у", "y");
-        out = out.replace("к", "k");
-        out = out.replace("е", "e");
-        out = out.replace("н", "h");
-        out = out.replace("з", "3");
-        out = out.replace("х", "x");
-        out = out.replace("в", "v");
-        out = out.replace("б", "b");
-        out = out.replace("а", "a");
-        out = out.replace("р", "r");
-        out = out.replace("о", "o");
-        out = out.replace("с", "c");
-        out = out.replace("м", "m");
-        out = out.replace("и", "n");
-        out = out.replace("т", "t");
-        out = out.replace("і", "i");
-        //out = out.replace("я", "r");
+        out = out.replace("Сѓ", "y");
+        out = out.replace("Рє", "k");
+        out = out.replace("Рµ", "e");
+        out = out.replace("РЅ", "h");
+        out = out.replace("Р·", "3");
+        out = out.replace("С…", "x");
+        out = out.replace("РІ", "v");
+        out = out.replace("Р±", "b");
+        out = out.replace("Р°", "a");
+        out = out.replace("СЂ", "r");
+        out = out.replace("Рѕ", "o");
+        out = out.replace("СЃ", "c");
+        out = out.replace("Рј", "m");
+        out = out.replace("Рё", "n");
+        out = out.replace("С‚", "t");
+        out = out.replace("С–", "i");
+        //out = out.replace("СЏ", "r");
         return out;
     }
     private void loadWords(){
@@ -234,13 +234,13 @@ public class Filter implements Command{
                 //words[i] = replaceTheSameSymbols(words[i]);
                 fuckingWords.add(prepareToFilter(words[i]));
             }
-            log(". Черный спискок: загружено " + fuckingWords.size() + " шаблонов.");
+            log(". Р§РµСЂРЅС‹Р№ СЃРїРёСЃРєРѕРє: Р·Р°РіСЂСѓР¶РµРЅРѕ " + fuckingWords.size() + " С€Р°Р±Р»РѕРЅРѕРІ.");
         }
     }
     private String save(){
         String result = "";
         if(fuckingWords.size() > 1){
-            result += log(". Сохранение Черный спискок в " + blacklistResourceFileReader.getFilePath() + "...\n");
+            result += log(". РЎРѕС…СЂР°РЅРµРЅРёРµ Р§РµСЂРЅС‹Р№ СЃРїРёСЃРєРѕРє РІ " + blacklistResourceFileReader.getFilePath() + "...\n");
             try {
                 FileWriter fileWriter = new FileWriter(blacklistResourceFileReader.getFile());
                 for (int i = 0; i < fuckingWords.size(); i++) {
@@ -251,21 +251,21 @@ public class Filter implements Command{
                         fileWriter.append("\n");
                 }
                 fileWriter.close();
-                result += log(". Черный спискок Сохранено " + fuckingWords.size() + " слов.\n");
+                result += log(". Р§РµСЂРЅС‹Р№ СЃРїРёСЃРєРѕРє РЎРѕС…СЂР°РЅРµРЅРѕ " + fuckingWords.size() + " СЃР»РѕРІ.\n");
             }
             catch (Exception e){
-                result += log("! Сохранить базу Черный спискок в " + blacklistResourceFileReader.getFilePath() + " не удалось, и вот почему: "+e.toString()+"\n");
+                result += log("! РЎРѕС…СЂР°РЅРёС‚СЊ Р±Р°Р·Сѓ Р§РµСЂРЅС‹Р№ СЃРїРёСЃРєРѕРє РІ " + blacklistResourceFileReader.getFilePath() + " РЅРµ СѓРґР°Р»РѕСЃСЊ, Рё РІРѕС‚ РїРѕС‡РµРјСѓ: "+e.toString()+"\n");
             }
         }
         else
-            result += log("! База Черный спискок пуста. Не сохранять.\n");
+            result += log("! Р‘Р°Р·Р° Р§РµСЂРЅС‹Р№ СЃРїРёСЃРєРѕРє РїСѓСЃС‚Р°. РќРµ СЃРѕС…СЂР°РЅСЏС‚СЊ.\n");
         return result;
     }
     private void loadSymbols(){
         if(allowedSymbols == null){
             ResourceFileReader resourceFileReader = new ResourceFileReader(applicationManager.activity.getResources(), R.raw.allowed_symbols, name);
             allowedSymbols = resourceFileReader.readFile();
-            log(". Разрешенные символы: загружено " + allowedSymbols.length() + " символов.");
+            log(". Р Р°Р·СЂРµС€РµРЅРЅС‹Рµ СЃРёРјРІРѕР»С‹: Р·Р°РіСЂСѓР¶РµРЅРѕ " + allowedSymbols.length() + " СЃРёРјРІРѕР»РѕРІ.");
         }
     }
     private boolean isAllowedByServer(String text){

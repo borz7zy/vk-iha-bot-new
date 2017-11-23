@@ -7,7 +7,7 @@ import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Utils.CommandParser;
 
 /**
- * генератор случайных чисел
+ * РіРµРЅРµСЂР°С‚РѕСЂ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
  * Created by Dr. Failov on 16.09.2017.
  */
 
@@ -46,7 +46,7 @@ public class Rendom extends Function {
             }
             int num = Math.min(min, max) + (random.nextInt(Math.abs(max - min)));
 
-            String result = "Случайное число: "+num+".";
+            String result = "РЎР»СѓС‡Р°Р№РЅРѕРµ С‡РёСЃР»Рѕ: "+num+".";
             message.setAnswer(new Answer(result));
             message = prepare(message);
             return message;
@@ -56,7 +56,7 @@ public class Rendom extends Function {
 
     @Override
     public String defaultInvoker() {
-        return "рандом";
+        return "СЂР°РЅРґРѕРј";
     }
 
     @Override
@@ -65,8 +65,8 @@ public class Rendom extends Function {
     }
     @Override
     public String getDescription() {
-        return "Генерация случайных чисел по запросу \""+getInvoker()+"...\"." +
-                "\nТакже можно через пробел указать максимальное число (например: \"" + applicationManager.getBrain().getTreatment() + " " + getInvoker() + " 255\")." +
-                "\nИли через пробел промежуток чисел (например: \"" + applicationManager.getBrain().getTreatment() + " " + getInvoker() + " 10 20\").";
+        return "Р“РµРЅРµСЂР°С†РёСЏ СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР» РїРѕ Р·Р°РїСЂРѕСЃСѓ \""+getInvoker()+"...\"." +
+                "\nРўР°РєР¶Рµ РјРѕР¶РЅРѕ С‡РµСЂРµР· РїСЂРѕР±РµР» СѓРєР°Р·Р°С‚СЊ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ С‡РёСЃР»Рѕ (РЅР°РїСЂРёРјРµСЂ: \"" + applicationManager.getBrain().getTreatment() + " " + getInvoker() + " 255\")." +
+                "\nРР»Рё С‡РµСЂРµР· РїСЂРѕР±РµР» РїСЂРѕРјРµР¶СѓС‚РѕРє С‡РёСЃРµР» (РЅР°РїСЂРёРјРµСЂ: \"" + applicationManager.getBrain().getTreatment() + " " + getInvoker() + " 10 20\").";
     }
 }

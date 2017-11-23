@@ -1,7 +1,7 @@
 package com.fsoft.vktest.Utils;
 
 /**
- * перевод числа в текст
+ * РїРµСЂРµРІРѕРґ С‡РёСЃР»Р° РІ С‚РµРєСЃС‚
  * Source: https://ru.stackoverflow.com/questions/449055/java-%D1%80%D0%B5%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F-%D1%81%D1%83%D0%BC%D0%BC%D1%8B-%D0%BF%D1%80%D0%BE%D0%BF%D0%B8%D1%81%D1%8C%D1%8E
  * Created by Dr. Failov on 19.09.2017.
  */
@@ -76,42 +76,42 @@ public class NumberToText {
             }
             switch(thch.range){
                 case BILLIONS:
-                    if(thch.d == '1' || thch.u == '0') result.append("миллиардов");
-                    else if(thch.u > '4')result.append("миллиардов");
-                    else if(thch.u > '1')result.append("миллиарда");
-                    else result.append("миллиард");
+                    if(thch.d == '1' || thch.u == '0') result.append("РјРёР»Р»РёР°СЂРґРѕРІ");
+                    else if(thch.u > '4')result.append("РјРёР»Р»РёР°СЂРґРѕРІ");
+                    else if(thch.u > '1')result.append("РјРёР»Р»РёР°СЂРґР°");
+                    else result.append("РјРёР»Р»РёР°СЂРґ");
                     break;
                 case MILLIONS:
-                    if(thch.d == '1' || thch.u == '0') result.append("миллионов");
-                    else if(thch.u > '4')result.append("миллионов");
-                    else if(thch.u > '1')result.append("миллиона");
-                    else result.append("миллион");
+                    if(thch.d == '1' || thch.u == '0') result.append("РјРёР»Р»РёРѕРЅРѕРІ");
+                    else if(thch.u > '4')result.append("РјРёР»Р»РёРѕРЅРѕРІ");
+                    else if(thch.u > '1')result.append("РјРёР»Р»РёРѕРЅР°");
+                    else result.append("РјРёР»Р»РёРѕРЅ");
                     break;
                 case THOUSANDS:
-                    if(thch.d == '1' || thch.u == '0') result.append("тысяч");
-                    else if(thch.u > '4')result.append("тысяч");
-                    else if(thch.u > '1')result.append("тысячи");
-                    else result.append("тысяча");
+                    if(thch.d == '1' || thch.u == '0') result.append("С‚С‹СЃСЏС‡");
+                    else if(thch.u > '4')result.append("С‚С‹СЃСЏС‡");
+                    else if(thch.u > '1')result.append("С‚С‹СЃСЏС‡Рё");
+                    else result.append("С‚С‹СЃСЏС‡Р°");
                     break;
                 default:
-                    if(thch.d == '1' || thch.u == '0' || thch.u > '4')result.append("рублей");
-                    else if(thch.u > '1')result.append("рубля");
-                    else result.append("рубль");
+                    if(thch.d == '1' || thch.u == '0' || thch.u > '4')result.append("СЂСѓР±Р»РµР№");
+                    else if(thch.u > '1')result.append("СЂСѓР±Р»СЏ");
+                    else result.append("СЂСѓР±Р»СЊ");
             }
             result.append(' ');
         }
         result.append(sa[1] + ' ');
         switch(sa[1].charAt(1)){
             case '1':
-                result.append(sa[1].charAt(0) != '1' ? "копейка" : "копеек");
+                result.append(sa[1].charAt(0) != '1' ? "РєРѕРїРµР№РєР°" : "РєРѕРїРµРµРє");
                 break;
             case '2':
             case '3':
             case '4':
-                result.append(sa[1].charAt(0) != '1' ? "копейки" : "копеек");
+                result.append(sa[1].charAt(0) != '1' ? "РєРѕРїРµР№РєРё" : "РєРѕРїРµРµРє");
                 break;
             default:
-                result.append("копеек");
+                result.append("РєРѕРїРµРµРє");
         }
         char first = Character.toUpperCase(result.charAt(0));
         result.setCharAt(0, first);
@@ -121,69 +121,69 @@ public class NumberToText {
     private static String getHundreds(char dig){
         switch(dig){
             case '1':
-                return "сто";
+                return "СЃС‚Рѕ";
             case '2':
-                return "двести";
+                return "РґРІРµСЃС‚Рё";
             case '3':
-                return "триста";
+                return "С‚СЂРёСЃС‚Р°";
             case '4':
-                return "четыреста";
+                return "С‡РµС‚С‹СЂРµСЃС‚Р°";
             case '5':
-                return "пятьсот";
+                return "РїСЏС‚СЊСЃРѕС‚";
             case '6':
-                return "шестсот";
+                return "С€РµСЃС‚СЃРѕС‚";
             case '7':
-                return "семсот";
+                return "СЃРµРјСЃРѕС‚";
             case '8':
-                return "восемсот";
+                return "РІРѕСЃРµРјСЃРѕС‚";
             case '9':
-                return "девятьсот";
+                return "РґРµРІСЏС‚СЊСЃРѕС‚";
             default: return null;
         }
     }
     private static String getDecades(char dig){
         switch(dig){
             case '1':
-                return "десять";
+                return "РґРµСЃСЏС‚СЊ";
             case '2':
-                return "двадцать";
+                return "РґРІР°РґС†Р°С‚СЊ";
             case '3':
-                return "тридцать";
+                return "С‚СЂРёРґС†Р°С‚СЊ";
             case '4':
-                return "сорок";
+                return "СЃРѕСЂРѕРє";
             case '5':
-                return "пятьдесят";
+                return "РїСЏС‚СЊРґРµСЃСЏС‚";
             case '6':
-                return "шестьдесят";
+                return "С€РµСЃС‚СЊРґРµСЃСЏС‚";
             case '7':
-                return "семьдесят";
+                return "СЃРµРјСЊРґРµСЃСЏС‚";
             case '8':
-                return "восемьдесят";
+                return "РІРѕСЃРµРјСЊРґРµСЃСЏС‚";
             case '9':
-                return "девяносто";
+                return "РґРµРІСЏРЅРѕСЃС‚Рѕ";
             default: return null;
         }
     }
     private static String getUnits(char dig, boolean female){
         switch(dig){
             case '1':
-                return female ? "одна" : "один";
+                return female ? "РѕРґРЅР°" : "РѕРґРёРЅ";
             case '2':
-                return female ? "две"  : "два";
+                return female ? "РґРІРµ"  : "РґРІР°";
             case '3':
-                return "три";
+                return "С‚СЂРё";
             case '4':
-                return "четыре";
+                return "С‡РµС‚С‹СЂРµ";
             case '5':
-                return "пять";
+                return "РїСЏС‚СЊ";
             case '6':
-                return "шесть";
+                return "С€РµСЃС‚СЊ";
             case '7':
-                return "семь";
+                return "СЃРµРјСЊ";
             case '8':
-                return "восемь";
+                return "РІРѕСЃРµРјСЊ";
             case '9':
-                return "девять";
+                return "РґРµРІСЏС‚СЊ";
             default: return null;
         }
     }
@@ -191,24 +191,24 @@ public class NumberToText {
         String s = "";
         switch(dig){
             case '1':
-                s = "один"; break;
+                s = "РѕРґРёРЅ"; break;
             case '2':
-                s = "две"; break;
+                s = "РґРІРµ"; break;
             case '3':
-                s = "три"; break;
+                s = "С‚СЂРё"; break;
             case '4':
-                s = "четыр"; break;
+                s = "С‡РµС‚С‹СЂ"; break;
             case '5':
-                s = "пят"; break;
+                s = "РїСЏС‚"; break;
             case '6':
-                s = "шест"; break;
+                s = "С€РµСЃС‚"; break;
             case '7':
-                s = "сем"; break;
+                s = "СЃРµРј"; break;
             case '8':
-                s = "восем"; break;
+                s = "РІРѕСЃРµРј"; break;
             case '9':
-                s = "девят"; break;
+                s = "РґРµРІСЏС‚"; break;
         }
-        return s + "надцать";
+        return s + "РЅР°РґС†Р°С‚СЊ";
     }
 }

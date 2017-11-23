@@ -628,7 +628,7 @@ public class VkAccountCore extends Account {
             }
         }
     }
-    public void exitFromChatAsync(long chat_id){
+    public void exitFromChatAsync(final long chat_id){
         new Timer("Leave from chat tor " + this).schedule(new TimerTask() {
             @Override
             public void run() {
@@ -1293,7 +1293,7 @@ public class VkAccountCore extends Account {
         }, "GetUserName thread").start();
     }
 
-    private void deactivateFor5Minutes(String reason){
+    private void deactivateFor5Minutes(final String reason){
         log("Деактивация аккаунта "+userName+" на 5 минут...");
         stopAccount();
         setToken_ok(false);
@@ -1308,7 +1308,7 @@ public class VkAccountCore extends Account {
             }
         }, 300000);
     }
-    private void deactivateFor10Minutes(String reason){
+    private void deactivateFor10Minutes(final String reason){
         log("Деактивация аккаунта "+userName+" на 10 минут...");
         stopAccount();
         setToken_ok(false);

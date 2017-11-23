@@ -12,7 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * модуль отвечает на "какое сегодня число?"
+ * РјРѕРґСѓР»СЊ РѕС‚РІРµС‡Р°РµС‚ РЅР° "РєР°РєРѕРµ СЃРµРіРѕРґРЅСЏ С‡РёСЃР»Рѕ?"
  * Created by Dr. Failov on 29.09.2017.
  */
 
@@ -31,12 +31,12 @@ public class WhichDayOfMonth extends Function{
             DateFormatSymbols myDateFormatSymbols = new DateFormatSymbols(){
                 @Override
                 public String[] getMonths() {
-                    return new String[]{"января", "февраля", "марта", "апреля", "мая", "июня",
-                            "июля", "августа", "сентября", "октября", "ноября", "декабря"};
+                    return new String[]{"СЏРЅРІР°СЂСЏ", "С„РµРІСЂР°Р»СЏ", "РјР°СЂС‚Р°", "Р°РїСЂРµР»СЏ", "РјР°СЏ", "РёСЋРЅСЏ",
+                            "РёСЋР»СЏ", "Р°РІРіСѓСЃС‚Р°", "СЃРµРЅС‚СЏР±СЂСЏ", "РѕРєС‚СЏР±СЂСЏ", "РЅРѕСЏР±СЂСЏ", "РґРµРєР°Р±СЂСЏ"};
                 }
             };
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy", myDateFormatSymbols);
-            String result = "Сейчас " + simpleDateFormat.format(new Date()) + " года.";
+            String result = "РЎРµР№С‡Р°СЃ " + simpleDateFormat.format(new Date()) + " РіРѕРґР°.";
             message.setAnswer(new Answer(result));
             message = prepare(message);
             return message;
@@ -46,7 +46,7 @@ public class WhichDayOfMonth extends Function{
 
     @Override
     protected String defaultInvoker() {
-        return "Какое сегодня число?";
+        return "РљР°РєРѕРµ СЃРµРіРѕРґРЅСЏ С‡РёСЃР»Рѕ?";
     }
 
     @Override
@@ -56,6 +56,6 @@ public class WhichDayOfMonth extends Function{
 
     @Override
     public String getDescription() {
-        return "Вывод дня даты по запросу \""+getInvoker()+"\".";
+        return "Р’С‹РІРѕРґ РґРЅСЏ РґР°С‚С‹ РїРѕ Р·Р°РїСЂРѕСЃСѓ \""+getInvoker()+"\".";
     }
 }

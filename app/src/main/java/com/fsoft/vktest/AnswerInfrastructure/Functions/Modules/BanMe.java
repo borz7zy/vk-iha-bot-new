@@ -33,25 +33,25 @@ public class BanMe extends Function {
         if(message.getText().equalsIgnoreCase(getInvoker())){
             try {
                 if (warned.contains(message.getAuthor())) {
-                    applicationManager.getIgnorUsersList().add(message.getAuthor(), "Блокировка по собственному желению");
-                    message.setAnswer(new Answer("Поздравляю, ты был добавлен в список игнорируемых пользователей! " +
-                            "Теперь я никогда не буду тебе отвечать."));
+                    applicationManager.getIgnorUsersList().add(message.getAuthor(), "Р‘Р»РѕРєРёСЂРѕРІРєР° РїРѕ СЃРѕР±СЃС‚РІРµРЅРЅРѕРјСѓ Р¶РµР»РµРЅРёСЋ");
+                    message.setAnswer(new Answer("РџРѕР·РґСЂР°РІР»СЏСЋ, С‚С‹ Р±С‹Р» РґРѕР±Р°РІР»РµРЅ РІ СЃРїРёСЃРѕРє РёРіРЅРѕСЂРёСЂСѓРµРјС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№! " +
+                            "РўРµРїРµСЂСЊ СЏ РЅРёРєРѕРіРґР° РЅРµ Р±СѓРґСѓ С‚РµР±Рµ РѕС‚РІРµС‡Р°С‚СЊ."));
                     message = prepare(message);
                     warned.remove(message.getAuthor());
                     return message;
                 }
                 else {
                     warned.add(message.getAuthor());
-                    message.setAnswer(new Answer("Ты правда хочешь, чтобы я тебя заблокировал?\n" +
-                            "Я тебе после этого никогда не буду отвечать, и нет способа выйти из бана.\n" +
-                            "Ты уверен? Если да, повтори это ещё раз."));
+                    message.setAnswer(new Answer("РўС‹ РїСЂР°РІРґР° С…РѕС‡РµС€СЊ, С‡С‚РѕР±С‹ СЏ С‚РµР±СЏ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°Р»?\n" +
+                            "РЇ С‚РµР±Рµ РїРѕСЃР»Рµ СЌС‚РѕРіРѕ РЅРёРєРѕРіРґР° РЅРµ Р±СѓРґСѓ РѕС‚РІРµС‡Р°С‚СЊ, Рё РЅРµС‚ СЃРїРѕСЃРѕР±Р° РІС‹Р№С‚Рё РёР· Р±Р°РЅР°.\n" +
+                            "РўС‹ СѓРІРµСЂРµРЅ? Р•СЃР»Рё РґР°, РїРѕРІС‚РѕСЂРё СЌС‚Рѕ РµС‰С‘ СЂР°Р·."));
                     message = prepare(message);
                     return message;
                 }
             }
             catch (Exception  e){
                 e.printStackTrace();
-                message.setAnswer(new Answer("Прости, я не могу добавить тебя в бан: " + e.getMessage()));
+                message.setAnswer(new Answer("РџСЂРѕСЃС‚Рё, СЏ РЅРµ РјРѕРіСѓ РґРѕР±Р°РІРёС‚СЊ С‚РµР±СЏ РІ Р±Р°РЅ: " + e.getMessage()));
                 message = prepare(message);
                 return message;
             }
@@ -61,7 +61,7 @@ public class BanMe extends Function {
 
     @Override
     public String defaultInvoker() {
-        return "забань меня";
+        return "Р·Р°Р±Р°РЅСЊ РјРµРЅСЏ";
     }
 
     @Override
@@ -70,7 +70,7 @@ public class BanMe extends Function {
     }
     @Override
     public String getDescription() {
-        return "Бан пользователя по просьбе \""+getStorage()+"\".\n" +
-                "Пользователь вносится в список игнора после первого предупреждения.";
+        return "Р‘Р°РЅ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РїСЂРѕСЃСЊР±Рµ \""+getStorage()+"\".\n" +
+                "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІРЅРѕСЃРёС‚СЃСЏ РІ СЃРїРёСЃРѕРє РёРіРЅРѕСЂР° РїРѕСЃР»Рµ РїРµСЂРІРѕРіРѕ РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёСЏ.";
     }
 }

@@ -7,7 +7,7 @@ import java.util.Arrays;
  * https://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance
  * https://github.com/tdebatty/java-string-similarity/blob/master/src/main/java/info/debatty/java/stringsimilarity/JaroWinkler.java
  *
- * The Jaro–Winkler distance metric is designed and best suited for short
+ * The Jaroâ€“Winkler distance metric is designed and best suited for short
  * strings such as person names, and to detect typos; it is (roughly) a
  * variation of Damerau-Levenshtein, where the substitution of 2 close
  * characters is considered less important then the substitution of 2 characters
