@@ -114,6 +114,13 @@ public class MessageBase {
         this.author = author;
         return this;
     }
+    public boolean hasAttachments(){
+        if(attachments == null)
+            return false;
+        if(attachments.isEmpty())
+            return false;
+        return true;
+    }
     public MessageBase withAttachments(ArrayList<Attachment> attachments) {
         this.attachments = attachments;
         return this;

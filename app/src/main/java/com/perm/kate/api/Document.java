@@ -69,6 +69,11 @@ public class Document implements Serializable {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "doc" + owner_id + "_" + id + (access_key == null ? "" : ("_" + access_key));
+    }
+
     public JSONObject toJson() throws JSONException{
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("owner_id", owner_id);

@@ -4,10 +4,15 @@ import android.os.Environment;
 
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Communication.Account.VK.VkAccount;
+import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
 import com.fsoft.vktest.Modules.Commands.Command;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.CommandParser;
+import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.ResourceFileReader;
+import com.perm.kate.api.Attachment;
+import com.perm.kate.api.Document;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -45,9 +50,9 @@ public class FileManager extends CommandModule {
         if(isOpened(senderId)){
             if(input.equals("end")){
                 if(endSession(senderId))
-                    return "Сессия для "+applicationManager.vkCommunicator.getUserName(senderId)+" закрыта.";
+                    return "Сессия для "+applicationManager.getCommunicator().getActiveAccount().getUserName(senderId)+" закрыта.";
                 else
-                    return "Сессия для "+applicationManager.vkCommunicator.getUserName(senderId)+" не закрыта. А она вообще была открыта?";
+                    return "Сессия для "+applicationManager.getCommunicator().getActiveAccount().getUserName(senderId)+" не закрыта. А она вообще была открыта?";
             }
             FileSession fileSession = getSession(senderId);
             if(fileSession != null)
@@ -56,9 +61,9 @@ public class FileManager extends CommandModule {
         else if(input.equals("filemanager")){
             FileSession fileSession = openSession(senderId);
             if(fileSession != null)
-                return "Сессия файл-менеджера для пользователя "+applicationManager.vkCommunicator.getUserName(senderId)+" открыта. Вот краткая инструкция:\n (каждую команду писать начиная с botcmd)\n"+getHelp()+"\n" + fileSession.list();
+                return "Сессия файл-менеджера для пользователя "+applicationManager.getCommunicator().getActiveAccount().getUserName(senderId)+" открыта. Вот краткая инструкция:\n (каждую команду писать начиная с botcmd)\n"+getHelp()+"\n" + fileSession.list();
             else
-                return "Сессия для "+applicationManager.vkCommunicator.getUserName(senderId)+" не открыта. Не знаю почему.";
+                return "Сессия для "+applicationManager.getCommunicator().getActiveAccount().getUserName(senderId)+" не открыта. Не знаю почему.";
         }
         return "";
     }
@@ -109,10 +114,25 @@ public class FileManager extends CommandModule {
                     return cd(commandParser.getText());
                 }
                 case "get":{
-                    return get(commandParser.getText());
+                    return get(message.getBotAccount(), commandParser.getText());
                 }
                 case "put":{
-                    return put(commandParser.getWord(), commandParser.getText());
+                    if(!message.hasAttachments())
+                        return "Прикрепите документ к сообщению.";
+                    if(message.getAttachments().size() > 1)
+                        return "Прикрепите один документ.";
+                    ArrayList<Attachment> attachments = message.getAttachments();
+                    String result = "";
+                    for (Attachment attachment:attachments) {
+                        try {
+                            if(attachment.document != null)
+                                result += put(commandParser.getWord(), attachment.document);
+                            else
+                                result += "Я умею загружать только документы.";
+                        } catch (Exception e) {
+                            result += "Ошибка загрузки документа : " + e.getMessage();
+                        }
+                    }
                 }
                 case "del":{
                     return del(commandParser.getText());
@@ -150,7 +170,7 @@ public class FileManager extends CommandModule {
             File next = new File(currentFile + File.separator + file);
             if(next.isFile()){
                 if(next.length() < 4000) {
-                    String result = ResourceFileReader.readFromFile(next.getPath());
+                    String result = F.readFromFile(next);
                     return "Содержимое файла: " + result;
                 }
                 else
@@ -159,12 +179,12 @@ public class FileManager extends CommandModule {
             else
                 return "Файла  "+file+" нет";
         }
-        private String put(String dest, String src){
-            File dloaded = applicationManager.vkCommunicator.downloadFileFromVk(src);
+        private String put(String dest, Document document) throws Exception {
+            File dloaded = applicationManager.getCommunicator().getActiveAccount().downloadDocument(document);
             if(dloaded != null && dloaded.isFile()){
                 File destination = new File(currentFile + File.separator + dest);
-                boolean copied = ResourceFileReader.copyFile(dloaded.getPath(), destination.getPath());
-                return "Загрузка файла из " + src + " в " + destination + " результат: " + copied;
+                boolean copied = F.copyFile(dloaded.getPath(), destination.getPath());
+                return "Загрузка файла из " + document.title + " в " + destination + " результат: " + copied;
             }
             else
                 return "Файла "+dloaded+" нет в загрузках";
@@ -178,11 +198,11 @@ public class FileManager extends CommandModule {
             else
                 return "Файла или папки "+file+" нет";
         }
-        private String get(String file){
+        private String get(VkAccountCore account, String file){
             File next = new File(currentFile + File.separator + file);
             if(next.isFile()){
-                String result = applicationManager.vkCommunicator.uploadDocument(next);
-                return "Документ загружен: " + result;
+                Document result = account.uploadDocument(next);
+                return "Документ загружен: " + result.toString();
             }
             else
                 return "Файла "+file+" нет";
