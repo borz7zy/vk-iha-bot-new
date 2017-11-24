@@ -506,7 +506,7 @@ public class Cities extends Function {
                 }
             }
             if(prepareCityName(message.getText()).equals(prepareCityName(getInvoker()))){
-                gameHistory.put(message.getAuthor(), new ArrayList<>());
+                gameHistory.put(message.getAuthor(), new ArrayList<String>());
                 message.setAnswer(new Answer(cities_answer_city_welcome));
                 message = prepare(message);
                 return message;

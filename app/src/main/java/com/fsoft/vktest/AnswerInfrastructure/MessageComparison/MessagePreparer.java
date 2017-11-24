@@ -12,12 +12,12 @@ import com.fsoft.vktest.Utils.FileStorage;
 
 import java.util.ArrayList;
 
-/**
+/*
  * Этот класс занимается подготовкой сообщения для сравнения
  * Created by Dr. Failov on 25.08.2014.
  */
 
-/**
+/*
  * Это всё полная хуйня.
  * Как сравнивать сообщения:
  * - сообщение разделяется на слова

@@ -33,7 +33,7 @@ public class BanMe extends Function {
         if(message.getText().equalsIgnoreCase(getInvoker())){
             try {
                 if (warned.contains(message.getAuthor())) {
-                    applicationManager.getIgnorUsersList().add(message.getAuthor(), "Блокировка по собственному желению");
+                    applicationManager.getBrain().getIgnor().add(message.getAuthor(), "Блокировка по собственному желению");
                     message.setAnswer(new Answer("Поздравляю, ты был добавлен в список игнорируемых пользователей! " +
                             "Теперь я никогда не буду тебе отвечать."));
                     message = prepare(message);

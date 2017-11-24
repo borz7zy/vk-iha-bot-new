@@ -36,7 +36,6 @@ public class FunctionProcessor extends BotModule {
 
     public FunctionProcessor(ApplicationManager applicationManager) {
         super(applicationManager);
-        addChildModule(new Learning(applicationManager));
         addChildModule(new Binary(applicationManager));
         addChildModule(new BrickLanguage(applicationManager));
         addChildModule(new Cities(applicationManager));

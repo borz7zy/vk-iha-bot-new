@@ -1,5 +1,8 @@
 package com.fsoft.vktest.AnswerInfrastructure;
 
+import com.fsoft.vktest.AnswerInfrastructure.MessageComparison.SynonimousProvider;
+import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.Command;
 import com.fsoft.vktest.Modules.HttpServer;
 import com.fsoft.vktest.R;
@@ -15,6 +18,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,9 +29,12 @@ import java.util.Map;
 
 /**
  * Этот класс фильтрует базар бота, чтобы он не сказал ничего запрещенного.
+ *
+ * Этот класс хранится в BotBrain, однако каждый BotModule использует свою функцию prepare обращается к этому
+ * классу через ApplicationManager
  * Created by Dr. Failov on 30.03.2017.
  */
-public class Filter implements Command{
+public class Filter extends BotModule{
     private HashMap<Long, Integer> warnings = new HashMap<>();
     private ArrayList<String> fuckingWords = null;
     private String allowedSymbols = null;
@@ -34,11 +43,50 @@ public class Filter implements Command{
             "com.fsoft",
             "perm"
     };
-    private String securityReport = "";
-    private FileStorage storage = new FileStorage("filter");
-    ResourceFileReader blacklistResourceFileReader = new ResourceFileReader(applicationManager.activity.getResources(), R.raw.blacklist, name);
+    private FileStorage storage = null;
 
-    public String processMessage(String in, long sender){
+    public Filter(ApplicationManager applicationManager) {
+        super(applicationManager);
+        //READ BLACKLIST
+        try {
+            File blacklistFile = new ResourceFileReader(applicationManager, R.raw.synonimous).getFile();
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(blacklistFile));
+            String line;
+            int lineNumber = 0;
+            while ((line = bufferedReader.readLine()) != null) {
+                lineNumber ++;
+                    fuckingWords.add(line);
+            }
+            bufferedReader.close();
+            log(". Загружено " + fuckingWords.size() + " запрещённых слов.");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            log("! Ошибка загрузки списка запрещённых слов: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Message processMessage(Message message) {
+        if(applicationManager == null)
+            return message;
+        BotBrain brain = applicationManager.getBrain();
+        if(brain == null)
+            return message;
+        if(message == null)
+            return message;
+        if(message.getAnswer() == null)
+            return message;
+        if(brain.getAllow().has(message.getAuthor()))
+            return message;
+        if(brain.getLearning().isAllowed(message.getAuthor()))
+            return message;
+        if(applicationManager.)
+        return super.processMessage(message);
+    }
+
+    public String processMessag(Message message){
+
         if(in != null && isFilterOn() && !isAllowed(sender) && sender != HttpServer.USER_ID && !teachId.contains(sender)) { //надо ли фильтровать
             String out = in;
             out = passOnlyAllowedSymbols(out);
@@ -226,15 +274,6 @@ public class Filter implements Command{
     }
     private void loadWords(){
         if(fuckingWords == null){
-            String fileData = blacklistResourceFileReader.readFile();
-            String[] words = fileData.split("\\\n");
-            fuckingWords = new ArrayList<>();
-            for (int i = 0; i < words.length; i++) {
-                //words[i] = (words[i]).toLowerCase().replace("|", "");
-                //words[i] = replaceTheSameSymbols(words[i]);
-                fuckingWords.add(prepareToFilter(words[i]));
-            }
-            log(". Черный спискок: загружено " + fuckingWords.size() + " шаблонов.");
         }
     }
     private String save(){

@@ -30,7 +30,7 @@ public class When extends Function {
         Message message = remTreatment(messageOriginal);
 
         String text = message.getText();
-        String[] words = text.split("\\ ");
+        String[] words = text.split(" ");
         text = text.replace("?", "").replace("!", "");
 
         if(words.length > 1 && words[0].toLowerCase().equals(getInvoker())) {

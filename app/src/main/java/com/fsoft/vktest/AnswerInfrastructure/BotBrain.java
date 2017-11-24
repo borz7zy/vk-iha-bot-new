@@ -3,6 +3,7 @@ package com.fsoft.vktest.AnswerInfrastructure;
 import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.AnswerDatabase;
 import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.UnknownMessagesDatabase;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.FunctionProcessor;
+import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.Learning;
 import com.fsoft.vktest.AnswerInfrastructure.MessageComparison.MessagePreparer;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Modules.CommandModule;
@@ -68,6 +69,9 @@ public class BotBrain extends CommandModule {
     private UnknownMessagesDatabase unknownMessages;
     private String[] botTreatments = {"бот,"};
     private FileStorage fileStorage = null;
+    private UserList allow = null;
+    private UserList ignor = null;
+    private Learning learning = null;
 
     public BotBrain(ApplicationManager applicationManager) {
         super(applicationManager);
@@ -75,6 +79,22 @@ public class BotBrain extends CommandModule {
         answerDatabase = new AnswerDatabase(applicationManager);
         unknownMessages = new UnknownMessagesDatabase(applicationManager);
         botTreatments = fileStorage.getStringArray("botTreatments", botTreatments);
+
+        ignor = new UserList("ignor",
+                "Список игнорируемых пользователей",
+                "Список пользователей, которым бот не будет отвечать на сообщения.\n" +
+                        "В игнор пользователя можно добавить вручную, также нарушители правил бота попадают в игнор автоматически.",
+                //// TODO: 27.09.2017 дополнить комментариями когда будет понятно что к чему
+                applicationManager);
+        allow = new UserList("allow",
+                "Список доверенных пользователей",
+                "Список пользователей, которые имеют право давать боту команды.\n" +
+                        "Команды позволяют настраивать бота, редактировать базы, получать служебную информацию...\n" +
+                        "Список всех команд можно увидеть по команде botcmd help, или на экране \"Команды\".\n" +
+                        "Команды боту можно писать там же, где обычные сообщения.\n" +
+                        "Все команды начинаются со слова botcmd.\n" +
+                        "Для всех остальных пользователей (не доверенных) при попытке отправить боту команду будет выдана ошибка.",
+                applicationManager);
 
         childCommands.add(answerDatabase);
         childCommands.add(unknownMessages);
@@ -139,6 +159,15 @@ public class BotBrain extends CommandModule {
         if(botTreatments.length == 0)
             return "";
         return botTreatments[0];
+    }
+    public UserList getAllow() {
+        return allow;
+    }
+    public UserList getIgnor() {
+        return ignor;
+    }
+    public Learning getLearning() {
+        return learning;
     }
     public boolean hasCommandMark(Message message){
         //Эта функция должна принимать на вход текст и определять есть
@@ -254,8 +283,6 @@ public class BotBrain extends CommandModule {
     public FunctionProcessor functionAnswerer;
     public PostScriptumProcessor postScriptumProcessor;
     public AnswerPhone answerPhone;
-    public UserList allowId;
-    public UserList ignorId;
     private RepeatsProcessor repeatsProcessor;
     private FloodFilter floodFilter;
     private Filter filter;

@@ -1155,7 +1155,7 @@ public class VkAccountCore extends Account {
     private Api api(){
         if(api == null || !api.getAccess_token().equals(getToken()))
             api = new Api(getToken(), API_ID);
-        if (!applicationManager.running)
+        if (!applicationManager.isRunning())
             return null;
         overloadSaver.waitUntilActive();
         apiCounter ++;

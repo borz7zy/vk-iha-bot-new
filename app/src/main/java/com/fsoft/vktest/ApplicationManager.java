@@ -110,8 +110,6 @@ public class ApplicationManager {
     private PowerManager.WakeLock wakeLock = null;
     private DatabaseBackuper databaseBackuper = null;
     private HttpServer httpServer = null;
-    private UserList ignorUsersList = null;
-    private UserList allowUsersList = null;
 
 
     private long startedTime = 0; //нужен для учёта времени аптайма
@@ -123,22 +121,6 @@ public class ApplicationManager {
         startedTime = System.currentTimeMillis();
         parameters = new Parameters(this);
         CommandParser.applicationManager = this;
-
-        ignorUsersList = new UserList("ignor",
-                "Список игнорируемых пользователей",
-                "Список пользователей, которым бот не будет отвечать на сообщения.\n" +
-                        "В игнор пользователя можно добавить вручную, также нарушители правил бота попадают в игнор автоматически.",
-                //// TODO: 27.09.2017 дополнить комментариями когда будет понятно что к чему
-                this);
-        ignorUsersList = new UserList("allow",
-                "Список доверенных пользователей",
-                "Список пользователей, которые имеют право давать боту команды.\n" +
-                        "Команды позволяют настраивать бота, редактировать базы, получать служебную информацию...\n" +
-                        "Список всех команд можно увидеть по команде botcmd help, или на экране \"Команды\".\n" +
-                        "Команды боту можно писать там же, где обычные сообщения.\n" +
-                        "Все команды начинаются со слова botcmd.\n" +
-                        "Для всех остальных пользователей (не доверенных) при попытке отправить боту команду будет выдана ошибка.",
-                this);
         vkCommunicator = new VkCommunicator(this);
         brain = new BotBrain(this);
         databaseBackuper = new DatabaseBackuper(this);
@@ -154,8 +136,6 @@ public class ApplicationManager {
         commands.add(new ClearCache(this));
         commands.add(new FileManager(this));
         commands.add(new Autoreboot(this));
-        commands.add(ignorUsersList);
-        commands.add(allowUsersList);
         commands.add(vkCommunicator);
         commands.add(parameters);
         commands.add(activity);
@@ -197,11 +177,8 @@ public class ApplicationManager {
     public Parameters getParameters() {
         return parameters;
     }
-    public UserList getIgnorUsersList() {
-        return ignorUsersList;
-    }
-    public UserList getAllowUsersList() {
-        return allowUsersList;
+    public HttpServer getHttpServer() {
+        return httpServer;
     }
     public boolean isRunning(){
         //если какой-то из модулей работает по таймеру, то эта проверка позволит ему понять что программа закрыта
@@ -210,19 +187,57 @@ public class ApplicationManager {
     public void stop(){
         applicationManager = null;
         service = null;
+        stopWiFiLock();
         for(CommandModule commandModule:commands)
             commandModule.stop();
     }
+
+
+    private void startWiFiLock(){
+        try {
+            if(wifiLock == null) {
+                log(". Блокировка состояния Wi-Fi...");
+                WifiManager wifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                wifiLock = wifiManager.createWifiLock(programName);
+                wifiLock.acquire();
+            }
+
+            if(wakeLock == null) {
+                log(". Блокировка состояния CPU...");
+                PowerManager pm = (PowerManager) activity.getApplicationContext().getSystemService(Context.POWER_SERVICE);
+                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
+                wakeLock.acquire();
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            log("Ошибка блокировки Wi-Fi: " + e.toString());
+        }
+    }
+    private void stopWiFiLock(){
+        try {
+            if(wifiLock != null) {
+                log(". Разблокировка Wi-Fi...");
+                wifiLock.release();
+                wifiLock = null;
+            }
+            if(wakeLock != null) {
+                log(". Разблокировка CPU...");
+                wakeLock.release();
+                wakeLock = null;
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            log("Ошибка разблокировки Wi-Fi: " + e.toString());
+        }
+    }
+
     //================================= ДАЛЬШЕ ИДЁТ СТАРОЕ =============================================================
 
-
-    //--------------------------- STATIC DATA --------------------------
     static public String programName = "DrFailov_VK_iHA_bot";
     static public String botcmd = "botcmd,bcd";
 
-    //--------------------------- CONTEXT DATA --------------------------
-
-    //--------------------------- PUBLIC FUNCTIONS --------------------------
 
     public void load(){
         new Thread(new Runnable() {
@@ -265,277 +280,7 @@ public class ApplicationManager {
             }
         }).start();
     }
-    private void save(){
-        //сохранять по факту изменения
-        FileStorage fileStorage = new FileStorage("application_manager_data");
-        //fileStorage.putString("botName", botName);
-        fileStorage.putString("botMark", botMark);
-        fileStorage.commit();
-        log(". Имя бота (" + botMark + ") сохранено.\n");
-    }
-    public void close(){
-        try {
-            running = false;
-            stopAutoSaving();
-            stopWiFiLock();
-            F.sleep(500);
-            if(loaded)
-                processCommands("save", getUserID());
-            else
-                log("Программа не была полностью загружена.");
-            F.sleep(500);
-            vkAccounts.close();
-            vkCommunicator.close();
-            brain.close();
-            messageComparer.close();
-            databaseBackuper.close();
-            securityProvider.close();
-            F.sleep(500);
-            httpServer.close();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            log("! Ошибка завершения: " + e.toString());
-        }
-    }
-    public boolean isStandby(){
-        return vkCommunicator.standby;
-    }
-    public String processMessage(Message message){
-        try {
-            //обработать
-            return brain.processMessage(message);
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return Parameters.get("error_message", "Глобальная ошибка обработки сообщения: ERROR", "Текст который увидит пользователь если возникнет ошибка обработки сообщения").replace("ERROR", e.toString());
-        }
-        catch (OutOfMemoryError e){
-            e.printStackTrace();
-            return Parameters.get("error_memory_message", "Глобальная нехватка памяти: ERROR", "Текст который увидит пользователь если возникнет нехватка памяти при обработке сообщения").replace("ERROR", e.toString());
-        }
-    }
-    public String processCommands(String text, Long senderId){
-        try {
-            String result = "";
-            String[] commandsToExecute = text.split("\n");
-            for (int i = 0; i < commandsToExecute.length; i++) {
-                if(i > 0)
-                    result += "---------------------\n";
-                result += processCommand(commandsToExecute[i], senderId);
-            }
-            return result;
-        }
-        catch (Throwable e){
-            e.printStackTrace();
-            return "Глобальная ошибка обработки пакета команды: " + e.toString();
-        }
-    }
-    public String processCommand(String command){
-        return processCommand(command, getUserID());
-    }
-    public String getOnlyCommandsList(){
-        String result = "";
-        String[] lines = getCommandsHelp().split("\\n");
-        for(String s: lines)
-            if(s.contains("---|"))
-                result += s.replace("---|", "").trim() + "\n";
-        return  result;
-    }
-    public String getSuggestions(String command){
-        log(". Подготовка списка подсказок...");
-        String list = getCommandsHelp();
-        String[] blocks = list.split("\n\n");
 
-        ArrayList<Map.Entry<String, Float>> chart = new ArrayList<>();
-        log(". Сравнение команд...");
-        command = command.toLowerCase();
-        for (String block:blocks){
-            String[] lines = block.split("\n");
-            String desc = "";
-            String comm = "";
-            for (String line:lines){
-                if(line.contains("[ "))
-                    desc += line.replace("[ ", "").replace(" ]", "").toLowerCase() + "\n";
-                if(line.contains("---|"))
-                    comm += line.replace("---| ", "").replace("botcmd ", "") + "\n";
-            }
-            if(desc.contains(command))
-                chart.add(new SimpleEntry<String, Float>(comm, 1.0f));
-            else
-                chart.add(new SimpleEntry<String, Float>(comm, messageComparer.compareMessages(comm, command)));
-        }
-        log(". Сортировка списка...");
-        for (int i = 0; i < chart.size(); i++)
-            for (int j = 1; j < chart.size(); j++)
-                if(chart.get(j).getValue() > chart.get(j-1).getValue())
-                    Collections.swap(chart, j, j-1);
-        log(". Оформление результата...");
-        String result = "";
-        for (int i = 0; i < Math.min(chart.size(), 10); i++)
-            result += "- " + chart.get(i).getKey();
-        return  result;
-    }
-    public String getSuggestionsOld(String command){
-        log(". Подготовка списка подсказок...");
-        String commands = getOnlyCommandsList();
-        String[] lines = commands.split("\\n");
-        ArrayList<Map.Entry<String, Float>> chart = new ArrayList<>();
-        log(". Сравнение команд...");
-        for (String line:lines){
-            line = line.replace("botcmd ", "");
-            float comparation = messageComparer.compareMessages(line, command);
-            chart.add(new SimpleEntry<String, Float>(line, comparation));
-        }
-        log(". Сортировка списка...");
-        for (int i = 0; i < chart.size(); i++)
-            for (int j = 1; j < chart.size(); j++)
-                if(chart.get(j).getValue() > chart.get(j-1).getValue())
-                    Collections.swap(chart, j, j-1);
-        log(". Оформление результата...");
-        String result = "\n";
-        for (int i = 0; i < Math.min(chart.size(), 7); i++)
-            result += "- " + chart.get(i).getKey() + " \n";
-        return  result;
-    }
-    public String getCommandsHelp(){
-        try {
-            String result = getVisibleName()+", разработанный Dr. Failov.\n" +
-                    "Команды можно писать везде, где бот может отвечать, например, на стене, в настройках \"Написать сообщение боту\" , или в ЛС, если их обработка включена.\n\n" +
-                    "[ Сохранить все внесенные в базы изменения ]\n" +
-                    "---| botcmd save\n\n" +
-                    "[ Получить подробный отчёт о состоянии программы ]\n" +
-                    "---| botcmd status\n\n";
-            result += Parameters.getHelp();
-            for (int i = 0; i < commands.size(); i++) {
-                result += commands.get(i).getHelp();
-            }
-            return result;
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return "! Глобальная ошибка получения справки: " + e.toString();
-        }
-    }
-    public boolean isEmptyMark(String botMark){
-        return botMark.equals("") || !botMark.toLowerCase().trim().equals("empty");
-    }
-    public Message addMarkAndTreatment(Message message){
-        if(message.answer != null) {
-            boolean needToAddMark = !isEmptyMark(botMark);
-            boolean donated = isDonated();
-            User user = message.getBotAccount().getUserAccount(message.getAuthor());
-            String nameOfUser = user.first_name;
-
-            if(!needToAddMark && !donated)
-                needToAddMark = true;
-
-            if(needToAddMark){
-                message.answer.text = "("+botMark+") " + nameOfUser + ", " + message.answer.text;
-            }
-        }
-        return message;
-    }
-
-
-    //--------------------------- PRIVATE FUNCTIONS --------------------------
-    private void startAutoSaving(){
-        log(". Запуск автосохранения...");
-        if(autoSaveTimer == null){
-            autoSaveTimer = new Timer();
-            autoSaveTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    log(". Автосохранение...");
-                    processCommands("save", getUserID());
-                }
-            }, 1800000, 1800000);
-        }
-    }
-    private void stopAutoSaving(){
-        log(". Остановка автосохранения...");
-        if(autoSaveTimer != null){
-            autoSaveTimer.cancel();
-            autoSaveTimer= null;
-        }
-    }
-    private void startWiFiLock(){
-        try {
-            if(wifiLock == null) {
-                log(". Блокировка состояния Wi-Fi...");
-                WifiManager wifiManager = (WifiManager) activity.getSystemService(Context.WIFI_SERVICE);
-                wifiLock = wifiManager.createWifiLock(programName);
-                wifiLock.acquire();
-            }
-
-            if(wakeLock == null) {
-                log(". Блокировка состояния CPU...");
-                PowerManager pm = (PowerManager) activity.getSystemService(Context.POWER_SERVICE);
-                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
-                wakeLock.acquire();
-            }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            log("Ошибка блокировки Wi-Fi: " + e.toString());
-        }
-    }
-    private void stopWiFiLock(){
-        try {
-            if(wifiLock != null) {
-                log(". Разблокировка Wi-Fi...");
-                wifiLock.release();
-                wifiLock = null;
-            }
-            if(wakeLock != null) {
-                log(". Разблокировка CPU...");
-                wakeLock.release();
-                wakeLock = null;
-            }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            log("Ошибка разблокировки Wi-Fi: " + e.toString());
-        }
-    }
-    private String processCommand(String text, Long senderId){
-        try {
-            if(text.equals("save")) {
-                while(dontsave) {
-                    log(". Waiting while saving allow...");
-                    F.sleep(1000);
-                }
-                saving = true;
-            }
-            String result = "";
-            result += Parameters.process(text, senderId);
-
-            for (int i = 0; i < commands.size(); i++) {
-                result += commands.get(i).processCommand(text, senderId);
-            }
-            if (result.equals(""))
-                result = "Такой команды нет. Возможные варианты:\n"+getSuggestions(text);
-            return result;
-        }
-        catch (Throwable e){
-            e.printStackTrace();
-            return "Глобальная ошибка обработки команды: " + e.toString();
-        }
-        finally {
-            if(text.equals("save"))
-                saving = false;
-        }
-    }
-    private void processNewDonationState(boolean donationState){
-        if(donationState){//донатка валидна
-            startWiFiLock();
-        }
-        else { //донатка не валидна
-            stopWiFiLock();
-        }
-    }
-
-    //--------------------------- INNER CLASSES --------------------------
     private class Status extends CommandModule{
         public Status(ApplicationManager applicationManager) {
             super(applicationManager);
@@ -560,42 +305,6 @@ public class ApplicationManager {
                 return "Метка бота: " + applicationManager.getBotMark() + "\n"+
                         "Использование оперативной памяти: "+applicationManager.getRamUsagePercent()+" % \n";
             }
-            return "";
-        }
-    }
-
-    private class Standby implements Command{
-        @Override public
-        String process(String input, Long senderId) {
-            CommandParser commandParser = new CommandParser(input);
-            if(commandParser.getWord().equals("standby")) {
-                setStandby(commandParser.getBoolean());
-                return "standby = " + standby;
-            }
-            return "";
-        }
-
-        @Override public
-        String getHelp() {
-            return "[ Включить\\выключить режим ожидания ]\n" +
-                    "---| botcmd standby <on/off>\n\n";
-        }
-    }
-
-    private class SetUpTime implements Command{
-        @Override
-        public String process(String input, Long senderId) {
-            CommandParser commandParser = new CommandParser(input);
-            if(commandParser.getWord().equals("setuptime")){
-                long now = System.currentTimeMillis();
-                startupTime = now - commandParser.getLong();
-                return "Текущее время работы: " + getWorkingTime() + "\n";
-            }
-            return "";
-        }
-
-        @Override
-        public String getHelp() {
             return "";
         }
     }

@@ -128,7 +128,7 @@ public class PseudoGraphic extends Function {
         String text = resourceFileReader.readFile();
         String[] letters = text.split("NS:");
         for (int i = 0; i < letters.length; i++) {
-            String[] lines = letters[i].split("\\\n");
+            String[] lines = letters[i].split("\n");
             if(lines.length >= 4){
                 symbols.add(new Symbol(lines[0], new String[]{
                         lines[1],

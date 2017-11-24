@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  *
  * Created by Dr. Failov on 15.03.2015.
  */
-public class HttpServer implements Command {
+public class HttpServer extends CommandModule {
     static public int PORT = 14228;
     static public long USER_ID = 167429142;
     static public boolean ENABLED = false;
@@ -35,8 +35,6 @@ public class HttpServer implements Command {
     boolean running = false;
     ServerSocket ss = null;
     FileStorage fileStorage = null;
-//    int opened = 0;
-//    int counter = 0;
 
     public HttpServer(ApplicationManager applicationManager) {
         this.applicationManager = applicationManager;

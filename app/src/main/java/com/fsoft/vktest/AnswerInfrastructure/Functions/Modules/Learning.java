@@ -10,7 +10,6 @@ import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Utils.F;
 import com.perm.kate.api.Attachment;
 
-import org.apache.commons.codec.binary.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -322,6 +321,20 @@ public class Learning extends Function {
         stopTimer();
     }
 
+    public boolean isBad(long id){
+        UserData userData = getById(id);
+        if(userData == null)
+            return false;
+        return userData.isBadTeacher();
+    }
+    public boolean isAllowed(long id){
+        UserData userData = getById(id);
+        if(userData == null)
+            return false;
+        return userData.isAllowedTeacher();
+    }
+
+
     private void load(){
         {
             log(". Загрузка базы данных пользователей модуля обучение...");
@@ -453,12 +466,6 @@ public class Learning extends Function {
             if(user.getId() == id)
                 return user;
         return null;
-    }
-    private boolean isBad(long id){
-        UserData userData = getById(id);
-        if(userData == null)
-            return false;
-        return userData.isBadTeacher();
     }
     private void clearOldUsers(){
         //очистить старых пользователей. Это те, кто не писал боту более месяца
@@ -1279,7 +1286,7 @@ public class Learning extends Function {
 
             return difference / getQuestionFrequency();
         }
-        private void sendMessageToThisUser(Answer answer){
+        private void sendMessageToThisUser(final Answer answer){
             new Thread(new Runnable() {
                 @Override
                 public void run() {
