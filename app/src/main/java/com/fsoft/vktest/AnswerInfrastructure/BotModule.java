@@ -157,7 +157,7 @@ public class BotModule extends CommandModule {
             return null;
         return brain.remTreatment(message);
     }
-    private Message addTreatmentToAnswer(Message message){
+    protected Message addTreatmentToAnswer(Message message){
         if(applicationManager == null)
             return null;
         BotBrain brain = applicationManager.getBrain();
@@ -165,7 +165,15 @@ public class BotModule extends CommandModule {
             return null;
         return brain.addTreatmentToAnswer(message);
     }
-    private Message addBotMarkToAnswer(Message message){
+    protected Message replacePlaceholdersByData(Message message){
+        if(applicationManager == null)
+            return null;
+        BotBrain brain = applicationManager.getBrain();
+        if(brain == null)
+            return null;
+        return brain.replacePlaceholdersByData(message);
+    }
+    protected Message addBotMarkToAnswer(Message message){
         if(applicationManager == null)
             return null;
         BotBrain brain = applicationManager.getBrain();
@@ -175,6 +183,7 @@ public class BotModule extends CommandModule {
     }
     protected Message prepare(Message message){
         message = addTreatmentToAnswer(message);
+        message = replacePlaceholdersByData(message);
         message = addBotMarkToAnswer(message);
         return message;
     }

@@ -4,7 +4,7 @@ import com.fsoft.vktest.AnswerInfrastructure.Answer;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Function;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
-import com.fsoft.vktest.Modules.HttpServer;
+import com.fsoft.vktest.Communication.HttpServer;
 
 import java.util.ArrayList;
 

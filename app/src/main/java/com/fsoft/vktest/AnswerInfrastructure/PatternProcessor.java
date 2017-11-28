@@ -1,107 +1,120 @@
 package com.fsoft.vktest.AnswerInfrastructure;
 
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.Command;
+import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.CommandParser;
+import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.ResourceFileReader;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.regex.Matcher;
 
-/**
+/*
+ * Полностью переписываем шаблонизатор.
+ * Теперь данные хранятся в JSON.
+ * Стандартные примеры содержат много конструкций для примера.
+ *
+ * Created by Dr. Failov on 27.11.2017.
+ */
+
+/*
  * будет давать стандартные ответы на стандартные фразы
  * Created by Dr. Failov on 10.08.2014.
  */
-public class PatternProcessor implements Command {
-    ApplicationManager applicationManager = null;
-    String name;
-    ArrayList<Pattern> patterns;
-    ResourceFileReader resourceFileReader;
-    ArrayList<Command> commands;
+public class PatternProcessor extends BotModule {
+    private ArrayList<Pattern> patterns = new ArrayList<>();
+    private File fileToSave = null;
 
-    public PatternProcessor(ApplicationManager applicationManager, String name, int defaultPatterns) {
+    public PatternProcessor(ApplicationManager applicationManager) {
+        super(applicationManager);
         this.applicationManager = applicationManager;
-        this.name = name;
-        this.applicationManager = applicationManager;
-        resourceFileReader = new ResourceFileReader(applicationManager.activity.getResources(), defaultPatterns, name);
-        patterns = new ArrayList<>();
-        commands = new ArrayList<>();
-        commands.add(new Status());
-        commands.add(new Save());
-        commands.add(new GetPatternizator());
-        commands.add(new AddPatternizator());
-        commands.add(new RemPatternizator());
-        commands.add(new TestPatternizator());
-        commands.add(new WhatIsPatternizator());
+        fileToSave = new ResourceFileReader(applicationManager, R.raw.pattern_answers).getFile();
+
+        readFromFile();
+
+        childCommands.add(new Status(applicationManager));
+        childCommands.add(new GetPatternizator(applicationManager));
+        childCommands.add(new AddPatternizator(applicationManager));
+        childCommands.add(new RemPatternizator(applicationManager));
+        childCommands.add(new TestPatternizator(applicationManager));
+        childCommands.add(new WhatIsPatternizator(applicationManager));
     }
-    public String processMessage(String text, Long senderId) {
+
+    @Override
+    public Message processMessage(Message message) {
         ArrayList<String> variants = new ArrayList<>();
         for (int i = 0; i < patterns.size(); i++) {
-            String reply = patterns.get(i).process(text);
+            String reply = patterns.get(i).processMessage(message.getText());
             if(reply != null)
-                variants.add( reply);
+                variants.add(reply);
         }
         if(variants.size() == 0)
-            return null;
-        return variants.get(new Random().nextInt(variants.size()));
+            return super.processMessage(message);
+
+        Random random = new Random();
+        int index = random.nextInt(variants.size());
+        message.setAnswer(new Answer(variants.get(index)));
+
+        return message;
     }
-    public void load() {
+    public void addPattern(Pattern pattern){
+        patterns.add(pattern);
+        writeToFile();
+    }
+    public boolean remPattern(Pattern pattern){
+        boolean result = patterns.remove(pattern);
+        writeToFile();
+        return result;
+    }
+    public ArrayList<Pattern> getPatterns() {
+        return patterns;
+    }
+
+    private void readFromFile(){
         log(". Загрузка шаблонизатора...");
-        String fileText = resourceFileReader.readFile();
+        String fileText = F.readFromFile(fileToSave).trim();
         if(fileText == null) {
-            log("! Ошибка прочтения файла шаблонизатора: " + resourceFileReader.getFilePath());
+            log("! Ошибка прочтения файла шаблонизатора: " + fileToSave);
             return;
         }
-        String[] lines = fileText.split("\\\n");
-        for (int i = 0; i < lines.length; i++) {
-            if(lines[i] != null && !lines[i].equals(""))
-                patterns.add(new Pattern(lines[i]));
+        String[] lines = fileText.split("\n");
+        for (String line:lines) {
+            try {
+                if (line == null || line.equals("")) {
+                    log("! Пропуск некорректной строки шаблонизатора");
+                    continue;
+                }
+                JSONObject jsonObject = new JSONObject(line);
+                patterns.add(new Pattern(jsonObject));
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                log("! Ошибка загрузки шаблона шаблонизатора: " + line);
+            }
         }
         log(". Данные шаблонизатора загружены: " + patterns.size() + " шаблонов.");
     }
-    public void close() {
-        //save();
-    }
-    String save(){
+    private void writeToFile(){
         log(". Сохранение шаблонизатора...");
-        if(patterns.size() == 0) {
-            log( "! Сохранение шаблонизатора невозможно: база пустая.");
-            return "Сохранение шаблонизатора невозможно: база пустая.\n";
+        try {
+            PrintWriter fileTmpWriter = new PrintWriter(fileToSave);
+
+            for (Pattern pattern:patterns)
+                fileTmpWriter.println(pattern.toJson().toString());
+
+            fileTmpWriter.close();
+            log(". Сохранение данных шаблонизатора (" + patterns.size() + " шаблонов) выполнено в " + fileToSave);
         }
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < patterns.size(); i++) {
-            stringBuilder.append(patterns.get(i).serialize());
-            if(i<patterns.size()-1)
-                stringBuilder.append("\n");
+        catch (Exception e){
+            e.printStackTrace();
+            log(". Ошибка сохранения данных шаблонизатора в файл " + fileToSave + "\n" + e.getMessage());
         }
-        boolean result = resourceFileReader.writeFile(stringBuilder.toString());
-        if(result) {
-            log(". Сохранение данных шаблонизатора (" + patterns.size() + " шаблонов) выполнено в " + resourceFileReader.getFilePath());
-            return ". Сохранение данных шаблонизатора (" + patterns.size() + " шаблонов) выполнено в " + resourceFileReader.getFilePath() + "\n";
-        }
-        else{
-            log(". Ошибка сохранения данных шаблонизатора в файл " + resourceFileReader.getFilePath());
-            return "! Ошибка сохранения данных шаблонизатора в файл " + resourceFileReader.getFilePath() + "\n";
-        }
-    }
-    public @Override String getHelp() {
-        String result = "";
-        for (int i = 0; i < commands.size(); i++) {
-            result += commands.get(i).getHelp();
-        }
-        return result;
-    }
-    public @Override String process(String text, Long senderId) {
-        String result =  "";
-        for (int i = 0; i < commands.size(); i++) {
-            result += commands.get(i).processCommand(text, senderId);
-        }
-        return result;
-    }
-    private void log(String text){
-        ApplicationManager.log(text);
     }
 
     private class Status implements Command{
@@ -337,70 +350,71 @@ public class PatternProcessor implements Command {
     }
 
     private class Pattern{
-        String answer = "";
-        String pattern = "";
-        String preparedPattern = null;
+        private String answer = null;
+        private String pattern = null;
+
         Pattern (String pattern, String answer){
             this.answer = answer;
             this.pattern = pattern;
         }
-        Pattern (String serializable){
-            try {
-                JSONObject jsonObject = new JSONObject(serializable);
-                pattern = jsonObject.getString("pattern");
-                answer = jsonObject.getString("answer");
-            }
-            catch (Exception e){
-                if(!serializable.contains(".*")) {
-                    String[] part = serializable.split("\\*");
-                    if (part.length >= 2) {
-                        pattern = ".*" + part[0] + ".*";
-                        answer = part[1];
-                    }
-                }
-            }
+        Pattern (JSONObject jsonObject) throws Exception{
+            fromJson(jsonObject);
         }
-        String process(String mes){
-            try {
-                if (isIt(mes)) {
-                    String toReturn = answer;
+        public void fromJson(JSONObject jsonObject) throws Exception {
+            pattern = jsonObject.getString("pattern");
+            answer = jsonObject.getString("answer");
+        }
+        public JSONObject toJson() throws Exception{
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("pattern", pattern);
+            jsonObject.put("answer", answer);
+            return jsonObject;
+        }
 
-                    java.util.regex.Pattern pat = java.util.regex.Pattern.compile(pattern);
-                    Matcher matcher = pat.matcher(mes);
-                    if (matcher.find()) {
-                        for (int i = 0; i < 50; i++) {
-                            try {
-                                String part = matcher.group(i);
-                                toReturn = toReturn.replace("[" + i + "]", (part == null ? "" : part));
-                            } catch (Exception e) {
-                                break;
-                            }
+        @Override
+        public String toString() {
+            return pattern + " -> " + answer;
+        }
+
+        //null = не подходит
+        //пустота - ответить пустотой
+        //ответ - ответить
+        public String processMessage(String mes){
+            try {
+                if(pattern == null || pattern.equals("") || answer == null)
+                    return null;
+                if(!mes.toLowerCase().matches(pattern.toLowerCase()))
+                    return null;
+
+                String toReturn = answer;
+                java.util.regex.Pattern pat = java.util.regex.Pattern.compile(pattern);
+                Matcher matcher = pat.matcher(mes);
+                if (matcher.find()) {
+                    for (int i = 0; i < 50; i++) {
+                        try {
+                            String part = matcher.group(i);
+                            toReturn = toReturn.replace("$"+(i+1), (part == null ? "" : part));
+                        } catch (Exception e) {
+                            break;
                         }
                     }
-
-                    return toReturn;
                 }
+
+                return toReturn;
             }
             catch (Exception e){
-                applicationManager.activity.messageBox(e.toString() + "\nПредположительно, Вы допустили ошибку в регулярном выражении шаблонизатора: \n" + pattern + " --> " + answer + " \nУдалите шаблон и исправьте ошибку.");
+                e.printStackTrace();
+                log(e.toString() + "\n" +
+                        "Предположительно, Вы допустили ошибку в регулярном выражении шаблонизатора: \n" +
+                        pattern + " --> " + answer + " \n" +
+                        "Удалите шаблон и исправьте ошибку.");
+                if(applicationManager.getActivity() != null)
+                    applicationManager.getActivity().showMessage(e.toString() + "\n" +
+                            "Предположительно, Вы допустили ошибку в регулярном выражении шаблонизатора: \n" +
+                            pattern + " --> " + answer + " \n" +
+                            "Удалите шаблон и исправьте ошибку.");
             }
             return null;
-        }
-        boolean isIt(String mes){
-            if(pattern == null || pattern.equals(""))
-                return false;
-            return mes.toLowerCase().matches(pattern.toLowerCase());
-        }
-        String serialize(){
-            try {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("pattern", pattern);
-                jsonObject.put("answer", answer);
-                return jsonObject.toString();
-            }
-            catch (Exception e){
-                return "";
-            }
         }
     }
 }

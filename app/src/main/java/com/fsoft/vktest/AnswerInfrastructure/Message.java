@@ -2,7 +2,6 @@ package com.fsoft.vktest.AnswerInfrastructure;
 
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
-import com.fsoft.vktest.ViewsLayer.MessagesListFragment;
 import com.perm.kate.api.Attachment;
 
 import java.util.ArrayList;
@@ -15,11 +14,7 @@ import java.util.ArrayList;
 public class Message extends MessageBase{
     //Коммуникатор при помищи этого интерфейса описывает процедуру отправки ответа
     protected OnAnswerReady onAnswerReady = null;
-    //это поле хранит функцию которая в любой момент
-    //Каждый раз когда поступает новое сообщение, оно регистрируется на экране
-    //в виде отдельного блока. Чтобы иметь возможность обращаться к этому блоку, будем хранить
-    // ссылку на него здесь
-    public MessagesListFragment.MessageList.MessageListElement messageListElement = null;
+
 
     public Message(String source, String text, long author, ArrayList<Attachment> attachments, VkAccountCore botAccount, OnAnswerReady onAnswerReady) {
         super(source, text, author, attachments, botAccount);
@@ -29,7 +24,6 @@ public class Message extends MessageBase{
     public Message(Message toCopy) {
         super(toCopy);
         this.onAnswerReady = toCopy.onAnswerReady;
-        this.messageListElement = toCopy.messageListElement;
     }
 
     public MessageBase withOnAnswerReady(OnAnswerReady onAnswerReady) {

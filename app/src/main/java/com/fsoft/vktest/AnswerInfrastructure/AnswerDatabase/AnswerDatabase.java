@@ -2002,7 +2002,7 @@ public class AnswerDatabase extends BotModule {
         }
 
         @Override
-        public String processCommand(Message message) {
+        public String processCommand(final Message message) {
             CommandParser commandParser = new CommandParser(message.getText());
             String word = commandParser.getWord().toLowerCase();
             if(word.equals("clearduplicates")) {

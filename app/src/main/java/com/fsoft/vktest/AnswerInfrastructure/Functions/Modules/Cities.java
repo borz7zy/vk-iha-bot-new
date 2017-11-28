@@ -7,7 +7,7 @@ import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
-import com.fsoft.vktest.Modules.HttpServer;
+import com.fsoft.vktest.Communication.HttpServer;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;

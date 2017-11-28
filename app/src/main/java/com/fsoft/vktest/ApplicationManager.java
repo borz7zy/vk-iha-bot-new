@@ -1,16 +1,13 @@
 package com.fsoft.vktest;
 
-import android.app.Service;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.PowerManager;
 
 import com.fsoft.vktest.AnswerInfrastructure.BotBrain;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.Modules.Commands.ClearCache;
-import com.fsoft.vktest.Modules.Commands.Command;
 import com.fsoft.vktest.Modules.Commands.CpuTemp;
 import com.fsoft.vktest.Modules.Commands.Decode;
 import com.fsoft.vktest.Modules.Commands.Encode;
@@ -21,16 +18,13 @@ import com.fsoft.vktest.Modules.Autoreboot;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.DatabaseBackuper;
 import com.fsoft.vktest.Modules.FileManager;
-import com.fsoft.vktest.Modules.HttpServer;
+import com.fsoft.vktest.Communication.HttpServer;
 import com.fsoft.vktest.Modules.SecurityProvider;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.Utils.Parameters;
-import com.fsoft.vktest.Utils.SimpleEntry;
-import com.fsoft.vktest.Utils.UserList;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
-import com.perm.kate.api.User;
 
 import java.io.*;
 import java.util.*;

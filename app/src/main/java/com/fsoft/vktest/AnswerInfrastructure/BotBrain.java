@@ -4,11 +4,10 @@ import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.AnswerDatabase;
 import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.UnknownMessagesDatabase;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.FunctionProcessor;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.Learning;
-import com.fsoft.vktest.AnswerInfrastructure.MessageComparison.MessagePreparer;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.Command;
-import com.fsoft.vktest.Modules.HttpServer;
+import com.fsoft.vktest.Communication.HttpServer;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;
@@ -211,18 +210,33 @@ public class BotBrain extends CommandModule {
         // добавление обращения, либо если в ответе есть какая-то константа, которую надо заменить на инфу о пользователе
         if(treatmentEnabled || answer.text.contains("%")) {
             User user = applicationManager.getCommunicator().getActiveAccount().getUserAccount(message.getAuthor());
-            /*
-            Hello, deAr %username%
-            Hello, deAr %usernamE%
-            Hello, deAr %UsernamE% and %UsernamE%
-            Hello, deAr %USERNAME%
-            * "bdate,first_name,last_name,about,interests,home_town,screen_name,is_friend,books,photo_id"*/
 
             //если нигде в тексте не упоминается имя, добавить его в начале
             if(user.first_name != null &&
                     !answer.text.toLowerCase().contains("%username%") &&
                     !answer.text.toLowerCase().contains("%usersurname%"))
                 answer.text = user.first_name + ", " + answer.text;
+        }
+        message.setAnswer(answer);
+        return message;
+    }
+    public Message replacePlaceholdersByData(Message message){
+        //заменяет констатны типа %USERNAME% данными
+        if(message == null)
+            return null;
+        Answer answer = message.getAnswer();
+        if(answer == null || answer.isEmpty())
+            return message;
+        //нужно будет загружать инфу о пользователе только в том случае, если либо включено
+        // добавление обращения, либо если в ответе есть какая-то константа, которую надо заменить на инфу о пользователе
+        if(answer.text.contains("%")) {
+            User user = message.getAuthorAccount();
+            /*
+            Hello, deAr %username%
+            Hello, deAr %usernamE%
+            Hello, deAr %UsernamE% and %UsernamE%
+            Hello, deAr %USERNAME%
+            * "bdate,first_name,last_name,about,interests,home_town,screen_name,is_friend,books,photo_id"*/
 
             //прописать в ответ константы, которые могут быть в ответе
             if(user.first_name != null)

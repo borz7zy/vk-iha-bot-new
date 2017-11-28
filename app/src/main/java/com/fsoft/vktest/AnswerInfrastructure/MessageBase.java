@@ -2,6 +2,7 @@ package com.fsoft.vktest.AnswerInfrastructure;
 
 import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
 import com.perm.kate.api.Attachment;
+import com.perm.kate.api.User;
 
 import java.util.ArrayList;
 
@@ -42,6 +43,7 @@ public class MessageBase {
     static public final String SOURCE_WALL = "wall";
     static public final String SOURCE_COMMENT = "comment";
     static public final String SOURCE_PROGRAM = "program";
+    static public final String SOURCE_HTTP = "http";
 
 
     //это базовые поля. Они всегда должны быть заполнены.
@@ -50,6 +52,7 @@ public class MessageBase {
     private long message_id = 0L;           //Если это сообщение, то ID сообщения, или же ID коммента на стене, или же...
     private String text = "";               //что в этой хуйне написано
     private long author = 0L;               //кто эту хуйню написал
+    private User authorAccount = null;      //инфа об авторе сообщения
     protected ArrayList<Attachment> attachments = null;//что он к этой хуйне приложил
     protected VkAccountCore botAccount = null;     // кто из ботов эту хуйню обнаружил
     protected Answer answer = null;            // когда ответ подобран, ложим его сюда
@@ -175,6 +178,14 @@ public class MessageBase {
     }
     public void setAuthor(long author) {
         this.author = author;
+    }
+    public User getAuthorAccount() {
+        if(authorAccount != null)
+            return authorAccount;
+        if(botAccount == null)
+            return null;
+        authorAccount = botAccount.getUserAccount(author);
+        return authorAccount;
     }
     public ArrayList<Attachment> getAttachments() {
         return attachments;
