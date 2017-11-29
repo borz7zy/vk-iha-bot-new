@@ -282,7 +282,7 @@ public class PatternProcessor extends BotModule {
         public String processCommand(Message message) {
             CommandParser commandParser = new CommandParser(message.getText());
             String word = commandParser.getWord();
-            if(word.equals("addpatternizator") || word.equals("apt")) {
+            if(word.toLowerCase().equals("addpatternizator") || word.toLowerCase().equals("apt")) {
                 String lastText = commandParser.getText();
                 if(lastText.equals(""))
                     return "Ошибка внесения шаблона: не получен текст шаблона.\n"
@@ -327,26 +327,55 @@ public class PatternProcessor extends BotModule {
             return result;
         }
     }
-    private class TestPatternizator implements Command{
-        @Override
-        public String getHelp() {
-            return "[ Проверить регулярное выражение на соответствие тексту ]\n" +
-                    "[ так же сработает tpt ]\n" +
-                    "---| botcmd testpatternizator <текст для теста>*<регулярное выражение>\n\n";
+    private class RemPatternizator extends CommandModule{
+        public RemPatternizator(ApplicationManager applicationManager) {
+            super(applicationManager);
         }
 
         @Override
-        public String process(String input, Long senderId) {
-            CommandParser commandParser = new CommandParser(input);
+        public String processCommand(Message message) {
+            CommandParser commandParser = new CommandParser(message.getText());
             String word = commandParser.getWord();
-            if(word.equals("testpatternizator") || word.equals("tpt")) {
+            if(word.toLowerCase().equals("rempatternizator") || word.toLowerCase().equals("rpt")) {
+                int id = commandParser.getInt();
+                if(id < 0 || id >= patterns.size())
+                    return "Ошибка удаления шаблона "+id+": такого нет.\n"
+                            + F.commandDescsToText(getHelp());
+                Pattern deleted = patterns.remove(id);
+                return "Шаблон удален: " + deleted.toString() + "\n";
+            }
+            return "";
+        }
+
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc("Удалить шаблон шаблонизатора",
+                            "Порядковый номер можно узнать командой GetPatternizator.\n" +
+                                    "У этой команды есть сокращённый вариант вызова: bcd rpt.",
+                    "botcmd RemPatternizator <Порядковый номер элемента>"));
+            return result;
+        }
+    }
+    private class TestPatternizator extends CommandModule{
+        public TestPatternizator(ApplicationManager applicationManager) {
+            super(applicationManager);
+        }
+
+        @Override
+        public String processCommand(Message message) {
+            CommandParser commandParser = new CommandParser(message.getText());
+            String word = commandParser.getWord();
+            if(word.toLowerCase().equals("testpatternizator") || word.toLowerCase().equals("tpt")) {
                 String lastText = commandParser.getText();
                 if(lastText.equals(""))
-                    return "Ошибка теста шаблона: не получен текст шаблона.\n";
+                    return "Ошибка теста шаблона: не получен текст шаблона.\n"
+                            + F.commandDescsToText(getHelp());
 
                 String text = null, pattern = null;
                 {
-                    java.util.regex.Pattern pat = java.util.regex.Pattern.compile("([^\\*]+)\\*(.+)");
+                    java.util.regex.Pattern pat = java.util.regex.Pattern.compile("([^*]+)\\*(.+)");
                     Matcher matcher = pat.matcher(lastText);
                     try {
                         if (matcher.find()) {
@@ -354,7 +383,8 @@ public class PatternProcessor extends BotModule {
                             pattern = matcher.group(2);
                         }
                     } catch (Exception e) {
-                        return "Ошибка теста шаблона: недостаточно аргументов. Вы не забыли звездочку?!\n" + getHelp();
+                        return "Ошибка теста шаблона: недостаточно аргументов. Вы не забыли звездочку?!\n"
+                                + F.commandDescsToText(getHelp());
                     }
                 }
                 if(pattern != null && text != null) {
@@ -371,44 +401,36 @@ public class PatternProcessor extends BotModule {
                         search ++;
                         for (int i=0; i<100; i++){
                             try{
-                                result += "group["+i+"] " + matcher.group(i) + "\n";
+                                result += "$"+i+" = " + matcher.group(i) + "\n";
                             }
                             catch (Exception e){
                                 break;
                             }
                         }
                     }
-                    result += "\n- Конец поиска.\n";
+                    //result += "\n- Конец поиска.\n";
 
                     return result;
                 }
                 else {
-                    return "Ошибка теста шаблона: не получен текст.\n" + getHelp();
+                    return "Ошибка теста шаблона: не получен текст.\n"
+                            + F.commandDescsToText(getHelp());
                 }
             }
             return "";
         }
-    }
-    private class RemPatternizator implements Command{
-        @Override
-        public String getHelp() {
-            return "[ Удалить шаблон шаблонизатора ]\n" +
-                    "[ так же сработает rpt ]\n" +
-                    "---| botcmd rempatternizator <порядковый номер элемента>\n\n";
-        }
 
         @Override
-        public String process(String input, Long senderId) {
-            CommandParser commandParser = new CommandParser(input);
-            String word = commandParser.getWord();
-            if(word.equals("rempatternizator") || word.equals("rpt")) {
-                int id = commandParser.getInt();
-                if(id < 0 || id >= patterns.size())
-                    return "Ошибка удаления шаблона "+id+": такого нет.\n" + getHelp();
-                Pattern deleted = patterns.remove(id);
-                return "Шаблон удален: " + deleted.serialize() + "\n";
-            }
-            return "";
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc("Проверить регулярное выражение на соответствие тексту",
+                    "Поскольку в Java механизм регулярных выражений отличается от того, который применяется в других языках, " +
+                            "может потребоваться проверить, правильно ли была написана регулярка.\n" +
+                            "Эта команда позволяет проверить соотвествует ли текст регулярному выражению " +
+                            "и какие аргументы достаются из этой регулярки.\n" +
+                            "У этой команды есть сокращённый вариант вызова: bcd tpt.",
+                    "botcmd TestPatternizator <текст>*<регулярное выражение>"));
+            return result;
         }
     }
 
