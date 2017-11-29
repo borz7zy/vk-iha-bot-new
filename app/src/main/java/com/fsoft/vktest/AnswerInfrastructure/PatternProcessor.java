@@ -242,46 +242,53 @@ public class PatternProcessor extends BotModule {
             return "";
         }
     }
-    private class GetPatternizator implements Command{
-        @Override
-        public String getHelp() {
-            return "[ Получить список шаблонов шаблонизатора ]\n" +
-                    "[ так же сработает gpt ]\n" +
-                    "---| botcmd getpatternizator\n\n";
+    private class GetPatternizator extends CommandModule{
+        public GetPatternizator(ApplicationManager applicationManager) {
+            super(applicationManager);
         }
 
         @Override
-        public String process(String input, Long senderId) {
-            CommandParser commandParser = new CommandParser(input);
-            String word = commandParser.getWord();
-            if(word.equals("getpatternizator") || word.equals("gpt")) {
-                String result = "Список шаблонов шаблонизатора: \n\n";
+        public String processCommand(Message message) {
+            if(message.getText().toLowerCase().equals("getpatternizator") || message.getText().toLowerCase().equals("gpt")) {
+                String result = "Список шаблонов шаблонизатора: \n";
                 for (int i = 0; i < patterns.size(); i++) {
-                    result += i + ") " +patterns.get(i).serialize() + "\n\n";
+                    result += i + ") " +patterns.get(i) + "\n" +
+                            ".\n";
                 }
                 return result;
             }
             return "";
         }
-    }
-    private class AddPatternizator implements Command{
+
         @Override
-        public String getHelp() {
-            return "[ Добавить шаблон шаблонизатора ]\n" +
-                    "[ так же сработает apt ]\n" +
-                    "---| botcmd addpatternizator <текст ответа>*<регулярное выражение>\n\n";
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc("Получить список шаблонов шаблонизатора",
+                    "Шаблонизатор отвечает фразой из ответа, если регулярное выражение выполняется.\n" +
+                            "Шаблоны шаблонизатора ты можешь добавить командой AddPatternizator.\n" +
+                            "Изначально в программу добавлено несколько шаблонов для примера, " +
+                            "чтобы было проще разобраться как они работают.\n" +
+                            "У этой команды есть сокращённый вариант вызова: bcd gpt.",
+                    "botcmd GetPatternizator"));
+            return result;
+        }
+    }
+    private class AddPatternizator extends CommandModule{
+        public AddPatternizator(ApplicationManager applicationManager) {
+            super(applicationManager);
         }
 
         @Override
-        public String process(String input, Long senderId) {
-            CommandParser commandParser = new CommandParser(input);
+        public String processCommand(Message message) {
+            CommandParser commandParser = new CommandParser(message.getText());
             String word = commandParser.getWord();
             if(word.equals("addpatternizator") || word.equals("apt")) {
                 String lastText = commandParser.getText();
                 if(lastText.equals(""))
-                    return "Ошибка внесения шаблона: не получен текст шаблона.\n" + getHelp();
+                    return "Ошибка внесения шаблона: не получен текст шаблона.\n"
+                            + F.commandDescsToText(getHelp());
 
-                java.util.regex.Pattern pat = java.util.regex.Pattern.compile("([^\\*]+)\\*(.+)");
+                java.util.regex.Pattern pat = java.util.regex.Pattern.compile("([^*]+)\\*(.+)");
                 Matcher matcher = pat.matcher(lastText);
                 String answer = null, pattern = null;
                 try {
@@ -291,18 +298,33 @@ public class PatternProcessor extends BotModule {
                     }
                 }
                 catch (Exception e){
-                    return "Ошибка внесения шаблона: недостаточно аргументов. Вы не забыли звездочку?!\n" + getHelp();
+                    return "Ошибка внесения шаблона: недостаточно аргументов. Вы не забыли звездочку?!\n"
+                            + F.commandDescsToText(getHelp());
                 }
                 if(pattern != null && answer != null) {
                     Pattern newPat = new Pattern(pattern, answer);
                     patterns.add(newPat);
-                    return "Шаблон добавлен: " + newPat.serialize();
+                    return "Шаблон добавлен: " + newPat.toString();
                 }
                 else {
-                    return "Ошибка внесения шаблона: не получен текст шаблона.\n" + getHelp();
+                    return "Ошибка внесения шаблона: не получен текст шаблона.\n"
+                            + F.commandDescsToText(getHelp());
                 }
             }
             return "";
+        }
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc("Добавить шаблон шаблонизатора",
+                    "Шаблонизатор отвечает фразой из ответа, если регулярное выражение выполняется.\n" +
+                            "Подробнее о том что такое регулярное выражение ты можешь почитать " +
+                            "в команде WhatIsPatternizator.\n" +
+                            "Текст ответа не может содержать звёздочку, т.к. она является разделителем аргументов.\n" +
+                            "У этой команды есть сокращённый вариант вызова: bcd apt.",
+                    "botcmd AddPatternizator <Текст ответа>*<Регулярное выражение>"));
+            return result;
         }
     }
     private class TestPatternizator implements Command{
