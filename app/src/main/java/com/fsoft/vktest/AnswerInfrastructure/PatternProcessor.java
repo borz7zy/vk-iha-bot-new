@@ -133,7 +133,7 @@ public class PatternProcessor extends BotModule {
         @Override
         public ArrayList<CommandDesc> getHelp() {
             ArrayList<CommandDesc> result = new ArrayList<>();
-            //// TODO: 28.11.2017 маловато тут всего
+            //// TODO: 28.11.2017 маловато тут всего. Статистику бы сюда.
             result.add(new CommandDesc(
                     "Состояние шаблонизатора",
                     "Отображает состояние шаблонизатора",
