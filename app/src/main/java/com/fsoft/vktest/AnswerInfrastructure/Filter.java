@@ -2,8 +2,11 @@ package com.fsoft.vktest.AnswerInfrastructure;
 
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.HttpServer;
+import com.fsoft.vktest.Modules.CommandModule;
+import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.CommandParser;
+import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.ResourceFileReader;
 import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.Utils.Parameters;
@@ -28,7 +31,14 @@ import java.util.Map;
  * Этот класс фильтрует базар бота, чтобы он не сказал ничего запрещенного.
  *
  * Этот класс хранится в BotBrain, однако каждый BotModule использует свою функцию prepare обращается к этому
- * классу через ApplicationManager
+ * классу через ApplicationManager.
+ *
+ * Что этот класс делает:
+ * - оставляет только разрешённые символы
+ * - Находит запрещённые слова и заменяет их звёздочками
+ * - Ломает сылки
+ * - Высылает предупреждения
+ * - Блокирует злобных нарушителей
  * Created by Dr. Failov on 30.03.2017.
  */
 public class Filter extends BotModule{
@@ -41,9 +51,12 @@ public class Filter extends BotModule{
             "perm"
     };
     private FileStorage storage = null;
+    private boolean enabled = true;
 
     public Filter(ApplicationManager applicationManager) {
         super(applicationManager);
+        storage = new FileStorage("FilterSettings", applicationManager);
+        enabled = storage.getBoolean("enabled", enabled);
         //READ BLACKLIST
         try {
             File blacklistFile = new ResourceFileReader(applicationManager, R.raw.synonimous).getFile();
@@ -61,10 +74,16 @@ public class Filter extends BotModule{
             e.printStackTrace();
             log("! Ошибка загрузки списка запрещённых слов: " + e.getMessage());
         }
+        //READ SYMBOLS
+        File fileWithSymbols = new ResourceFileReader(applicationManager, R.raw.allowed_symbols).getFile();
+        allowedSymbols = F.readFromFile(fileWithSymbols);
+        log(". Разрешенные символы: загружено " + allowedSymbols.length() + " символов.");
     }
 
     @Override
     public Message processMessage(Message message) {
+        if(!enabled)
+            return message;
         if(applicationManager == null)
             return message;
         BotBrain brain = applicationManager.getBrain();
@@ -78,51 +97,116 @@ public class Filter extends BotModule{
             return message;
         if(brain.getLearning().isAllowed(message.getAuthor()))
             return message;
-        if(applicationManager.)
-        return super.processMessage(message);
+        if(message.getSource() == MessageBase.SOURCE_HTTP)
+            return message;
+        if(message.getSource() == MessageBase.SOURCE_PROGRAM)
+            return message;
+
+        //оставить только разрещённые символы. Всякую псевдографику нахуй
+        message.getAnswer().text = F.filterSymbols(message.getAnswer().text, allowedSymbols);
+
+
+
+        //после каждой точки поставить по пробелу. Так убиваем ссылки
+        message.getAnswer().text = message.getAnswer().text.replace(".", ". ");
+        message.getAnswer().text = message.getAnswer().text.replaceAll(" +", " ");
+        //восстанавливаем троеточие
+        message.getAnswer().text = message.getAnswer().text.replace(". . .", "...");
+        //ВК реагирует на спецграфику в кодах, типа &#228. Это её убивает
+        message.getAnswer().text = message.getAnswer().text.replace("&#", " ");
+        //восстанавливаем ссылки на ВК - они разрешены
+        message.getAnswer().text = message.getAnswer().text.replace("vk. com", "vk.com");
+
+
+        return message;
     }
 
-    public String processMessag(Message message){
 
-        if(in != null && isFilterOn() && !isAllowed(sender) && sender != HttpServer.USER_ID && !teachId.contains(sender)) { //надо ли фильтровать
-            String out = in;
-            out = passOnlyAllowedSymbols(out);
-            out = out.replace(".", ". ");
-            out = out.replace("&#", " ");
-            out = out.replace(". . . ", "...");
-            out = out.replace("vk. com", "vk.com");
-            if(!isAllowedSymbol(out, true)){
-                //log("! Система защиты: Исходное сообщение: " + out);
-                applicationManager.messageBox("Сообщение для " + sender + " ("+applicationManager.vkCommunicator.getUserName(sender)+") опасно.\n" +
-                        "--------------\n" +
-                        out + "\n" +
-                        "--------------\n" +
-                        securityReport);
-                String warningMessage = Parameters.get("security_warning_message","\nСистема защиты: ваше поведение сомнительно. \n" +
-                        "Если это не так, сообщите подробности разработчику.\n" +
-                        "Вы получаете предупреждение:", "Текст который получит пользователь если в ответ на его сообщение бот отправит опасную фразу");
-                if(warnings.containsKey(sender)){
-                    int currentWarnings = warnings.get(sender);
-                    currentWarnings ++;
-                    warnings.put(sender, currentWarnings);
-                    if(currentWarnings >= Parameters.get("security_warning_count", 3, "Количество предупреждений о попытке сломать бота до момента автоматического бана.")){
-                        String result = applicationManager.processCommands("ignor add " + sender + " подозрительное поведение", applicationManager.getUserID());
-                        out = Parameters.get("security_banned_message", "Ваша страница заблокирована: RESULT",
-                                "Сообщение, которое получит пользователь когда он будет заблокирован за попытку сломать бота.").replace("RESULT", result);
-                    }
-                    else {
-                        out = warningMessage + currentWarnings + ".";
-                    }
+    public void setFilterEnabled(boolean enabled) {
+        this.enabled = enabled;
+        storage.put("enabled", enabled);
+        storage.commit();
+    }
+
+    public boolean isFilterEnabled() {
+        return enabled;
+    }
+
+
+    private boolean isAllowed(String message){
+
+    }
+
+
+
+    class Status extends CommandModule{
+        public Status(ApplicationManager applicationManager) {
+            super(applicationManager);
+        }
+
+        @Override
+        public String processCommand(Message message) {
+            if(message.getText().toLowerCase().equals("status") || message.getText().toLowerCase().equals("filter status")){
+                String result = "";
+                result += "Фильтр сомнительного содержания включён: " + (enabled?"Да":"Нет") + "\n";
+                result += "Шаблонов черного списка: "+(fuckingWords == null?"еще не загружено":fuckingWords.size())+"\n";
+                result += "Разрешенных символов: "+(allowedSymbols == null?"еще не загружено":allowedSymbols.length())+"\n";
+                result += "Пользователей получили предупреждения: "+ warnings.size() +"\n";
+
+                return result;
+            }
+            return super.processCommand(message);
+        }
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc(
+                "Просмотреть состояние фильтра.",
+                    "Фильтр нужен для того, чтобы не позволить боту сказать чего-то такого, " +
+                            "за что ВК может заблокировать аккаунт.",
+                    "botcmd filter status"
+            ));
+            return super.getHelp();
+        }
+    }
+    //=============================================================================================
+
+
+
+
+
+
+
+
+
+
+
+    public String processMessag(Message message){
+        if(!isAllowedSymbol(out, true)){
+            String warningMessage = Parameters.get("security_warning_message","\nСистема защиты: ваше поведение сомнительно. \n" +
+                    "Если это не так, сообщите подробности разработчику.\n" +
+                    "Вы получаете предупреждение:", "Текст который получит пользователь если в ответ на его сообщение бот отправит опасную фразу");
+            if(warnings.containsKey(sender)){
+                int currentWarnings = warnings.get(sender);
+                currentWarnings ++;
+                warnings.put(sender, currentWarnings);
+                if(currentWarnings >= Parameters.get("security_warning_count", 3, "Количество предупреждений о попытке сломать бота до момента автоматического бана.")){
+                    String result = applicationManager.processCommands("ignor add " + sender + " подозрительное поведение", applicationManager.getUserID());
+                    out = Parameters.get("security_banned_message", "Ваша страница заблокирована: RESULT",
+                            "Сообщение, которое получит пользователь когда он будет заблокирован за попытку сломать бота.").replace("RESULT", result);
                 }
                 else {
-                    warnings.put(sender, 1);
-                    out = warningMessage + "1.";
+                    out = warningMessage + currentWarnings + ".";
                 }
             }
-            out = out.trim();
-            return out;
+            else {
+                warnings.put(sender, 1);
+                out = warningMessage + "1.";
+            }
         }
-        return in;
+        out = out.trim();
+        return out;
     }
     public boolean isAllowedSymbol(String out, boolean deep){
         String tmp = prepareToFilter(out);
@@ -139,6 +223,12 @@ public class Filter extends BotModule{
             securityReport = ". Угроз не обнаружено.";
         return !warning;
     }
+
+
+
+
+
+
     public @Override String process(String input, Long senderId) {
         CommandParser commandParser = new CommandParser(input);
         switch (commandParser.getWord()) {
@@ -198,9 +288,6 @@ public class Filter extends BotModule{
                 "---| botcmd addblacklistword <|слово которое добавить|>\n\n";
     }
 
-    private boolean isFilterOn(){
-        return storage.getBoolean("enableFilter", true);
-    }
     private String prepareToFilter(String in){
         String tmp = in.toLowerCase();
         for (int i = 0; i < allowedWords.length; i++)
@@ -269,39 +356,8 @@ public class Filter extends BotModule{
         //out = out.replace("я", "r");
         return out;
     }
-    private void loadWords(){
-        if(fuckingWords == null){
-        }
-    }
-    private String save(){
-        String result = "";
-        if(fuckingWords.size() > 1){
-            result += log(". Сохранение Черный спискок в " + blacklistResourceFileReader.getFilePath() + "...\n");
-            try {
-                FileWriter fileWriter = new FileWriter(blacklistResourceFileReader.getFile());
-                for (int i = 0; i < fuckingWords.size(); i++) {
-                    fileWriter.append("|");
-                    fileWriter.append(fuckingWords.get(i));
-                    fileWriter.append("|");
-                    if(i < fuckingWords.size() -1)
-                        fileWriter.append("\n");
-                }
-                fileWriter.close();
-                result += log(". Черный спискок Сохранено " + fuckingWords.size() + " слов.\n");
-            }
-            catch (Exception e){
-                result += log("! Сохранить базу Черный спискок в " + blacklistResourceFileReader.getFilePath() + " не удалось, и вот почему: "+e.toString()+"\n");
-            }
-        }
-        else
-            result += log("! База Черный спискок пуста. Не сохранять.\n");
-        return result;
-    }
     private void loadSymbols(){
         if(allowedSymbols == null){
-            ResourceFileReader resourceFileReader = new ResourceFileReader(applicationManager.activity.getResources(), R.raw.allowed_symbols, name);
-            allowedSymbols = resourceFileReader.readFile();
-            log(". Разрешенные символы: загружено " + allowedSymbols.length() + " символов.");
         }
     }
     private boolean isAllowedByServer(String text){
@@ -349,4 +405,8 @@ public class Filter extends BotModule{
     private boolean isUnsafe(char ch) {
         return " qwertyuiopasdfghjklzxcvbnm1234567890QWERTYUIOPASDFGHJKLZXCVBNM".indexOf(ch) < 0;
     }
+
+
+
+
 }

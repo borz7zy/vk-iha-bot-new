@@ -66,17 +66,23 @@ import java.util.*;
 public class BotBrain extends CommandModule {
     private AnswerDatabase answerDatabase;
     private UnknownMessagesDatabase unknownMessages;
+    private PatternProcessor patternProcessor;
+    private FunctionProcessor functionAnswerer;
     private String[] botTreatments = {"бот,"};
     private FileStorage fileStorage = null;
     private UserList allow = null;
     private UserList ignor = null;
     private Learning learning = null;
+    private Filter filter = null;
 
     public BotBrain(ApplicationManager applicationManager) {
         super(applicationManager);
         fileStorage = new FileStorage("iHA_Brain", applicationManager);
         answerDatabase = new AnswerDatabase(applicationManager);
         unknownMessages = new UnknownMessagesDatabase(applicationManager);
+        patternProcessor = new PatternProcessor(applicationManager);
+        functionAnswerer = new FunctionProcessor(applicationManager);
+        filter = new Filter(applicationManager);
         botTreatments = fileStorage.getStringArray("botTreatments", botTreatments);
 
         ignor = new UserList("ignor",
@@ -97,6 +103,25 @@ public class BotBrain extends CommandModule {
 
         childCommands.add(answerDatabase);
         childCommands.add(unknownMessages);
+    }
+    public Message processMessage(Message message){
+        //эта функция вызывается непосредственно модулями от которых послупают сообщения.
+        //сделовательно, отправлять сообщение надо здесь же
+
+
+        if(message.getAnswer() == null && patternProcessor != null)
+            message = patternProcessor.processMessage(message);
+        if(message.getAnswer() == null && functionAnswerer != null)
+            message = functionAnswerer.processMessage(message);
+        if(message.getAnswer() == null && learning != null)
+            message = learning.processMessage(message);
+        if(message.getAnswer() == null && answerDatabase != null)
+            message = answerDatabase.processMessage(message);
+
+        if(message.getOnAnswerReady() != null && message.getAnswer() != null)
+            message.getOnAnswerReady().sendAnswer(message);
+
+        return message;
     }
     /*ОБРАЩЕНИЯ
     * Они хранятся в том виде в котором будут использоваться. если надо чтобы было с запятой - будет с запятой.
@@ -291,15 +316,15 @@ public class BotBrain extends CommandModule {
     public UnknownMessagesDatabase getUnknownMessages() {
         return unknownMessages;
     }
+    public PatternProcessor getPatternProcessor() {
+        return patternProcessor;
+    }
     //==============================================================================================
 
-    public PatternProcessor patternProcessor;
-    public FunctionProcessor functionAnswerer;
     public PostScriptumProcessor postScriptumProcessor;
     public AnswerPhone answerPhone;
     private RepeatsProcessor repeatsProcessor;
     private FloodFilter floodFilter;
-    private Filter filter;
 
     //// TODO: 18.03.2017 пропускать сообщения с меткой другого бота
 
@@ -312,7 +337,6 @@ public class BotBrain extends CommandModule {
         functionAnswerer = new FunctionProcessor(applicationManager, name);
         repeatsProcessor = new RepeatsProcessor();
         floodFilter = new FloodFilter();
-        filter = new Filter();
         answerPhone = new AnswerPhone();
         postScriptumProcessor = new PostScriptumProcessor();
         allowId = new UserList("allow", applicationManager);
@@ -337,20 +361,6 @@ public class BotBrain extends CommandModule {
         commands.add(new SetBotTreatment());
         commands.add(new SetAllTeachers());
     }
-    public void load() {
-        botTreatment = fileStorage.getString("botTreatment", botTreatment);
-        allTeachers = fileStorage.getBoolean("allTeachers", allTeachers);
-//        SharedPreferences sp = applicationManager.activity.getPreferences(Activity.MODE_PRIVATE);
-//        botTreatment = sp.getString("botTreatment", botTreatment);
-        allowId.load();
-        ignorId.load();
-        teachId.load();
-        answerDatabase.load();
-        positiveProcessor.load();
-        negativeProcessor.load();
-        patternProcessor.load();
-        functionAnswerer.load();
-    }
     public void close() {
         //save();
         //answerDatabase.save();
@@ -359,7 +369,7 @@ public class BotBrain extends CommandModule {
         patternProcessor.close();
         functionAnswerer.close();
     }
-    public String processMessage(Message message) { //ВСЕ ССЫЛКИ ВЕДУТ СЮДА. ВСЕ ЗАЩИТЫ РЕАЛИЗОВЫВАТЬ ЗДЕСЬ.
+    public String processMessageOld(Message message) { //ВСЕ ССЫЛКИ ВЕДУТ СЮДА. ВСЕ ЗАЩИТЫ РЕАЛИЗОВЫВАТЬ ЗДЕСЬ.
         // TODO: 14.08.2017 вызывать отсюда отрисовку на экране сообщения
         //// TODO: 18.03.2017 вызывать отправку сообщения (onAnswerReady) даже если ничего не нужно отправлять. Для этого исползовать ""
         //// TODO: 26.03.2017 try\catch
