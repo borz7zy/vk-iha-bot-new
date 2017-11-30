@@ -170,6 +170,7 @@ public class Filter extends BotModule{
             return super.getHelp();
         }
     }
+    class
     //=============================================================================================
 
 
@@ -290,8 +291,6 @@ public class Filter extends BotModule{
 
     private String prepareToFilter(String in){
         String tmp = in.toLowerCase();
-        for (int i = 0; i < allowedWords.length; i++)
-            tmp = tmp.replace(allowedWords[i], "");
         tmp = replaceTheSameSymbols(tmp);
         //составить список разрешенных символов а все остальные удалить нах
         String allowed = "qwertyuiopasdfghjklzxcvbnmйцукенгшщзхъфывапролджэячсмитьбюієё1234567890";

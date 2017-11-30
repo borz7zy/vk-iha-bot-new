@@ -322,7 +322,6 @@ public class BotBrain extends CommandModule {
     //==============================================================================================
 
     public PostScriptumProcessor postScriptumProcessor;
-    public AnswerPhone answerPhone;
     private RepeatsProcessor repeatsProcessor;
     private FloodFilter floodFilter;
 
@@ -330,11 +329,6 @@ public class BotBrain extends CommandModule {
 
     public void BotBrain____(ApplicationManager applicationManager) {
 
-        //historyProvider = new HistoryProvider(applicationManager);
-        positiveProcessor = new ThematicsProcessor(applicationManager, name, R.raw.positive_answers, "pos");
-        negativeProcessor = new ThematicsProcessor(applicationManager, name, R.raw.negative_answers, "neg");
-        patternProcessor = new PatternProcessor(applicationManager, name, R.raw.pattern_answers);
-        functionAnswerer = new FunctionProcessor(applicationManager, name);
         repeatsProcessor = new RepeatsProcessor();
         floodFilter = new FloodFilter();
         answerPhone = new AnswerPhone();
@@ -342,32 +336,6 @@ public class BotBrain extends CommandModule {
         allowId = new UserList("allow", applicationManager);
         ignorId = new UserList("ignor", applicationManager);
         teachId = new UserList("teacher", applicationManager);
-        commands.add(allowId);
-        commands.add(ignorId);
-        commands.add(teachId);
-        commands.add(filter);
-        commands.add(answerPhone);
-        commands.add(functionAnswerer);
-        commands.add(postScriptumProcessor);
-        commands.add(positiveProcessor);
-        commands.add(negativeProcessor);
-        commands.add(patternProcessor);
-        //commands.add(historyProvider);
-        commands.add(answerDatabase);
-        commands.add(repeatsProcessor);
-        commands.add(floodFilter);
-        commands.add(new Save());
-        commands.add(new Status());
-        commands.add(new SetBotTreatment());
-        commands.add(new SetAllTeachers());
-    }
-    public void close() {
-        //save();
-        //answerDatabase.save();
-        positiveProcessor.close();
-        negativeProcessor.close();
-        patternProcessor.close();
-        functionAnswerer.close();
     }
     public String processMessageOld(Message message) { //ВСЕ ССЫЛКИ ВЕДУТ СЮДА. ВСЕ ЗАЩИТЫ РЕАЛИЗОВЫВАТЬ ЗДЕСЬ.
         // TODO: 14.08.2017 вызывать отсюда отрисовку на экране сообщения
@@ -784,52 +752,6 @@ public class BotBrain extends CommandModule {
                     "---| botcmd getpsreceivers\n\n";
         }
     }
-    class AnswerPhone implements Command{//автоответчик
-        HashMap<Long, String> answers = new HashMap<>();
-        String processMessage(String text, Long senderId) {
-            if(answers.containsKey(senderId))
-                return answers.get(senderId);
-            return "";
-        }
-
-        @Override public String process(String input, Long senderId) {
-            CommandParser commandParser = new CommandParser(input);
-            switch (commandParser.getWord()){
-                case "setanswerphone": {
-                    long userId = applicationManager.getUserID(commandParser.getWord());
-                    String text = commandParser.getText();
-                    answers.put(userId, text);
-                    return "Сообщение автоответчика для пользователя " + userId + " оставлено: " + text;
-                }
-                case "remanswerphone": {
-                    long userId = applicationManager.getUserID(commandParser.getWord());
-                    String text = answers.remove(userId);
-                    return "Сообщение автоответчика для пользователя " + userId + " удалено: " + text;
-                }
-                case "getanswerphone": {
-                    String result = "Сообщения автответчиков ("+answers.size()+") :";
-                    Iterator<Map.Entry<Long, String>> list = answers.entrySet().iterator();
-                    while (list.hasNext()) {
-                        Map.Entry<Long, String> cur = list.next();
-                        result += "Сообщение "+cur.getValue()+" для пользователя "+cur.getKey()+ "\n";
-                    }
-                    return result;
-                }
-            }
-            return "";
-        }
-
-        @Override public String getHelp() {
-            return "[ Оставить пользователю автоответчик ] \n" +
-                    "---| botcmd setanswerphone <ID пользователя> <текст сообщения>\n\n"+
-
-                    "[ Удалить автоответчик ] \n" +
-                    "---| botcmd remanswerphone <ID пользователя>\n\n"+
-
-                    "[ Получить все сообщения автоответчика ] \n" +
-                    "---| botcmd getanswerphone\n\n";
-        }
-    }
     class Status implements Command{
         @Override
         public String process(String input, Long senderId) {
@@ -844,21 +766,6 @@ public class BotBrain extends CommandModule {
         @Override
         public String getHelp() {
             return "";
-        }
-    }
-    class SetAllTeachers implements Command{
-        @Override
-        public String process(String input, Long senderId) {
-            CommandParser commandParser = new CommandParser(input);
-            if(commandParser.getWord().equals("setallteachers"))
-                return "Все учителя: " + (allTeachers = commandParser.getBoolean());
-            return "";
-        }
-
-        @Override
-        public String getHelp() {
-            return "[ Сделать всех учителями ]\n" +
-                    "---| botcmd setallteachers <on/off>\n\n";
         }
     }
 }
