@@ -22,9 +22,11 @@ import java.util.Locale;
  * Edited by Dr. Failov on 27.09.2017.
  */
 
+// TODO: 01.12.2017 добавление пользователя на некоторый срок, дата добавления пользователя
+
 public class UserList extends CommandModule {
     private ArrayList<UserListElement> list = new ArrayList<>();
-    private String name; //allow, teacher, ignor ...
+    private String name; //allow, ignor ...
     private String shortDescription; //Список игнорируемых пользователей
     private String description; //Список пользователей, которым бот не будет отвечать. Кроме того, ....
     private FileStorage file;
@@ -375,11 +377,12 @@ public class UserList extends CommandModule {
             if(jsonObject.has("id"))
                 id = jsonObject.getLong("id");
 
-            if(jsonObject.has("date"))
-                date = sdf.parse(jsonObject.getString("date"));
-
             if(jsonObject.has("comment"))
                 comment = jsonObject.getString("comment");
+
+            if(jsonObject.has("date") && !jsonObject.isNull("date") && !jsonObject.getString("date").equals(""))
+                date = sdf.parse(jsonObject.getString("date"));
+
         }
 
         @Override

@@ -5,6 +5,9 @@ import android.content.res.Resources;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.TimeUnit;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,11 +26,14 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * В этом классе собраны все методы, которые могут быть полезны по всей программе и ни с чем не связаны
@@ -690,5 +696,28 @@ public class F {
             }
         }
         return true;
+    }
+    public static JSONArray hashMapToJsonArray(HashMap<Long, Integer> hashMap) throws Exception{
+        JSONArray jsonArray = new JSONArray();
+        Set<Map.Entry<Long, Integer>> set = hashMap.entrySet();
+        Iterator<Map.Entry<Long, Integer>> iterator = set.iterator();
+        while (iterator.hasNext()){
+            Map.Entry<Long, Integer> entry = iterator.next();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key", entry.getKey());
+            jsonObject.put("value", entry.getValue());
+            jsonArray.put(jsonObject);
+        }
+        return jsonArray;
+    }
+    public static HashMap<Long, Integer> hashMapFromJsonArray(JSONArray jsonArray) throws Exception{
+        HashMap<Long, Integer> result = new HashMap<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            long key = jsonObject.getLong("key");
+            int value = jsonObject.getInt("value");
+            result.put(key, value);
+        }
+        return result;
     }
 }

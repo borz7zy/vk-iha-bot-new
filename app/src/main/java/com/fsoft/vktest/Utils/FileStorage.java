@@ -148,6 +148,14 @@ public class FileStorage {
             return def;
         }
     }
+    public JSONArray getJsonArray(String key, JSONArray def) {
+        try {
+            return jsonObject.getJSONArray(key);
+        }
+        catch (Exception e){
+            return def;
+        }
+    }
 
     public boolean has(String key) {
         return jsonObject.has(key);
@@ -254,6 +262,16 @@ public class FileStorage {
                 jsonArray.put(values[i]);
             jsonObject.put(key, jsonArray.toString());
             put(key, jsonObject.toString());
+        }
+        catch (Exception e){
+            log("! Не могу сохранить значение " + key + " в " + fileName + "!");
+            e.printStackTrace();
+        }
+        return this;
+    }
+    public FileStorage put(String key, JSONArray value) {
+        try {
+            jsonObject.put(key, value);
         }
         catch (Exception e){
             log("! Не могу сохранить значение " + key + " в " + fileName + "!");

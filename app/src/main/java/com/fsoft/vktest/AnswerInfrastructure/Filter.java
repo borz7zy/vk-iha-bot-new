@@ -1,5 +1,7 @@
 package com.fsoft.vktest.AnswerInfrastructure;
 
+import android.util.Log;
+
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.HttpServer;
 import com.fsoft.vktest.Modules.CommandModule;
@@ -16,6 +18,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -39,17 +42,28 @@ import java.util.Map;
  * - Ломает сылки
  * - Высылает предупреждения
  * - Блокирует злобных нарушителей
+ *
+ *
+ * как найти ссылку на заменённой строке и сломать на оригинальной?
+ * Привет, напиши bot---cmd в ответе на моё сообщение!
+ * оригинал: Привет, напиши bot---cmd
+ * Изменено: приветнапишиbotcmd
+ * Найдено: botcmd
+ * Что надо заменить: bot---cmd
+ * На что: b*t*-*c*d
+ *
+ * Идти по сообщению и накапливать буфер только текстовых символов без пробела
+ * Когда в накопленном буфере можно найти ключевую фразу, значит она в конце
+ * Передаём функции индекс последней буквы и найденное ключевое слово
+ * функция идя с этого индекса в начало преобразовывает символ. если преобразованный символ соответствует символу из
+ * найденного слова, заменяем символ в оригинальной строке на *
+ * уменьшаем оба индекса (для оригинальной строки и для ключевого слова)
  * Created by Dr. Failov on 30.03.2017.
  */
 public class Filter extends BotModule{
     private HashMap<Long, Integer> warnings = new HashMap<>();
     private ArrayList<String> fuckingWords = null;
     private String allowedSymbols = null;
-    private String[] allowedWords = {
-            "vk.com",
-            "com.fsoft",
-            "perm"
-    };
     private FileStorage storage = null;
     private boolean enabled = true;
 
@@ -59,7 +73,7 @@ public class Filter extends BotModule{
         enabled = storage.getBoolean("enabled", enabled);
         //READ BLACKLIST
         try {
-            File blacklistFile = new ResourceFileReader(applicationManager, R.raw.synonimous).getFile();
+            File blacklistFile = new ResourceFileReader(applicationManager, R.raw.blacklist).getFile();
             BufferedReader bufferedReader = new BufferedReader(new FileReader(blacklistFile));
             String line;
             int lineNumber = 0;
@@ -78,6 +92,17 @@ public class Filter extends BotModule{
         File fileWithSymbols = new ResourceFileReader(applicationManager, R.raw.allowed_symbols).getFile();
         allowedSymbols = F.readFromFile(fileWithSymbols);
         log(". Разрешенные символы: загружено " + allowedSymbols.length() + " символов.");
+        //READ WARNINGS
+        try {
+            JSONArray warningsJsonArray = storage.getJsonArray("warnings", new JSONArray());
+            warnings = F.hashMapFromJsonArray(warningsJsonArray);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            log("! Ошибка загрузки списка предупреждений: " + e.getMessage());
+        }
+
+
     }
 
     @Override
@@ -118,6 +143,65 @@ public class Filter extends BotModule{
         message.getAnswer().text = message.getAnswer().text.replace("vk. com", "vk.com");
 
 
+        String textError = applicationManager.getParameters().get(
+                "text_filter_error",
+                "(Ошибка фильтрации: %ERROR%)",
+                "Текст оповещения о ошибке от фильтра",
+                "Не всегда программы работают стабильно, иногда возникают ошибки. \n" +
+                        "Не часто, но такое может быть. Именно на этот случай предусмотрено это оповещение.\n" +
+                        "Фрагмент %ERROR% будет заменяться на текст ошибки.");
+        try {
+            String textWarning = applicationManager.getParameters().get(
+                    "text_filter_warning",
+                    "(Предупреждений: %WARNING%)",
+                    "Текст предупреждения от фильтра",
+                    "Существует много фраз, написав которые, страница пользователя блокируется автоматически. " +
+                            "Чтобы защититься от такой блокировки бота, предусмотрен фильтр, который цензурит " +
+                            "опасные участки сообщений отправляемых ботом.\n" +
+                            "Когда какой-то пользователь заставляет бота сказать что-то запрещённое, этот пользователь " +
+                            "получает предупреждение.\n" +
+                            "После нескольких предупреждений бот блокиует пользователя и больше ему не отвечает.\n" +
+                            "Когда пользователь получает предупреждение, бот в конец своего сообщения " +
+                            "добавляет фразу, чтобы сообщить об этом пользователю.\n" +
+                            "Этот параметр позволяет настроить текст, который получит пользователь " +
+                            "в конце сообщения, когда получит предупреждение.\n" +
+                            "Фрагмент %WARNING% в предупреждении будет заменяться на число предупреждений пользователю.");
+            String textIgnor = applicationManager.getParameters().get(
+                    "text_filter_ignored",
+                    "(Вы были заблокированы после %WARNING% предупреждений за попытку сломать бота)",
+                    "Текст оповещения о блокировке от фильтра",
+                    "Существует много фраз, написав которые, страница пользователя блокируется автоматически. " +
+                            "Чтобы защититься от такой блокировки бота, предусмотрен фильтр, который цензурит " +
+                            "опасные участки сообщений отправляемых ботом.\n" +
+                            "Когда какой-то пользователь заставляет бота сказать что-то запрещённое, этот пользователь " +
+                            "получает предупреждение.\n" +
+                            "После нескольких предупреждений бот блокиует пользователя и больше ему не отвечает.\n" +
+                            "Когда пользователь блокируется, бот в конец своего сообщения " +
+                            "добавляет фразу, чтобы сообщить об этом пользователю.\n" +
+                            "Этот параметр позволяет настроить текст, который получит пользователь " +
+                            "в конце сообщения, когда будет заблокирован.\n" +
+                            "Фрагмент %WARNING% в предупреждении будет заменяться на число предупреждений пользователю.");
+
+            //заменить запрещённые фразы звёздочками
+            String before = new String(message.getAnswer().text);
+            String after = filterForbidden(before);
+            if (!before.equals(after)) {
+                message.getAnswer().text = after;
+                int warnings = addWarnings(message.getAuthor());
+                if (warnings < 5)
+                    message.getAnswer().text += " " + textWarning.replace("%WARNING%", String.valueOf(warnings));
+                else {
+                    applicationManager.getBrain().getIgnor().add(message.getAuthor(), "Попытка сломать бота.");
+                    message.getAnswer().text += " " + textIgnor.replace("%WARNING%", String.valueOf(warnings));
+                }
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            log("! Ошибка обработки фильтра: " + e.getMessage());
+            message.getAnswer().text += textError.replace("%ERROR%", e.getMessage());
+        }
+
         return message;
     }
 
@@ -133,10 +217,165 @@ public class Filter extends BotModule{
     }
 
 
-    private boolean isAllowed(String message){
-
+    public String filterForbidden(String input){
+        /*
+        * -> botcmd, bro, nark, blue
+        * -> The quick blue nark jumps over lazy bro.
+        * --> The quick **** **** jumps over lazy ***.
+        *
+        * */
+        //заменить запрещённые фразы звёздочками
+        String buffer = "";
+        for(int i=0; i<input.length(); i++){
+            char c = prepareChar(input.charAt(i));
+            buffer += c;
+            String prohibited = containsProhibitedWord(buffer);
+            if(prohibited != null){
+                buffer = replaceProhibitedWord(buffer, prohibited, i);
+                input = replaceProhibitedWord(input,   prohibited, i);
+            }
+        }
+        return input;
     }
 
+    private char prepareChar(char in){
+        in = toLowerCase(in);
+        String allowed = "qwertyuiopasdfghjklzxcvbnmйцукенгшщзхъфывапролджэячсмитьбюіїєё1234567890";
+        if(allowed.indexOf(in) >= 0)
+            return in;
+        else
+            return 0;
+
+    }
+    private char toLowerCase(char in){
+        switch (in){
+            case 'Q': return'q';
+            case 'W': return'w';
+            case 'E': return'e';
+            case 'R': return'r';
+            case 'T': return't';
+            case 'Y': return'y';
+            case 'U': return'u';
+            case 'I': return'i';
+            case 'O': return'o';
+            case 'P': return'p';
+            case 'A': return'a';
+            case 'S': return's';
+            case 'D': return'd';
+            case 'F': return'f';
+            case 'G': return'g';
+            case 'H': return'h';
+            case 'J': return'j';
+            case 'K': return'k';
+            case 'L': return'l';
+            case 'Z': return'z';
+            case 'X': return'x';
+            case 'C': return'c';
+            case 'V': return'v';
+            case 'B': return'b';
+            case 'N': return'n';
+            case 'M': return'm';
+
+            case 'Й': return'й';
+            case 'Ц': return'ц';
+            case 'У': return'у';
+            case 'К': return'к';
+            case 'Е': return'е';
+            case 'Н': return'н';
+            case 'Г': return'г';
+            case 'Ш': return'ш';
+            case 'Щ': return'щ';
+            case 'З': return'з';
+            case 'Х': return'х';
+            case 'Ъ': return'ъ';
+            case 'Ф': return'ф';
+            case 'Ы': return'ы';
+            case 'В': return'в';
+            case 'А': return'а';
+            case 'П': return'п';
+            case 'Р': return'р';
+            case 'О': return'о';
+            case 'Л': return'л';
+            case 'Д': return'д';
+            case 'Ж': return'ж';
+            case 'Э': return'э';
+            case 'Я': return'я';
+            case 'Ч': return'ч';
+            case 'С': return'с';
+            case 'М': return'м';
+            case 'И': return'и';
+            case 'Т': return'т';
+            case 'Ь': return'ь';
+            case 'Б': return'б';
+            case 'Ю': return'ю';
+            case 'Ї': return'ї';
+            case 'І': return'і';
+            case 'Є': return'є';
+            case 'Ё': return'ё';
+            default: return in;
+        }
+    }
+    private String containsProhibitedWord(String in){
+        for(String word:fuckingWords){
+            if(in.contains(word))
+                return word;
+        }
+        return null;
+    }
+    private String replaceProhibitedWord(String in, String word, int endIndexInInputString){
+        //принять фразу, слово которое в ней надо заменить звёздочками, последний индекс где буквы сходятся
+        //идя с конца слова превращать каждую букву начальной строки
+        //если превращення буева не 0, проверяем. и заменяем
+        //
+        // 0123456789012345678901234
+        // Hello, Bro, how are you?!
+        // bro
+        // 9
+        //result = Hello, ***, how are you?!
+
+        int wordIndex = word.length()-1;
+        for(int i=endIndexInInputString; i > 0; i--){
+            char c = prepareChar(in.charAt(i));
+            if(c != 0){
+                if(c == word.charAt(wordIndex)){
+                    in = replaceCharAt(in, '*', i);
+                    wordIndex --;
+                    if(wordIndex < 0)
+                        break;
+                }
+                else
+                    break;
+            }
+        }
+        return in;
+    }
+    private String replaceCharAt(String in, char c, int index){
+        return in.substring(0, Math.max(index-1, 0)) + c + in.substring(Math.min(index + 1, in.length()), in.length());
+    }
+    private int addWarnings(long userId){
+        int cnt = 1;
+        if(warnings.containsKey(userId)){
+            cnt += warnings.get(userId);
+        }
+        warnings.put(userId, cnt);
+        try {
+            JSONArray warningsJsonArray = F.hashMapToJsonArray(warnings);
+            storage.put("warnings", warningsJsonArray);
+            storage.commit();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            log("! Ошибка сохранения предупреждения для пользователя: " + userId + "     " +e.getMessage() +"!");
+        }
+        return cnt;
+    }
+    private int getWarnings(long userId){
+        int cnt = 0;
+        if(warnings.containsKey(userId)){
+            cnt = warnings.get(userId);
+        }
+        return cnt;
+    }
 
 
     class Status extends CommandModule{
@@ -170,63 +409,8 @@ public class Filter extends BotModule{
             return super.getHelp();
         }
     }
-    class
+
     //=============================================================================================
-
-
-
-
-
-
-
-
-
-
-
-    public String processMessag(Message message){
-        if(!isAllowedSymbol(out, true)){
-            String warningMessage = Parameters.get("security_warning_message","\nСистема защиты: ваше поведение сомнительно. \n" +
-                    "Если это не так, сообщите подробности разработчику.\n" +
-                    "Вы получаете предупреждение:", "Текст который получит пользователь если в ответ на его сообщение бот отправит опасную фразу");
-            if(warnings.containsKey(sender)){
-                int currentWarnings = warnings.get(sender);
-                currentWarnings ++;
-                warnings.put(sender, currentWarnings);
-                if(currentWarnings >= Parameters.get("security_warning_count", 3, "Количество предупреждений о попытке сломать бота до момента автоматического бана.")){
-                    String result = applicationManager.processCommands("ignor add " + sender + " подозрительное поведение", applicationManager.getUserID());
-                    out = Parameters.get("security_banned_message", "Ваша страница заблокирована: RESULT",
-                            "Сообщение, которое получит пользователь когда он будет заблокирован за попытку сломать бота.").replace("RESULT", result);
-                }
-                else {
-                    out = warningMessage + currentWarnings + ".";
-                }
-            }
-            else {
-                warnings.put(sender, 1);
-                out = warningMessage + "1.";
-            }
-        }
-        out = out.trim();
-        return out;
-    }
-    public boolean isAllowedSymbol(String out, boolean deep){
-        String tmp = prepareToFilter(out);
-        loadWords();
-        securityReport = "";
-        boolean warning = false;
-        for (int i = 0; i < fuckingWords.size(); i++) {
-            if(tmp.contains(fuckingWords.get(i))) {
-                securityReport += log("! Система защиты: обнаружен подозрительный фрагмент: " + fuckingWords.get(i)) + "\n";
-                warning = true;
-            }
-        }
-        if(!warning)
-            securityReport = ". Угроз не обнаружено.";
-        return !warning;
-    }
-
-
-
 
 
 
@@ -288,124 +472,5 @@ public class Filter extends BotModule{
                 "[ Добавить слово в реестр запрещённых слов ]\n" +
                 "---| botcmd addblacklistword <|слово которое добавить|>\n\n";
     }
-
-    private String prepareToFilter(String in){
-        String tmp = in.toLowerCase();
-        tmp = replaceTheSameSymbols(tmp);
-        //составить список разрешенных символов а все остальные удалить нах
-        String allowed = "qwertyuiopasdfghjklzxcvbnmйцукенгшщзхъфывапролджэячсмитьбюієё1234567890";
-        for (int i = 0; i < tmp.length(); i++) {
-            char c = tmp.charAt(i);
-            //проверить есть ли этот символ в списке разрешенных
-            boolean isAllowed = false;
-            for (int j = 0; j < allowed.length(); j++) {
-                char ca = allowed.charAt(j);
-                if(c == ca)
-                    isAllowed = true;
-            }
-            if(!isAllowed)
-                tmp = tmp.replace(c, ' ');
-        }
-        //заменить пробелы
-        tmp = tmp.replace(" ", "");
-        return tmp;
-    }
-    private String replaceTheSameSymbols(String in){
-        String out = in;
-        out = out.replace("й", "i");
-        out = out.replace("ц", "c");
-        out = out.replace("у", "y");
-        out = out.replace("к", "k");
-        out = out.replace("е", "e");
-        out = out.replace("г", "g");
-        out = out.replace("ш", "sh");
-        out = out.replace("щ", "sch");
-        out = out.replace("ъ", "");
-        out = out.replace("ф", "f");
-        out = out.replace("ы", "y");
-        out = out.replace("в", "v");
-        out = out.replace("а", "a");
-        out = out.replace("п", "p");
-        out = out.replace("л", "l");
-        out = out.replace("д", "d");
-        out = out.replace("ж", "z");
-        out = out.replace("э", "e");
-        out = out.replace("я", "ya");
-        out = out.replace("ч", "ch");
-        out = out.replace("т", "t");
-        out = out.replace("ь", "i");
-        out = out.replace("ю", "y");
-
-        out = out.replace("у", "y");
-        out = out.replace("к", "k");
-        out = out.replace("е", "e");
-        out = out.replace("н", "h");
-        out = out.replace("з", "3");
-        out = out.replace("х", "x");
-        out = out.replace("в", "v");
-        out = out.replace("б", "b");
-        out = out.replace("а", "a");
-        out = out.replace("р", "r");
-        out = out.replace("о", "o");
-        out = out.replace("с", "c");
-        out = out.replace("м", "m");
-        out = out.replace("и", "n");
-        out = out.replace("т", "t");
-        out = out.replace("і", "i");
-        //out = out.replace("я", "r");
-        return out;
-    }
-    private void loadSymbols(){
-        if(allowedSymbols == null){
-        }
-    }
-    private boolean isAllowedByServer(String text){
-        if(text == null)
-            return true;
-        String encodedText = encodeURIcomponent(text).toUpperCase();
-        if(encodedText.replace("%20", "").equals(""))
-            return true;
-        String address = "http://filyus.ru/verbal.hasBadLinks?q=" + encodedText;
-        log("ADDRESS = " + address);
-        HttpClient httpclient = new DefaultHttpClient();
-        try {
-            HttpGet httpGet = new HttpGet(address);
-            HttpResponse response = httpclient.execute(httpGet);
-            String result = EntityUtils.toString(response.getEntity());
-            log("RESULT = " + result);
-            JSONObject jsonObject = new JSONObject(result);
-            int bad = jsonObject.getInt("response");
-            return !(bad == 1);
-        }
-        catch (Throwable e){
-            e.printStackTrace();
-            log("! Error while filtering: " + e.toString());
-        }
-        return true;
-    }
-    private String encodeURIcomponent(String s){
-        /** Converts a string into something you can safely insert into a URL. */
-        StringBuilder o = new StringBuilder();
-        for (char ch : s.toCharArray()) {
-            if (isUnsafe(ch)) {
-                if(ch == ' ') {
-                    o.append('%');
-                    o.append(toHex(ch / 16));
-                    o.append(toHex(ch % 16));
-                }
-            }
-            else o.append(ch);
-        }
-        return o.toString();
-    }
-    private char toHex(int ch) {
-        return (char)(ch < 10 ? '0' + ch : 'A' + ch - 10);
-    }
-    private boolean isUnsafe(char ch) {
-        return " qwertyuiopasdfghjklzxcvbnm1234567890QWERTYUIOPASDFGHJKLZXCVBNM".indexOf(ch) < 0;
-    }
-
-
-
 
 }
