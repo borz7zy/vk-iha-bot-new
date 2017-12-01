@@ -369,6 +369,22 @@ public class Filter extends BotModule{
         }
         return cnt;
     }
+    private int resetWarnings(long userId){
+        int result = 0;
+        if(warnings.containsKey(userId)){
+            result = warnings.remove(userId);
+        }
+        try {
+            JSONArray warningsJsonArray = F.hashMapToJsonArray(warnings);
+            storage.put("warnings", warningsJsonArray);
+            storage.commit();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            log("! Ошибка сохранения предупреждения для пользователя: " + userId + "     " +e.getMessage() +"!");
+        }
+        return result;
+    }
     private int getWarnings(long userId){
         int cnt = 0;
         if(warnings.containsKey(userId)){
@@ -409,6 +425,37 @@ public class Filter extends BotModule{
             return super.getHelp();
         }
     }
+    class WarningReset extends CommandModule{
+        public WarningReset(ApplicationManager applicationManager) {
+            super(applicationManager);
+        }
+
+        @Override
+        public String processCommand(Message message) {
+            String input = message.getText();
+            CommandParser commandParser = new CommandParser(input);
+            if(commandParser.getWord().equals("warning") && commandParser.getWord().equals("reset")){
+                Long id = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(commandParser.getWord());
+                String result = "Счетчик сброшен для пользователя " + id + " : " + resetWarnings(id);
+            }
+            return super.processCommand(message);
+        }
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc(
+                    "Сбросить значение счетчика предупреждений фильтра для пользователя",
+                    "Фильтр нужен для того, чтобы не позволить боту сказать чего-то такого, " +
+                            "за что ВК может заблокировать аккаунт. Когда пользователь заставляет бота " +
+                            "написать что-то запрещённое, пользователь получает предупреждение.\n" +
+                            "После нескольких предупреждений страница пользователя блокируется.\n" +
+                            "Эта команда позволяет сбросить предупреждения для пользователя.",
+                    "botcmd filter status"
+            ));
+            return super.getHelp();
+        }
+    }
 
     //=============================================================================================
 
@@ -417,11 +464,6 @@ public class Filter extends BotModule{
     public @Override String process(String input, Long senderId) {
         CommandParser commandParser = new CommandParser(input);
         switch (commandParser.getWord()) {
-            case "status":
-                return "Фильтр сомнительного содержания включён: " + isFilterOn() + "\n"+
-                        "Шаблонов черного списка: "+(fuckingWords == null?"еще не загружено":fuckingWords.size())+"\n"+
-                        "Разрешенных символов: "+(allowedSymbols == null?"еще не загружено":allowedSymbols.length())+"\n"+
-                        "Пользователей получили предупреждения: "+ warnings.size() +"\n";
             case "warning":
                 switch (commandParser.getWord()){
                     case "get":
@@ -432,10 +474,6 @@ public class Filter extends BotModule{
                             result += "- Пользователь vk.com/id" + cur.getKey() + " получил " + cur.getValue() + " предупреждений.\n";
                         }
                         return result;
-                    case "reset": {
-                        Long id = applicationManager.getUserID(commandParser.getWord());
-                        return "Счетчик сброшен для пользователя " + id + " : " + warnings.remove(id);
-                    }
                     case "set": {
                         Long id = applicationManager.getUserID(commandParser.getWord());
                         int num = commandParser.getInt();
