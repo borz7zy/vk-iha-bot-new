@@ -66,6 +66,9 @@ public class Filter extends BotModule{
     private String allowedSymbols = null;
     private FileStorage storage = null;
     private boolean enabled = true;
+    //// TODO: 01.12.2017 проверка наличия запрещённого слова
+    //// TODO: 01.12.2017 добавление запрещённых
+    //// TODO: 01.12.2017 удаление запрещённых
 
     public Filter(ApplicationManager applicationManager) {
         super(applicationManager);
@@ -434,9 +437,16 @@ public class Filter extends BotModule{
         public String processCommand(Message message) {
             String input = message.getText();
             CommandParser commandParser = new CommandParser(input);
-            if(commandParser.getWord().equals("warning") && commandParser.getWord().equals("reset")){
+            if(commandParser.getWord().toLowerCase().equals("warning")
+                    && commandParser.getWord().toLowerCase().equals("reset")){
                 Long id = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(commandParser.getWord());
-                String result = "Счетчик сброшен для пользователя " + id + " : " + resetWarnings(id);
+                int oldValue = resetWarnings(id);
+                String userName =  applicationManager.getCommunicator().getActiveAccount().getUserName(id);
+                String result = "Счетчик сброшен для пользователя " + userName + " ("+id+"). Было " + oldValue + " предупреждений.";
+                boolean isIgnored = applicationManager.getBrain().getIgnor().has(message.getAuthor());
+                if(isIgnored)
+                    result += " Обрати внимание, пользователь всё ещё находится в игноре.";
+                return result;
             }
             return super.processCommand(message);
         }
@@ -452,6 +462,44 @@ public class Filter extends BotModule{
                             "После нескольких предупреждений страница пользователя блокируется.\n" +
                             "Эта команда позволяет сбросить предупреждения для пользователя.",
                     "botcmd filter status"
+            ));
+            return super.getHelp();
+        }
+    }
+    class FilterEnable extends CommandModule{
+        public FilterEnable(ApplicationManager applicationManager) {
+            super(applicationManager);
+        }
+
+        @Override
+        public String processCommand(Message message) {
+            String input = message.getText();
+            CommandParser commandParser = new CommandParser(input);
+            if(commandParser.getWord().toLowerCase().equals("filter")
+                    && commandParser.getWord().toLowerCase().equals("enable")){
+                if(isEnabled())
+                    return "Фильтр отправляемых сообщений уже включён.\n" +
+                            "Это поможет предотвратить блокировку аккаунта из-за отправки запрещённого текста.\n" +
+                            "Рекоментую оставить этот фильтр включённым.";
+                setEnabled(true);
+                return "Фильтр отправляемых сообщений включён. Теперь бот будет проверять " +
+                        "отправляемые сообщения и цензурить запрещённые фразы. \n" +
+                        "Это поможет предотвратить блокировку аккаунта из-за отправки запрещённого текста.\n" +
+                        "Рекоментую оставить этот фильтр включённым.";
+            }
+            return super.processCommand(message);
+        }
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc(
+                    "Включить фильтр отправляемых сообщений",
+                    "Существует много фраз, написав которые, страница пользователя блокируется автоматически. " +
+                            "Чтобы защититься от такой блокировки бота, предусмотрен фильтр, который цензурит " +
+                            "опасные участки сообщений отправляемых ботом.\n" +
+                            "Эта команда включает этот фильтр. Рекомендуетсы не выключать фильтр.",
+                    "botcmd filter enable"
             ));
             return super.getHelp();
         }
@@ -481,12 +529,6 @@ public class Filter extends BotModule{
                         return "Счетчик для пользователя " + id + " : " + num;
                     }
                 }
-            case "enablefilter":
-                boolean newState = commandParser.getBoolean();
-                boolean oldState = isFilterOn();
-                storage.put("enableFilter", newState);
-                storage.commit();
-                return "Фильтр симнительного содержания.\nБыло: " + oldState + "\nСтало: " + newState;
             case "addblacklistword":
                 String word = commandParser.getText();
                 word = (word).toLowerCase().replace("|", "");
