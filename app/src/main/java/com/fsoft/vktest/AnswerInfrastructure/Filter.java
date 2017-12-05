@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -69,28 +70,13 @@ public class Filter extends BotModule{
     //// TODO: 01.12.2017 проверка наличия запрещённого слова
     //// TODO: 01.12.2017 добавление запрещённых
     //// TODO: 01.12.2017 удаление запрещённых
+    //// TODO: 01.12.2017 botcmd filter AnalyzeDatabase
 
     public Filter(ApplicationManager applicationManager) {
         super(applicationManager);
         storage = new FileStorage("FilterSettings", applicationManager);
         enabled = storage.getBoolean("enabled", enabled);
-        //READ BLACKLIST
-        try {
-            File blacklistFile = new ResourceFileReader(applicationManager, R.raw.blacklist).getFile();
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(blacklistFile));
-            String line;
-            int lineNumber = 0;
-            while ((line = bufferedReader.readLine()) != null) {
-                lineNumber ++;
-                    fuckingWords.add(line);
-            }
-            bufferedReader.close();
-            log(". Загружено " + fuckingWords.size() + " запрещённых слов.");
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            log("! Ошибка загрузки списка запрещённых слов: " + e.getMessage());
-        }
+        readBlacklist();
         //READ SYMBOLS
         File fileWithSymbols = new ResourceFileReader(applicationManager, R.raw.allowed_symbols).getFile();
         allowedSymbols = F.readFromFile(fileWithSymbols);
@@ -231,16 +217,55 @@ public class Filter extends BotModule{
         String buffer = "";
         for(int i=0; i<input.length(); i++){
             char c = prepareChar(input.charAt(i));
-            buffer += c;
-            String prohibited = containsProhibitedWord(buffer);
-            if(prohibited != null){
-                buffer = replaceProhibitedWord(buffer, prohibited, i);
-                input = replaceProhibitedWord(input,   prohibited, i);
+            if(c != 0) {
+                buffer += c;
+                String prohibited = containsProhibitedWord(buffer);
+                if (prohibited != null) {
+                    buffer = replaceProhibitedWord(buffer, prohibited, i);
+                    input = replaceProhibitedWord(input, prohibited, i);
+                }
             }
         }
         return input;
     }
 
+    private void readBlacklist(){
+        //READ BLACKLIST
+        try {
+            File blacklistFile = new ResourceFileReader(applicationManager, R.raw.blacklist).getFile();
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(blacklistFile));
+            String line;
+            int lineNumber = 0;
+            while ((line = bufferedReader.readLine()) != null) {
+                lineNumber ++;
+                fuckingWords.add(line);
+            }
+            bufferedReader.close();
+            log(". Загружено " + fuckingWords.size() + " запрещённых слов.");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            log("! Ошибка загрузки списка запрещённых слов: " + e.getMessage());
+        }
+    }
+    private void saveBlacklist() throws Exception{
+        //SAVE BLACKLIST
+        File blacklistFile = new ResourceFileReader(applicationManager, R.raw.blacklist).getFile();
+        PrintWriter fileWriter = new PrintWriter(blacklistFile);
+        for (String word:fuckingWords)
+            fileWriter.println(word);
+        fileWriter.close();
+        log(". Сохранено " + fuckingWords.size() + " запрещённых слов.");
+    }
+    private String prepareString(String input){
+        String buffer = "";
+        for(int i=0; i<input.length(); i++){
+            char c = prepareChar(input.charAt(i));
+            if(c != 0)
+                buffer += c;
+        }
+        return buffer;
+    }
     private char prepareChar(char in){
         in = toLowerCase(in);
         String allowed = "qwertyuiopasdfghjklzxcvbnmйцукенгшщзхъфывапролджэячсмитьбюіїєё1234567890";
@@ -395,6 +420,10 @@ public class Filter extends BotModule{
         }
         return cnt;
     }
+    private void addFuckingWord(String word) throws Exception{
+        fuckingWords.add(prepareString(word));
+        saveBlacklist();
+    }
 
 
     class Status extends CommandModule{
@@ -425,7 +454,7 @@ public class Filter extends BotModule{
                             "за что ВК может заблокировать аккаунт.",
                     "botcmd filter status"
             ));
-            return super.getHelp();
+            return result;
         }
     }
     class WarningReset extends CommandModule{
@@ -461,9 +490,46 @@ public class Filter extends BotModule{
                             "написать что-то запрещённое, пользователь получает предупреждение.\n" +
                             "После нескольких предупреждений страница пользователя блокируется.\n" +
                             "Эта команда позволяет сбросить предупреждения для пользователя.",
-                    "botcmd filter status"
+                    "botcmd warning reset <ID пользователя>"
             ));
-            return super.getHelp();
+            return result;
+        }
+    }
+    class WarningGet extends CommandModule{
+        public WarningGet(ApplicationManager applicationManager) {
+            super(applicationManager);
+        }
+
+        @Override
+        public String processCommand(Message message) {
+            String input = message.getText();
+            CommandParser commandParser = new CommandParser(input);
+            if(commandParser.getWord().toLowerCase().equals("warning")
+                    && commandParser.getWord().toLowerCase().equals("get")){
+                String result = "Счетчик предупреждений:\n";
+                Iterator<Map.Entry<Long, Integer>> iterator = warnings.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<Long, Integer> cur = iterator.next();
+                    result += "- Пользователь vk.com/id" + cur.getKey() + " получил " + cur.getValue() + " предупреждений.\n";
+                }
+                return result;
+            }
+            return super.processCommand(message);
+        }
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc(
+                    "Показать значения счетчиков предупреждений пользователей",
+                    "Фильтр нужен для того, чтобы не позволить боту сказать чего-то такого, " +
+                            "за что ВК может заблокировать аккаунт. Когда пользователь заставляет бота " +
+                            "написать что-то запрещённое, пользователь получает предупреждение.\n" +
+                            "После нескольких предупреждений страница пользователя блокируется.\n" +
+                            "Эта команда позволяет узнать, кто сколько предупреждений получил.",
+                    "botcmd warning get"
+            ));
+            return result;
         }
     }
     class FilterEnable extends CommandModule{
@@ -501,9 +567,99 @@ public class Filter extends BotModule{
                             "Эта команда включает этот фильтр. Рекомендуетсы не выключать фильтр.",
                     "botcmd filter enable"
             ));
-            return super.getHelp();
+            return result;
         }
     }
+    class FilterDisable extends CommandModule{
+        public FilterDisable(ApplicationManager applicationManager) {
+            super(applicationManager);
+        }
+
+        @Override
+        public String processCommand(Message message) {
+            String input = message.getText();
+            CommandParser commandParser = new CommandParser(input);
+            if(commandParser.getWord().toLowerCase().equals("filter")
+                    && commandParser.getWord().toLowerCase().equals("disable")){
+                if(!isEnabled())
+                    return "Фильтр отправляемых сообщений уже выключён.\n" +
+                            "Когда фильтр выключен, бот находится в опасности. Если кто-то захочет навредить боту, он " +
+                            "может заставить его сказать что-то запрещённое и аккаунт могут заморозить.\n" +
+                            "Рекоментую оставить фильтр включённым.";
+                setEnabled(false);
+                return "Фильтр отправляемых сообщений выключен. Теперь бот НЕ будет проверять " +
+                        "отправляемые сообщения и цензурить запрещённые фразы. \n" +
+                        "Это привести к заморозке аккаунта из-за отправки запрещённого текста.\n" +
+                        "Рекоментую включить фильтр.";
+            }
+            return super.processCommand(message);
+        }
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc(
+                    "Выключить фильтр отправляемых сообщений",
+                    "Существует много фраз, написав которые, страница пользователя замораживается автоматически. " +
+                            "Чтобы защититься от такой блокировки бота, предусмотрен фильтр, который цензурит " +
+                            "опасные участки сообщений отправляемых ботом.\n" +
+                            "Эта команда выключает этот фильтр. Рекомендуетсы не выключать фильтр.",
+                    "botcmd filter enable"
+            ));
+            return result;
+        }
+    }
+    class AddBlacklistWord extends CommandModule{
+        public AddBlacklistWord(ApplicationManager applicationManager) {
+            super(applicationManager);
+        }
+
+        @Override
+        public String processCommand(Message message) {
+            String input = message.getText();
+            CommandParser commandParser = new CommandParser(input);
+            if(commandParser.getWord().toLowerCase().equals("filter")
+                    && commandParser.getWord().toLowerCase().equals("word")
+                    && commandParser.getWord().toLowerCase().equals("add")){
+                String word = commandParser.getText();
+                if(word.length() == 0)
+                    return "После команды через пробел надо написать слово, которое хочешь добавить как запрещённое.";
+                if(word.length() < 3)
+                    return "Слишком короткое слово. Такое слово будет вызывать частые ложные срабатывания.";
+                try {
+                    addFuckingWord(word);
+                    return "Запрещённое слово добавлено. Теперь бот будет заменять это слово звёздочками в своих ответах, " +
+                            "а человек, который заставил бота это написать, получить предупреждение.\n" +
+                            "Сейчас в базе " + fuckingWords.size() + " запрещённых слов.\n" +
+                            "Чтобы убедиться, что это слово не вызывает конфликтов в базе данных, воспользуйся командой " +
+                            "botcmd filter AnalyzeDatabase, чтобы проверить, есть ли в твоей базе такие запрещённые слова.";
+                }
+                catch (Exception e){
+                    log("! Ошибка добавления запрещённого слова: " + e.getMessage());
+                    e.printStackTrace();
+                    return "Ошибка добавления запрещённого слова: " + e.getMessage();
+                }
+            }
+            return super.processCommand(message);
+        }
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc(
+                    "Добавить слово в реестр запрещённых слов",
+                    "Существует много фраз, написав которые, страница пользователя замораживается автоматически. " +
+                            "Чтобы защититься от такой блокировки бота, предусмотрен фильтр, который цензурит " +
+                            "опасные участки сообщений отправляемых ботом.\n" +
+                            "Эта команда позволяет добавить слово в список запрещённых фраз." +
+                            "ВНИМАНИЕ!!! Будь осторожен выполняя эту команду из соцсети! " +
+                            "Тебя, как отправителя запрещённого слова, тоже могут заморозить!",
+                    "botcmd filter word add <Запрещённое слово или текст>"
+            ));
+            return result;
+        }
+    }
+
 
     //=============================================================================================
 
@@ -514,14 +670,6 @@ public class Filter extends BotModule{
         switch (commandParser.getWord()) {
             case "warning":
                 switch (commandParser.getWord()){
-                    case "get":
-                        String result = "Счетчик предупреждений:\n";
-                        Iterator<Map.Entry<Long, Integer>> iterator = warnings.entrySet().iterator();
-                        while (iterator.hasNext()) {
-                            Map.Entry<Long, Integer> cur = iterator.next();
-                            result += "- Пользователь vk.com/id" + cur.getKey() + " получил " + cur.getValue() + " предупреждений.\n";
-                        }
-                        return result;
                     case "set": {
                         Long id = applicationManager.getUserID(commandParser.getWord());
                         int num = commandParser.getInt();
@@ -539,16 +687,8 @@ public class Filter extends BotModule{
         return "";
     }
     public @Override String getHelp() {
-        return "[ Сбросить значение счетчика предупреждений для пользователя ]\n" +
-                "---| botcmd warning reset <id пользователя>\n\n"+
-                "[ Получить значения счетчика предупреждений ]\n" +
-                "---| botcmd warning get\n\n"+
-                "[ Задать значение счетчика предупреждений для пользователя ]\n" +
+        return  "[ Задать значение счетчика предупреждений для пользователя ]\n" +
                 "---| botcmd warning set <id пользователя> <новое значение счетчика>\n\n"+
-                "[ Включить или выключить фильтр сомнительного содержания ]\n" +
-                "[ Это тот фильтр, который пишет \"ваше поведение сомнительно.\" ]\n" +
-                "[ Этот фильтр отключать не рекомендуется, т.к. без него Ваш ВК аккаунт могут заблокировать за рассылку подозрительных сообщений ]\n" +
-                "---| botcmd enablefilter <on/off>\n\n"+
                 "[ Добавить слово в реестр запрещённых слов ]\n" +
                 "---| botcmd addblacklistword <|слово которое добавить|>\n\n";
     }
