@@ -95,6 +95,7 @@ public class Filter extends BotModule{
         childCommands.add(new WarningSet(applicationManager));
         childCommands.add(new FilterEnable(applicationManager));
         childCommands.add(new FilterDisable(applicationManager));
+        childCommands.add(new FilterTest(applicationManager));
         childCommands.add(new AddBlacklistWord(applicationManager));
         childCommands.add(new RemBlacklistWord(applicationManager));
         childCommands.add(new GetBlacklistWord(applicationManager));
@@ -124,19 +125,10 @@ public class Filter extends BotModule{
             return message;
 
         //оставить только разрещённые символы. Всякую псевдографику нахуй
-        message.getAnswer().text = F.filterSymbols(message.getAnswer().text, allowedSymbols);
-
-
+        message.getAnswer().text = filterSymbols(message.getAnswer().text);
 
         //после каждой точки поставить по пробелу. Так убиваем ссылки
-        message.getAnswer().text = message.getAnswer().text.replace(".", ". ");
-        message.getAnswer().text = message.getAnswer().text.replaceAll(" +", " ");
-        //восстанавливаем троеточие
-        message.getAnswer().text = message.getAnswer().text.replace(". . .", "...");
-        //ВК реагирует на спецграфику в кодах, типа &#228. Это её убивает
-        message.getAnswer().text = message.getAnswer().text.replace("&#", " ");
-        //восстанавливаем ссылки на ВК - они разрешены
-        message.getAnswer().text = message.getAnswer().text.replace("vk. com", "vk.com");
+        message.getAnswer().text = filterLinks(message.getAnswer().text);
 
 
         String textError = applicationManager.getParameters().get(
@@ -208,8 +200,25 @@ public class Filter extends BotModule{
     public boolean isFilterEnabled() {
         return enabled;
     }
-    public String filterForbidden(String input){
+    private String filterSymbols(String input){
+        //оставить только разрещённые символы. Всякую псевдографику нахуй
+        return F.filterSymbols(input, allowedSymbols);
+    }
+    private String filterLinks(String input){
+        //после каждой точки поставить по пробелу. Так убиваем ссылки
+        input = input.replace(".", ". ");
+        input = input.replaceAll(" +", " ");
+        //восстанавливаем троеточие
+        input = input.replace(". . .", "...");
+        //ВК реагирует на спецграфику в кодах, типа &#228. Это её убивает
+        input = input.replace("&#", " ");
+        //восстанавливаем ссылки на ВК - они разрешены
+        input = input.replace("vk. com", "vk.com");
+        return input;
+    }
+    private String filterForbidden(String input){
         /*
+        Выполняет только замену запрещённых слов или фраз
         * -> botcmd, bro, nark, blue
         * -> The quick blue nark jumps over lazy bro.
         * --> The quick **** **** jumps over lazy ***.
@@ -664,6 +673,94 @@ public class Filter extends BotModule{
                             "опасные участки сообщений отправляемых ботом.\n" +
                             "Эта команда выключает этот фильтр. Рекомендуетсы не выключать фильтр.",
                     "botcmd filter enable"
+            ));
+            return result;
+        }
+    }
+    class FilterTest extends CommandModule{
+        public FilterTest(ApplicationManager applicationManager) {
+            super(applicationManager);
+        }
+
+        @Override
+        public String processCommand(Message message) {
+            String input = message.getText();
+            CommandParser commandParser = new CommandParser(input);
+            if(commandParser.getWord().toLowerCase().equals("filter")
+                    && commandParser.getWord().toLowerCase().equals("test")){
+
+
+                String outputSymbols = filterSymbols(input);
+                boolean hasSymbols = outputSymbols.equals(input);
+                String outputLinks = filterLinks(input);
+                boolean hasLinks = outputLinks.equals(input);
+                String outputForbidden = filterForbidden(input);
+                boolean hasForbidden = outputForbidden.equals(input);
+                String finalResult = filterForbidden(filterLinks(filterSymbols(input)));
+
+
+
+                String result = "Результат тестирования фильтра:\n";
+                if(hasSymbols)
+                    result += "Строка содержит подозрительные символы.\n";
+                if(hasLinks)
+                    result += "Строка содержит ссылки.\n";
+                if(hasForbidden)
+                    result += "Строка содержит запрещённые фразы.\n";
+
+                if(!hasForbidden && !hasLinks && !hasSymbols)
+                    result += "В строке не найдено ничего запрещённого.\n";
+
+
+                result += ".\n";
+                result += "Результат этапов тестированя:\n";
+                result += "------------------------\n";
+                if(message.getSource() != MessageBase.SOURCE_PROGRAM)
+                    result += "Оригинал фразы: [Отображается только если вызвать команду из интерфейса программы]\n";
+                else
+                    result += "Оригинал фразы: "+input+"\n";
+
+
+                result += "------------------------\n";
+                if(message.getSource() != MessageBase.SOURCE_PROGRAM)
+                    result += "После фильтрации символов: [Отображается только если вызвать команду из интерфейса программы]\n";
+                else
+                    result += "После фильтрации символов: "+outputSymbols+"\n";
+
+
+                result += "------------------------\n";
+                if(message.getSource() != MessageBase.SOURCE_PROGRAM)
+                    result += "После фильтрации ссылок: [Отображается только если вызвать команду из интерфейса программы]\n";
+                else
+                    result += "После фильтрации ссылок: "+outputLinks+"\n";
+
+
+                result += "------------------------\n";
+                if(message.getSource() != MessageBase.SOURCE_PROGRAM)
+                    result += "После фильтрации запрещённых фраз: [Отображается только если вызвать команду из интерфейса программы]\n";
+                else
+                    result += "После фильтрации запрещённых фраз: "+outputLinks+"\n";
+
+                result += "------------------------\n";
+                result += "Конечный результат: " + finalResult + "\n";
+            }
+            return super.processCommand(message);
+        }
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc(
+                    "Выполнить тестовую фильтрацию",
+                    "Существует много фраз, написав которые, страница пользователя замораживается автоматически. " +
+                            "Чтобы защититься от такой блокировки бота, предусмотрен фильтр, который цензурит " +
+                            "опасные участки сообщений отправляемых ботом.\n" +
+                            "Эта команда позволяет проверить работу фильтра на тестовой фразе.\n" +
+                            "Команда выводит результат работы отдельных этапов фильтрации сообщения перед отправкой.\n" +
+                            "Будь осторожен вызывая эту команду из соцсети! Если ты напишешь в ней " +
+                            "запрещённый текст, твой аккаунт могут заморозить!\n" +
+                            "Будучи вызвана из соцвети команда сработает только частично, в целях безопасности.\n",
+                    "botcmd filter test <Текст для проверки>"
             ));
             return result;
         }
