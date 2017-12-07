@@ -84,6 +84,7 @@ public class AnswerMicroElement {
 
     @Override
     public String toString() {
+        // 228) привид как дила (1 фотографий) -> Привет, отлично! (+photo, photo)
         String result = id + ") " + questionTextPrepared;
         if(questionPhotos + questionVideos + questionMusic + questionDocuments + questionRecords + questionStickers != 0)
             result += " (";

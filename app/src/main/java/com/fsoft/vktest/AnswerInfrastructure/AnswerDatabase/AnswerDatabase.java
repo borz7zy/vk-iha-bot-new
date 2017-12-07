@@ -301,6 +301,71 @@ public class AnswerDatabase extends BotModule {
         toRemove.add(answerElement.getId());
         return (removeAnswer(toRemove) > 0);
     }
+    public int removeAnswer(ArrayList<Long> answersToRemoveId) throws Exception{
+        if(answersToRemoveId.isEmpty())
+            throw new Exception("Не получены ID ответов которые нужно удалить.");
+        //при вызове этой функции важно, чтобы у ответа сохранился ID
+        File fileTmp = new File(applicationManager.getHomeFolder(), "Answer_database.tmp");
+        PrintWriter fileTmpWriter = new PrintWriter(fileTmp);
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(fileAnswers));
+        String line;
+        int lineNumber = 0;
+        int errors = 0;
+        boolean changed = false;
+        int removed = 0;
+
+        while ((line = bufferedReader.readLine()) != null) {
+            lineNumber++;
+            if (lineNumber % 1000 == 0)
+                log(". Удаление ответа в базе (" + lineNumber + " уже проверено)");
+            try {
+                JSONObject jsonObject = new JSONObject(line);
+                AnswerElement currentAnswerElement = new AnswerElement(jsonObject);
+                if(answersToRemoveId.contains(currentAnswerElement.getId())){
+                    //просто нихуя с ним не делать
+                    changed = true;
+                    removed ++;
+                }
+                else
+                    fileTmpWriter.println(currentAnswerElement.toJson().toString());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                errors++;
+                log("! Ошибка разбора строки " + lineNumber + " как ответа из базы.\n" + e.getMessage());
+            }
+        }
+        if (errors != 0)
+            log("! При загрузке базы ответов возникло ошибок: " + errors + ".");
+        //такого ответа в базе нет
+        if(!changed) {
+            bufferedReader.close();
+            fileTmpWriter.close();
+            if(fileTmp.delete())
+                throw new Exception(log("! Не могу удалить временный файл! Также: В базе нет ответа с таким ID"));
+            throw new Exception("В базе нет ответа с таким ID");
+        }
+        //заменить ответ в памяти
+        log(". Удаление ответа в базе (в оперативке)");
+        for (int i = 0; i < answers.size(); i++) {
+            AnswerMicroElement answerMicroElement = answers.get(i);
+            if(answersToRemoveId.contains(answerMicroElement.getId())){
+                answers.remove(answerMicroElement);
+            }
+        }
+        //завешить сессию
+        bufferedReader.close();
+        fileTmpWriter.close();
+        System.gc();
+        //Подменить файлы
+        backupsManager.backupDatabase("после удаления ответов");
+        if(!fileAnswers.delete())
+            throw new Exception(log("! Не могу удалить текущий файл с базой " + fileAnswers.getName()));
+        if(fileTmp.renameTo(fileAnswers))
+            throw new Exception(log("! Не могу перенести новый файл на место старого!" +
+                    "Проверь, не запущена ли какая-то длительная процедура, типа фильтрации."));
+        return removed;
+    }
     public AnswerElement findByAnswerText(String answerText) throws Exception{
         AnswerElement result = null;
         BufferedReader bufferedReader = new BufferedReader(new FileReader(fileAnswers));
@@ -331,6 +396,9 @@ public class AnswerDatabase extends BotModule {
         bufferedReader.close();
         System.gc();
         return result;
+    }
+    public ArrayList<AnswerMicroElement> getAnswers() {
+        return answers;
     }
 
     private Answer getAnswer(Message message){
@@ -817,71 +885,6 @@ public class AnswerDatabase extends BotModule {
         if(fileTmp.renameTo(fileAnswers))
             throw new Exception(log("! Не могу перенести новый файл на место старого!" +
                     "Проверь, не запущена ли какая-то длительная процедура, типа фильтрации."));
-    }
-    private int removeAnswer(ArrayList<Long> answersToRemoveId) throws Exception{
-        if(answersToRemoveId.isEmpty())
-            throw new Exception("Не получены ID ответов которые нужно удалить.");
-        //при вызове этой функции важно, чтобы у ответа сохранился ID
-        File fileTmp = new File(applicationManager.getHomeFolder(), "Answer_database.tmp");
-        PrintWriter fileTmpWriter = new PrintWriter(fileTmp);
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(fileAnswers));
-        String line;
-        int lineNumber = 0;
-        int errors = 0;
-        boolean changed = false;
-        int removed = 0;
-
-        while ((line = bufferedReader.readLine()) != null) {
-            lineNumber++;
-            if (lineNumber % 1000 == 0)
-                log(". Удаление ответа в базе (" + lineNumber + " уже проверено)");
-            try {
-                JSONObject jsonObject = new JSONObject(line);
-                AnswerElement currentAnswerElement = new AnswerElement(jsonObject);
-                if(answersToRemoveId.contains(currentAnswerElement.getId())){
-                    //просто нихуя с ним не делать
-                    changed = true;
-                    removed ++;
-                }
-                else
-                    fileTmpWriter.println(currentAnswerElement.toJson().toString());
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                errors++;
-                log("! Ошибка разбора строки " + lineNumber + " как ответа из базы.\n" + e.getMessage());
-            }
-        }
-        if (errors != 0)
-            log("! При загрузке базы ответов возникло ошибок: " + errors + ".");
-        //такого ответа в базе нет
-        if(!changed) {
-            bufferedReader.close();
-            fileTmpWriter.close();
-            if(fileTmp.delete())
-                throw new Exception(log("! Не могу удалить временный файл! Также: В базе нет ответа с таким ID"));
-            throw new Exception("В базе нет ответа с таким ID");
-        }
-        //заменить ответ в памяти
-        log(". Удаление ответа в базе (в оперативке)");
-        for (int i = 0; i < answers.size(); i++) {
-            AnswerMicroElement answerMicroElement = answers.get(i);
-            if(answersToRemoveId.contains(answerMicroElement.getId())){
-                answers.remove(answerMicroElement);
-            }
-        }
-        //завешить сессию
-        bufferedReader.close();
-        fileTmpWriter.close();
-        System.gc();
-        //Подменить файлы
-        backupsManager.backupDatabase("после удаления ответов");
-        if(!fileAnswers.delete())
-            throw new Exception(log("! Не могу удалить текущий файл с базой " + fileAnswers.getName()));
-        if(fileTmp.renameTo(fileAnswers))
-            throw new Exception(log("! Не могу перенести новый файл на место старого!" +
-                    "Проверь, не запущена ли какая-то длительная процедура, типа фильтрации."));
-        return removed;
     }
     private void importAnswers(File toImport) throws Exception{
         if(toImport == null)

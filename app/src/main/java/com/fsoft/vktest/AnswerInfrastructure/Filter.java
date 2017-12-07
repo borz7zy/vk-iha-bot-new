@@ -2,6 +2,8 @@ package com.fsoft.vktest.AnswerInfrastructure;
 
 import android.util.Log;
 
+import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.AnswerElement;
+import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.AnswerMicroElement;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.HttpServer;
 import com.fsoft.vktest.Modules.CommandModule;
@@ -67,8 +69,6 @@ public class Filter extends BotModule{
     private String allowedSymbols = null;
     private FileStorage storage = null;
     private boolean enabled = true;
-    //// TODO: 01.12.2017 проверка наличия запрещённого слова filter test
-    //// TODO: 01.12.2017 botcmd filter AnalyzeDatabase
 
     public Filter(ApplicationManager applicationManager) {
         super(applicationManager);
@@ -96,6 +96,7 @@ public class Filter extends BotModule{
         childCommands.add(new FilterEnable(applicationManager));
         childCommands.add(new FilterDisable(applicationManager));
         childCommands.add(new FilterTest(applicationManager));
+        childCommands.add(new FilterDatabase(applicationManager));
         childCommands.add(new AddBlacklistWord(applicationManager));
         childCommands.add(new RemBlacklistWord(applicationManager));
         childCommands.add(new GetBlacklistWord(applicationManager));
@@ -743,6 +744,7 @@ public class Filter extends BotModule{
 
                 result += "------------------------\n";
                 result += "Конечный результат: " + finalResult + "\n";
+                return result;
             }
             return super.processCommand(message);
         }
@@ -761,6 +763,76 @@ public class Filter extends BotModule{
                             "запрещённый текст, твой аккаунт могут заморозить!\n" +
                             "Будучи вызвана из соцвети команда сработает только частично, в целях безопасности.\n",
                     "botcmd filter test <Текст для проверки>"
+            ));
+            return result;
+        }
+    }
+    class FilterDatabase extends CommandModule{
+        public FilterDatabase(ApplicationManager applicationManager) {
+            super(applicationManager);
+        }
+
+        @Override
+        public String processCommand(Message message) {
+            String input = message.getText();
+            CommandParser commandParser = new CommandParser(input);
+            if(commandParser.getWord().toLowerCase().equals("filter")
+                    && commandParser.getWord().toLowerCase().equals("database")){
+                //INIT
+                String deleteString = commandParser.getWord();
+                boolean isDelete = deleteString.trim().toLowerCase().equals("delete");
+                ArrayList<AnswerMicroElement> strangeAnswers = new ArrayList<>();
+                ArrayList<AnswerMicroElement> allAnswers = applicationManager.getBrain().getAnswerDatabase().getAnswers();
+
+                //SEARCH FOR STRANGE ANSWERS
+                for (AnswerMicroElement answer:allAnswers){
+                    String before = answer.getAnswerText();
+                    String after = filterForbidden(before);
+                    if(!after.equals(before)){
+                        strangeAnswers.add(answer);
+                    }
+                }
+
+                //Make report
+                String result = "Список вопросов, которые содержат запрещённый текст:\n";
+                ArrayList<Long> toRemoveId = new ArrayList<>();
+                for (AnswerMicroElement answer:strangeAnswers){
+                    //// 228) привид как дила (1 фотографий) -> Привет, отлично! (+photo, photo)
+                    result += answer.toString() + "\n";
+                    toRemoveId.add(answer.getId());
+                }
+                if(!isDelete) {
+                    result += "Ответы из базы не были удалены.\n";
+                    return result;
+                }
+                result += "Удаление вопросов из базы включено.\n";
+                try {
+                    int count = applicationManager.getBrain().getAnswerDatabase().removeAnswer(toRemoveId);
+                    result += "Из базы было удалено "+count+" ответов.\n";
+                }
+                catch (Exception e){
+                    result += "Во время удаления вопросов из базы произошла ошибка: "+e.getMessage()+"\n";
+                }
+                return result;
+            }
+            return super.processCommand(message);
+        }
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            ArrayList<CommandDesc> result = new ArrayList<>();
+            result.add(new CommandDesc(
+                    "Выполнить фильтрацию базы ответов",
+                    "Существует много фраз, написав которые, страница пользователя замораживается автоматически. " +
+                            "Чтобы защититься от такой блокировки бота, предусмотрен фильтр, который цензурит " +
+                            "опасные участки сообщений отправляемых ботом.\n" +
+                            "Эта команда позволяет проверить базу данных ответов на запрешённые фразы.\n" +
+                            "Если команда вызвана без слова delete, из базы ничего не будет удалено, а сомнительные ответы " +
+                            "только будут показаны тебе.\n" +
+                            "Если вызвать команду со словом delete, ответы из базы удаляются.\n" +
+                            "Эта команда не работает из соцсети, т.к. выводит запрещённые слова, которые могут " +
+                            "стать причиной заморозки аккаунта.",
+                    "botcmd filter database <delete?>"
             ));
             return result;
         }
