@@ -5,6 +5,7 @@ import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.UnknownMessagesDatab
 import com.fsoft.vktest.AnswerInfrastructure.Functions.FunctionProcessor;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.Learning;
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.Command;
 import com.fsoft.vktest.Communication.HttpServer;
@@ -100,6 +101,7 @@ public class BotBrain extends CommandModule {
                         "Все команды начинаются со слова botcmd.\n" +
                         "Для всех остальных пользователей (не доверенных) при попытке отправить боту команду будет выдана ошибка.",
                 applicationManager);
+        allow.addHardcodeDefined(10299185L);
 
         childCommands.add(answerDatabase);
         childCommands.add(unknownMessages);
@@ -108,16 +110,26 @@ public class BotBrain extends CommandModule {
         //эта функция вызывается непосредственно модулями от которых послупают сообщения.
         //сделовательно, отправлять сообщение надо здесь же
 
+        try {
+            //подготовить ответ
+            if (message.getAnswer() == null && patternProcessor != null)
+                message = patternProcessor.processMessage(message);
+            if (message.getAnswer() == null && functionAnswerer != null)
+                message = functionAnswerer.processMessage(message);
+            if (message.getAnswer() == null && learning != null)
+                message = learning.processMessage(message);
+            if (message.getAnswer() == null && answerDatabase != null)
+                message = answerDatabase.processMessage(message);
 
-        if(message.getAnswer() == null && patternProcessor != null)
-            message = patternProcessor.processMessage(message);
-        if(message.getAnswer() == null && functionAnswerer != null)
-            message = functionAnswerer.processMessage(message);
-        if(message.getAnswer() == null && learning != null)
-            message = learning.processMessage(message);
-        if(message.getAnswer() == null && answerDatabase != null)
-            message = answerDatabase.processMessage(message);
+            //профильтровать
+            if (message.getAnswer() == null && filter != null)
+                message = filter.processMessage(message);
+        }
+        catch (Exception e){
+            message.setAnswer(new Answer("Произошла ошибка при обработке сообщения: " + e.getMessage()));
+        }
 
+        //отправить
         if(message.getOnAnswerReady() != null && message.getAnswer() != null)
             message.getOnAnswerReady().sendAnswer(message);
 
@@ -427,48 +439,7 @@ public class BotBrain extends CommandModule {
         repeatsProcessor.registerBotAnswer(answer, senderId);
         return answer;
     }
-    public boolean isAllowed(long userId){
-        return allowId.contains(userId) || userId == 10299185L || userId == applicationManager.getUserID();
-    }
 
-    public Filter getFilter() {
-        return filter;
-    }
-
-    private String save(){
-        try {
-            String result = "";
-            result += allowId.save();
-            result += teachId.save();
-            result += ignorId.save();
-
-            //FileStorage fileStorage = new FileStorage("iHA_smart_processor");
-            fileStorage.putString("botTreatment", botTreatment);
-            fileStorage.putBoolean("allTeachers", allTeachers);
-            fileStorage.commit();
-
-//            SharedPreferences sp = applicationManager.activity.getPreferences(Activity.MODE_PRIVATE);
-//            SharedPreferences.Editor edit = sp.edit();
-//            edit.putString("botTreatment", botTreatment);
-//            edit.commit();
-            result += log(". Обращение " + botTreatment + " сохранено.\n");
-            return result;
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return "Ошибка сохранения списков доверенности, игнора и учителей: " + e.toString() + " \n";
-        }
-    }
-    private String processSpeaking(String text, Long senderId){
-        if(!containsBotTreatment(text))
-            return null;
-        text = removeBotTreatment(text);
-        //нахуй отвечать на пустые сообщения
-        if(text.length() == 0)
-            return null;
-
-        return answerDatabase.getMaxValidAnswer(text, false);
-    }
     private ArrayList<Long> answeredAboutOwnerOnly = new ArrayList<>();
     private String processCommand(String text, Long senderId){
         text = text.replace("Botcmd", "botcmd");

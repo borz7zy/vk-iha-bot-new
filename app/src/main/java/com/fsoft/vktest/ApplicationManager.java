@@ -145,16 +145,10 @@ public class ApplicationManager {
         return service;
     }
     public String log(String text){
-        if(activity.consoleView != null)
-            activity.consoleView.log(" " + text);
         return text;
     }
     public boolean isDonated(){
         return securityProvider.isDonated();
-    }
-    public void messageBox(String text){
-        if(activity != null)
-            activity.messageBox(text);
     }
     public MainActivity getActivity() {
         return activity;

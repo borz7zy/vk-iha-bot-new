@@ -26,6 +26,7 @@ import java.util.Locale;
 
 public class UserList extends CommandModule {
     private ArrayList<UserListElement> list = new ArrayList<>();
+    private ArrayList<Long> hardcodeDefined = new ArrayList<>();
     private String name; //allow, ignor ...
     private String shortDescription; //Список игнорируемых пользователей
     private String description; //Список пользователей, которым бот не будет отвечать. Кроме того, ....
@@ -47,6 +48,8 @@ public class UserList extends CommandModule {
 
 
     public boolean has(long userId){
+        if(hardcodeDefined.contains(userId))
+            return true;
         return getIfExists(userId) != null;
     }
     public boolean has(String userId){
@@ -80,6 +83,9 @@ public class UserList extends CommandModule {
     }
     public ArrayList<UserListElement> getList() {
         return list;
+    }
+    public void addHardcodeDefined(long id){
+        hardcodeDefined.add(id);
     }
 
 

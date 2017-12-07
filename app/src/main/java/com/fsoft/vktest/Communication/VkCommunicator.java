@@ -83,6 +83,9 @@ public class VkCommunicator extends CommandModule {
                 return account;
         return null;
     }
+    public ArrayList<VkAccount> getVkAccounts() {
+        return vkAccounts;
+    }
     public VkAccount getActiveAccount(){
         int cycles = 0;
         while(cycles ++ < 1000) {
