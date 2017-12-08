@@ -29,7 +29,7 @@ import com.fsoft.vktest.ViewsLayer.MainActivity;
 import java.io.*;
 import java.util.*;
 
-/**
+/*
  * manage components
  * Created by Dr. Failov on 05.08.2014.
  * Edited  by Dr. Failov on 23.11.2017.
@@ -66,6 +66,7 @@ import java.util.*;
  * Created by Dr. Failov on 14.08.2018.
  */
 public class ApplicationManager {
+    static public String programName = "DrFailov_VK_iHA_bot";
     //-------------- НЕ МЕНЯТЬ!!! Иначе надо будет переписывать хэш-суммы!!!!---------------------------------------
     static public String getVisibleName(){
         //обязательно должно содержать "Dr.Failov iHA bot"
@@ -122,7 +123,6 @@ public class ApplicationManager {
         httpServer = new HttpServer(this);
         commands = new ArrayList<>();
         commands.add(new SetBotMark(this));
-        commands.add(new Status(this));
         commands.add(new Version(this));
         commands.add(new Encode(this));
         commands.add(new Decode(this));
@@ -132,10 +132,8 @@ public class ApplicationManager {
         commands.add(new Autoreboot(this));
         commands.add(vkCommunicator);
         commands.add(parameters);
-        commands.add(activity);
         commands.add(brain);
         commands.add(databaseBackuper);
-        commands.add(securityProvider);
         commands.add(httpServer);
     }
     public String getHomeFolder(){
@@ -218,82 +216,6 @@ public class ApplicationManager {
         catch (Exception e){
             e.printStackTrace();
             log("Ошибка разблокировки Wi-Fi: " + e.toString());
-        }
-    }
-
-    //================================= ДАЛЬШЕ ИДЁТ СТАРОЕ =============================================================
-
-    static public String programName = "DrFailov_VK_iHA_bot";
-    static public String botcmd = "botcmd,bcd";
-
-
-    public void load(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    F.sleep(500);
-                    log(". Загрузка программы " + botName + " ...");
-                    if(!securityProvider.allowStart()) {
-                        //log("! Запуск программы запрещён.");
-                        return;
-                    }
-                    startAutoSaving();
-                    securityProvider.addDonationStateChangedListener(new SecurityProvider.OnDonationStateChangedListener() {
-                        @Override
-                        public void donationStateChanged(Boolean donated) {
-                            processNewDonationState(donated);
-                        }
-                    });
-                    messageComparer.load();
-                    brain.load();
-                    httpServer.load();
-                    vkAccounts.load();
-                    vkCommunicator.load();
-                    databaseBackuper.load();
-                    securityProvider.load();
-                    FileStorage fileStorage = new FileStorage("application_manager_data");
-                    botName = fileStorage.getString("botName", botName);
-                    //SharedPreferences sp = activity.getPreferences(Activity.MODE_PRIVATE);
-                    //botName = sp.getString("botName", botName);
-                    log(". Имя бота " + botName + " загружено.\n");
-                    log(". Программа " + botName + " загружена.");
-                    loaded = true;
-                    activity.showToast("Загрузка стен...");
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                    log("! Ошибка загрузки: " + e.toString());
-                }
-            }
-        }).start();
-    }
-
-    private class Status extends CommandModule{
-        public Status(ApplicationManager applicationManager) {
-            super(applicationManager);
-        }
-
-        @Override
-        public ArrayList<CommandDesc> getHelp() {
-            ArrayList<CommandDesc> result= new ArrayList<>();
-            result.add(new CommandDesc(
-                    "Получить отчёт о состоянии",
-                    "Эта команда собирает со всех модулей программы отчёты о их состоянии " +
-                            "и выводит полный перечень всех параметров бота.",
-                    "botcmd status"
-            ));
-            return result;
-        }
-
-        @Override
-        public String processCommand(Message message) {
-            CommandParser commandParser = new CommandParser(message.getText());
-            if(commandParser.getWord().equals("status")) {
-                return "Метка бота: " + applicationManager.getBotMark() + "\n"+
-                        "Использование оперативной памяти: "+applicationManager.getRamUsagePercent()+" % \n";
-            }
-            return "";
         }
     }
 
