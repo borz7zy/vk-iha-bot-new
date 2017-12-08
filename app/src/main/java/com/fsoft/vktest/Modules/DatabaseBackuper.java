@@ -4,6 +4,7 @@ import android.os.Environment;
 
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;
 
@@ -124,11 +125,9 @@ public class DatabaseBackuper extends CommandModule {
     private String backup(String name){
         String result = "";
 
-        while(applicationManager.saving) {
-            log(". Waiting while saving finishes...");
-            F.sleep(1000);
-        }
-        applicationManager.dontsave = true;
+        log(". Waiting while saving finishes...");
+        F.sleep(1000);
+
         try{
             File originalFolder = new File(applicationManager.getHomeFolder());
             result += log(". Оригинальная папка: " + originalFolder.getPath() + "\n");
@@ -146,7 +145,7 @@ public class DatabaseBackuper extends CommandModule {
             result += log("! Ошибка создания бекапа: " + e.toString() + "\n");
         }
         finally {
-            applicationManager.dontsave = false;
+
         }
         result += log(". Завершено.\n");
         return result;
@@ -342,18 +341,16 @@ public class DatabaseBackuper extends CommandModule {
                                 result += "Да! Найден нужный бекап. Восстановление...\n";
                                 result += "Перед восстановлением создаю бекап...\n";
                                 result += backup("Резервная копия перед восстановлением") + "\n";
-                                applicationManager.dontsave = true;
                                 result += "Удаляю текущие данные...\n";
                                 result += deleteFile(applicationManager.getHomeFolder()) + "\n";
                                 result += "Копирую выбранный бекап на место сохранений...\n";
                                 result += copyDirectory(backups[i], new File(applicationManager.getHomeFolder())) + "\n";
                                 result += "Устанавливаю метку для пропуска сохранения...\n";
-                                applicationManager.loaded = false;
                                 result += "Выполнено! Сейчас программа будет перезагружена.";
                                 new Timer().schedule(new TimerTask() {
                                     @Override
                                     public void run() {
-                                        applicationManager.activity.restart();
+                                        //// TODO: 08.12.2017 applicationManager.activity.restart();
                                     }
                                 }, 5000);
                                 return result;
