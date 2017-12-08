@@ -1,12 +1,13 @@
 package com.fsoft.vktest.Communication.Account.VK;
 
+import android.util.Log;
+
 import com.fsoft.vktest.AnswerInfrastructure.Answer;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.Parameters;
-import com.fsoft.vktest.ViewsLayer.MessagesListFragment;
 import com.perm.kate.api.Attachment;
 import com.perm.kate.api.Message;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
@@ -164,7 +165,7 @@ public class MessageProcessor extends CommandModule {
         return messageID > lastMessageProcessed;
     }
     private void findNewMessages(){
-        if(!applicationManager.running){//значит программа уже завершена
+        if(!applicationManager.isRunning()){//значит программа уже завершена
             stopModule();
             return;
         }
@@ -194,18 +195,7 @@ public class MessageProcessor extends CommandModule {
                 if(kateMessage.chat_id != null && !answerInChatsEnabled) //если это беседа и их обработка отключена
                     return;
                 String messageText = kateMessage.body.replaceAll(" +", " ");
-                MessagesListFragment.MessageList.MessageListElement messageListElement = null;
                 log(". MESS ("+vkAccount+"): " + messageText);
-
-                //отобразить на форме
-                if(applicationManager.getActivity() != null && (applicationManager.getBrain().hasTreatment(messageText) || applicationManager.getBrain().hasCommand(messageText)))
-                    if(applicationManager.getActivity() != null && applicationManager.getActivity().messageList != null)
-                        messageListElement = applicationManager.getActivity().messageList.registerNewMessage(messageText, kateMessage.uid, "ЛС: " + vkAccount);
-
-                //отправить статус "набирает сообщение"
-                if(applicationManager.getBrain() != null && (applicationManager.getBrain().hasTreatment(messageText) || applicationManager.getBrain().hasCommand(messageText)))
-                    if(!vkAccount.isGroupToken())
-                        vkAccount.markTyping(kateMessage.uid, kateMessage.chat_id);
 
                 //подготовить обьект для передачи в программу
                 String text = kateMessage.body.replaceAll(" +", " ");
@@ -222,7 +212,6 @@ public class MessageProcessor extends CommandModule {
                 com.fsoft.vktest.AnswerInfrastructure.Message message =
                         new com.fsoft.vktest.AnswerInfrastructure.Message(
                                 source, text, author, attachments, vkAccount, onAnswerReady);
-                message.messageListElement = messageListElement;
                 message.setMessage_id(kateMessage.mid);
                 if(kateMessage.chat_id != null) {
                     message.setSource(com.fsoft.vktest.AnswerInfrastructure.Message.SOURCE_CHAT);
@@ -231,6 +220,12 @@ public class MessageProcessor extends CommandModule {
                     message.setChat_users(kateMessage.chat_members);
                     message.setChat_title(kateMessage.title);
                 }
+
+
+                //отправить статус "набирает сообщение"
+                if(applicationManager.getBrain() != null && (applicationManager.getBrain().hasTreatment(message) || applicationManager.getBrain().hasCommandMark(message)))
+                    if(!vkAccount.isGroupToken())
+                        vkAccount.markTyping(kateMessage.uid, kateMessage.chat_id);
 
                 //успокоить охранника
                 guard.registerRead();
@@ -245,12 +240,6 @@ public class MessageProcessor extends CommandModule {
             return;
         if (message.getAnswer() != null && !message.getAnswer().text.equals("")) {
             log(". REPL ("+vkAccount+"): " + message.getAnswer().text);
-            //обработать сообщение в окне сообщений
-            if(message.messageListElement == null && applicationManager.getActivity() != null && applicationManager.getActivity().messageList != null)
-                message.messageListElement = applicationManager.getActivity().messageList.registerNewMessage(message.getText(), message.getAuthor(), "ЛС: " + vkAccount);
-            //отметить отправку
-            if(message.messageListElement != null)
-                message.messageListElement.markSending();
             //send
             vkAccount.markAsRead(message.getMessage_id());
             messageSentCounter++;
@@ -263,24 +252,13 @@ public class MessageProcessor extends CommandModule {
                     message.getAnswer().forwarded.add(message.getMessage_id());
                 vkAccount.sendMessage(0L, message.getChat_id(), message.getAnswer());
             }
-            //обработать сообщение в окне сообщений
-            if(message.messageListElement != null) {
-                message.messageListElement.registerSenderName(applicationManager.getCommunicator().getActiveAccount().getUserName(message.getAuthor()));
-                message.messageListElement.registerAnswer(message.getAnswer().toString());
-            }
         }
         else{
-            //отметить отправку
-            if(message.messageListElement != null) {
-                message.messageListElement.registerSenderName(applicationManager.getCommunicator().getActiveAccount().getUserName(message.getAuthor()));
-                message.messageListElement.markIgnored();
-            }
             if(message.getSource().equals(com.fsoft.vktest.AnswerInfrastructure.Message.SOURCE_CHAT))
                 offTopCounter.registerOffTopMessage(message.getChat_id());
-            if(!applicationManager.isStandby()
-                    && instructor.needInstruction(message.getAuthor())
-                    && !applicationManager.getBrain().hasMark(message.getText())
-                    && !applicationManager.getBrain().ignorId.contains(message.getAuthor())
+            if(instructor.needInstruction(message.getAuthor())
+                    && !applicationManager.getBrain().hasBotMark(message)
+                    && !applicationManager.getBrain().getIgnor().has(message.getAuthor())
                     && message.getSource().equals(com.fsoft.vktest.AnswerInfrastructure.Message.SOURCE_DIALOG)){
                 vkAccount.markAsRead(message.getMessage_id());
                 log("! Инструкция (" + vkAccount+ "): " + instructor.getInstructionText());
@@ -601,20 +579,35 @@ public class MessageProcessor extends CommandModule {
                     return;
                 int current = getChatOffTopCounter(chat_id);
                 chatOffTopCounter.put(chat_id, current + 1);
-                int offTopWarning1Limit = Parameters.get("offTopWarning1Limit", 800,
+                int offTopWarning1Limit = applicationManager.getParameters().get(
+                        "offTopWarning1Limit",
+                        800,
+                        "Количество оффтопа до первого предупреждения",
                         "Количество сообщений в чате не к боту, после которого участники чата получат ПЕРВОЕ предупреждение от бота.");
-                int offTopWarning2Limit = Parameters.get("offTopWarning2Limit", 900,
+                int offTopWarning2Limit = applicationManager.getParameters().get(
+                        "offTopWarning2Limit",
+                        900,
+                        "Количество оффтопа до второго предупреждения",
                         "Количество сообщений в чате не к боту, после которого участники чата получат ВТОРОЕ предупреждение от бота.");
-                int offTopExitLimit = Parameters.get("offTopExitLimit", 1000,
+                int offTopExitLimit = applicationManager.getParameters().get(
+                        "offTopExitLimit",
+                        1000,
+                        "Количество оффтопа до выхода из чата",
                         "Количество сообщений в чате не к боту, после которого бот покинет чат.");
-                String offTopWarning1Text = Parameters.get("offTopWarning1Text",
+                String offTopWarning1Text = applicationManager.getParameters().get(
+                        "offTopWarning1Text",
                         "Напоминаю, я бот, и я всё ещё здесь.",
+                        "Текст первого предупреждения",
                         "Текст ПЕРВОГО предупреждения, которое получат участники чата, которые общаются не с ботом.");
-                String offTopWarning2Text = Parameters.get("offTopWarning2Text",
+                String offTopWarning2Text = applicationManager.getParameters().get(
+                        "offTopWarning2Text",
                         "Зачем вы меня сюда пригласили, если не общаетесь со мной?",
+                        "Текст первого предупреждения",
                         "Текст ВТОРОГО предупреждения, которое получат участники чата, которые общаются не с ботом.");
-                String offTopExitText = Parameters.get("offTopExitText",
+                String offTopExitText = applicationManager.getParameters().get(
+                        "offTopExitText",
                         "Оставлю вас наедине, не буду мешать.",
+                        "Текст выхода из чата",
                         "Текст, который получат участники чата перед тем, как бот покинет чат.");
 
                 if (current == offTopWarning1Limit)
@@ -839,15 +832,18 @@ public class MessageProcessor extends CommandModule {
         public void start(){
             if(exitFromBotsChatsTimer == null){
                 log(". Запуск модуля выхода из бесед с другими ботами для аккаунта " + vkAccount + "...");
-                int period = Parameters.get("exitFromBotsChatsPeriod", 60,
-                        "Период между проверками на наличие других наших ботов в беседах.");
+                int period = applicationManager.getParameters().get(
+                        "exitFromBotsChatsPeriod",
+                        60,
+                        "Период проверки на чаты с ботами",
+                        "Период в секундах между проверками на наличие других наших ботов в беседах.");
                 exitFromBotsChatsTimer = new Timer();
                 exitFromBotsChatsTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         excludeFromBotsDialogs();
                     }
-                }, 5000, period);
+                }, 5000, period*1000);
 
             }
         }
@@ -1099,14 +1095,15 @@ public class MessageProcessor extends CommandModule {
                         //log("GUARD messageProcessingEnabled = " + messageProcessingEnabled);
                         //log("GUARD isActive = " + isActive());
                         if (sinceLastRead > (5 * 60 * 1000) && messageProcessingEnabled && vkAccount.isRunning()) {//5 минут
-                            applicationManager.messageBox(log("GUARD (" + vkAccount + ") Обнаружены проблемы в работе ЛС. Перезапуск личных сообщений..."));
+                            //// TODO: 08.12.2017  applicationManager.messageBox(log("GUARD (" + vkAccount + ") Обнаружены проблемы в работе ЛС. Перезапуск личных сообщений..."));
                             stopModule();
                             F.sleep(5000);
                             startModule();
                         }
                     }
                     catch (Exception e){
-                        applicationManager.messageBox(log("GUARD (" + vkAccount + ") Охраннику не удаётся перезапустить ЛС!!!"));
+                        e.printStackTrace();
+                        //// TODO: 08.12.2017  applicationManager.messageBox(log("GUARD (" + vkAccount + ") Охраннику не удаётся перезапустить ЛС!!!"));
                     }
                 }
             }, 180000, 180000);//3 минуты
