@@ -215,6 +215,10 @@ public class Filter extends BotModule{
         input = input.replace("&#", " ");
         //восстанавливаем ссылки на ВК - они разрешены
         input = input.replace("vk. com", "vk.com");
+        //убить упоминания
+        input = input.replaceAll("\\*[a-zA-Zа-яА-Я0-9_]+", "...");
+        input = input.replaceAll("\\@[a-zA-Zа-яА-Я0-9_]+", "...");
+        //вернуть ответ
         return input;
     }
     private String filterForbidden(String input){
