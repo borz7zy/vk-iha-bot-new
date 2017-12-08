@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.FileStorage;
@@ -17,13 +18,14 @@ import java.util.TimerTask;
  * Created by Dr. Failov on 12.02.2017.
  */
 public class Autoreboot extends CommandModule {
-    private FileStorage fileStorage = new FileStorage("autoreboot_config");
+    private FileStorage fileStorage;
     private boolean enabled = false;
     private long interval = 172800000; //2 days
     private Timer timer = null;
 
     public Autoreboot(ApplicationManager applicationManager) {
         super(applicationManager);
+        fileStorage = new FileStorage("autoreboot_config", applicationManager);
         setInterval(fileStorage.getLong("interval", interval));
         setEnabled(fileStorage.getBoolean("enabled", enabled));
     }
@@ -155,13 +157,8 @@ public class Autoreboot extends CommandModule {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                while(applicationManager.saving) {
-                    log(". Waiting while saving finishes...");
-                    F.sleep(1000);
-                }
-                applicationManager.dontsave = true;
                 log(". Rebooting...");
-                applicationManager.processCommand("shell reboot");
+                //// TODO: 08.12.2017    applicationManager.("shell reboot");
             }
         }, 5000);
     }
@@ -190,34 +187,34 @@ public class Autoreboot extends CommandModule {
         }, interval, interval);
     }
     public void requestRoot(){
-        applicationManager.handler.post(new Runnable() {
-            @Override
-            public void run() {
-                AlertDialog.Builder builder = new AlertDialog.Builder(applicationManager.getContext());
-                builder.setTitle("Внимание!");
-                builder.setMessage("Через секунду я попробую проверить есть ли у тебя ROOT доступ " +
-                        "на телефоне. Если он есть, у тебя должно отобразиться сообщение с вопросом. " +
-                        "В этом сообщении подтверди доступ и поставь галочку чтобы доступ " +
-                        "автоматически подтверждался всегда. Это нужно для того, чтобы я мог самостоятельно " +
-                        "перезагружать телефон, не отвлекая тебя.\n" +
-                        "(!!!) Если никакого сообщения не появится, значит, скорее всего, у тебя на телефоне " +
-                        "нету рута и автоматическая перезагрузка работать не будет.");
-                builder.setPositiveButton("Понял", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        new Timer().schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                log(". Testing root access...");
-                                applicationManager.processCommand("shell ls /");
-                            }
-                        }, 1000);
-                    }
-                });
-            }
-        });
-
-
+//        applicationManager.handler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                AlertDialog.Builder builder = new AlertDialog.Builder(applicationManager.getContext());
+//                builder.setTitle("Внимание!");
+//                builder.setMessage("Через секунду я попробую проверить есть ли у тебя ROOT доступ " +
+//                        "на телефоне. Если он есть, у тебя должно отобразиться сообщение с вопросом. " +
+//                        "В этом сообщении подтверди доступ и поставь галочку чтобы доступ " +
+//                        "автоматически подтверждался всегда. Это нужно для того, чтобы я мог самостоятельно " +
+//                        "перезагружать телефон, не отвлекая тебя.\n" +
+//                        "(!!!) Если никакого сообщения не появится, значит, скорее всего, у тебя на телефоне " +
+//                        "нету рута и автоматическая перезагрузка работать не будет.");
+//                builder.setPositiveButton("Понял", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        new Timer().schedule(new TimerTask() {
+//                            @Override
+//                            public void run() {
+//                                log(". Testing root access...");
+//                                applicationManager.processCommand("shell ls /");
+//                            }
+//                        }, 1000);
+//                    }
+//                });
+//            }
+//        });
+//
+//
 
     }
 }
