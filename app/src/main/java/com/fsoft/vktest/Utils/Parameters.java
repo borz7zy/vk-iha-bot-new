@@ -138,8 +138,10 @@ public class Parameters extends CommandModule{
         return result;
     }
     private ArrayList<Parameter> intersect(ArrayList<Parameter> array1, ArrayList<Parameter> array2){
-        ArrayList<Object> objArray1 = new ArrayList<>(array1);
-        ArrayList<Object> objArray2 = new ArrayList<>(array1);
+        ArrayList<Object> objArray1 = new ArrayList<>();
+        ArrayList<Object> objArray2 = new ArrayList<>();
+        objArray1.addAll(array1);
+        objArray2.addAll(array2);
 
         ArrayList<Object> objResult = F.intersect(objArray1, objArray2);
 

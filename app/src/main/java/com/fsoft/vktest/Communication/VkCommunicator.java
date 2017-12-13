@@ -182,8 +182,10 @@ public class VkCommunicator extends CommandModule {
                     if(text.equals(""))
                         return log("! Я не могу отправить пост, потому что ты не написал текст сообщения. \n" +
                                 "Формат команды: botcmd SendPost <ссылка на стену> <текст сообщения>");
-                    if(!applicationManager.getBrain().getFilter().isAllowedSymbol(text, true))
+                    if(applicationManager.getBrain().getFilter().containsForbidden(text))
                         return log("! Я не могу отправить твоё сообщение, потому что оно содержит текст, который запрещено отправлять.");
+                    else
+                        text = applicationManager.getBrain().getFilter().filterText(text);
                     long ownerID = getActiveAccount().resolveScreenName(ownerIDstring);
                     if(ownerID == 0 || ownerID == -1)
                         return log("! Я не могу отправить пост, потому что ты написал неправильный адрес стены, " +
@@ -246,8 +248,10 @@ public class VkCommunicator extends CommandModule {
                     if(text.equals(""))
                         return log("! Я не могу отправить пост, потому что ты не написал текст сообщения. \n" +
                                 "Формат команды: botcmd SendComment <ссылка на пост> <текст сообщения>");
-                    if(!applicationManager.getBrain().getFilter().isAllowedSymbol(text, true))
+                    if(applicationManager.getBrain().getFilter().containsForbidden(text))
                         return log("! Я не могу отправить твоё сообщение, потому что оно содержит текст, который запрещено отправлять.");
+                    else
+                        text = applicationManager.getBrain().getFilter().filterText(text);
 
                     String regex = "wall(\\-?[0-9]+)_([0-9]+)";
                     long wallId = 0;

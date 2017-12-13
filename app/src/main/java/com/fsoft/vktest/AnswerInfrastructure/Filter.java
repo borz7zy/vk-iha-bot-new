@@ -201,6 +201,13 @@ public class Filter extends BotModule{
     public boolean isFilterEnabled() {
         return enabled;
     }
+    public boolean containsForbidden(String input){
+        return input.equals(filterForbidden(input));
+    }
+    public String filterText(String input){
+        return filterForbidden(filterLinks(filterSymbols(input)));
+    }
+
     private String filterSymbols(String input){
         //оставить только разрещённые символы. Всякую псевдографику нахуй
         return F.filterSymbols(input, allowedSymbols);
@@ -244,7 +251,6 @@ public class Filter extends BotModule{
         }
         return input;
     }
-
     private void readBlacklist(){
         //READ BLACKLIST
         try {
@@ -701,7 +707,7 @@ public class Filter extends BotModule{
                 boolean hasLinks = outputLinks.equals(input);
                 String outputForbidden = filterForbidden(input);
                 boolean hasForbidden = outputForbidden.equals(input);
-                String finalResult = filterForbidden(filterLinks(filterSymbols(input)));
+                String finalResult = filterText(input);
 
 
 

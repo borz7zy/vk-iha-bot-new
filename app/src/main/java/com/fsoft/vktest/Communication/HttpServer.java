@@ -126,7 +126,7 @@ public class HttpServer extends CommandModule {
             @Override
             public void run() {
                 stop();
-                applicationManager.messageBox("Обнаружена попытка DDoS HTTP сервера. Сервер будет отключён на 5 минут.");
+                messageBox("Обнаружена попытка DDoS HTTP сервера. Сервер будет отключён на 5 минут.");
                 new Timer().schedule(new TimerTask() {
                     @Override
                     public void run() {
@@ -233,7 +233,7 @@ public class HttpServer extends CommandModule {
                     log(". HTTP (port "+port+"): " + inputText);
 
                     long user = userId;
-                    String answer = applicationManager.getBrain().processMessage(new Message(
+                    Message messageWithAnswer = applicationManager.getBrain().processMessage(new Message(
                             MessageBase.SOURCE_HTTP,
                             inputText,
                             userId,
@@ -241,6 +241,9 @@ public class HttpServer extends CommandModule {
                             null,
                             null
                     ));
+                    String answer = "";
+                    if(messageWithAnswer.getAnswer() != null)
+                        answer = messageWithAnswer.getAnswer().text;
                     log(". REPL (port "+port+"): " + answer);
                     return answer;
                 }

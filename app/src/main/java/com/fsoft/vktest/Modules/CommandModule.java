@@ -62,8 +62,11 @@ public class CommandModule implements Command {
         return text;
     }
     public String messageBox(String text){
-        if(applicationManager != null)
-            applicationManager.messageBox(text);
+        //if(applicationManager != null)
+        log("! Can\'t show messageBox because it still not implemented");
+        new Exception("\"! Can\\'t show messageBox because it still not implemented\"").printStackTrace();
+            //// TODO: 13.12.2017 apply it when will be ready
+            /// applicationManager.messageBox(text);
         return text;
     }
     public ApplicationManager getApplicationManager() {

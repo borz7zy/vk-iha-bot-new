@@ -336,4 +336,7 @@ public class BotBrain extends CommandModule {
     public PatternProcessor getPatternProcessor() {
         return patternProcessor;
     }
+    public Filter getFilter() {
+        return filter;
+    }
 }
