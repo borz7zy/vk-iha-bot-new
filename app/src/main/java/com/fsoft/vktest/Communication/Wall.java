@@ -230,11 +230,8 @@ public class Wall extends CommandModule {
                                 message.setMessage_id(comment.cid);
                                 message.setComment_post_author(wallMessage.from_id);
                                 message.setComment_post_text(wallMessage.text);
-                                //отобразить на форме
-                                if(applicationManager.brain.hasTreatment(message.getText()) || applicationManager.brain.hasCommand(message.getText()))
-                                    if(applicationManager.activity != null && applicationManager.activity.messageList != null)
-                                        message.messageListElement = applicationManager.activity.messageList.registerNewMessage(message.getText(), message.getAuthor(), "Комментарий: " + getWallName());
-                                applicationManager.brain.processMessage(message);
+
+                                applicationManager.getBrain().processMessage(message);
                             }
                         }
                     }
@@ -260,11 +257,8 @@ public class Wall extends CommandModule {
                         message.setMessage_id(wallMessage.id);
                         message.setComment_post_author(wallMessage.from_id);
                         message.setComment_post_text(wallMessage.text);
-                        //отобразить на форме
-                        if(applicationManager.brain.hasTreatment(message.getText()) || applicationManager.brain.hasCommand(message.getText()))
-                            if(applicationManager.activity != null && applicationManager.activity.messageList != null)
-                                message.messageListElement = applicationManager.activity.messageList.registerNewMessage(message.getText(), message.getAuthor(), "Пост: " + getWallName());
-                        applicationManager.brain.processMessage(message);
+
+                        applicationManager.getBrain().processMessage(message);
                     }
                     postCommentCounter.put(wallMessage.id, wallMessage.comment_count);
                 }
@@ -360,12 +354,6 @@ public class Wall extends CommandModule {
         try {
             if (message.getAnswer() != null && !message.getAnswer().text.equals("")) {
                 log(". REPL (" + getWallName() + "): " + message.getAnswer().text);
-                //обработать сообщение в окне сообщений
-                if (message.messageListElement == null && applicationManager.activity != null && applicationManager.activity.messageList != null)
-                    message.messageListElement = applicationManager.activity.messageList.registerNewMessage(message.getText(), message.getAuthor(), "Стена: " + getWallName());
-                //отметить отправку
-                if (message.messageListElement != null)
-                    message.messageListElement.markSending();
                 //send
                 setMessagesReplied(getMessagesReplied() + 1);
                 requestsCounter ++;
@@ -373,18 +361,8 @@ public class Wall extends CommandModule {
                     message.getBotAccount().createWallCommentUnsafe(getId(), message.getComment_post_id(), message.getAnswer(), message.getMessage_id());
                 else if (message.getSource().equals(Message.SOURCE_WALL))
                     message.getBotAccount().createWallCommentUnsafe(getId(), message.getMessage_id(), message.getAnswer(), null);
-
-                //обработать сообщение в окне сообщений
-                if (message.messageListElement != null) {
-                    message.messageListElement.registerSenderName(applicationManager.vkCommunicator.getActiveAccount().getUserName(message.getAuthor()));
-                    message.messageListElement.registerAnswer(message.getAnswer().toString());
-                }
             } else {
-                //отметить отправку
-                if (message.messageListElement != null) {
-                    message.messageListElement.registerSenderName(applicationManager.vkCommunicator.getActiveAccount().getUserName(message.getAuthor()));
-                    message.messageListElement.markIgnored();
-                }
+
             }
         }
         catch (Throwable e){

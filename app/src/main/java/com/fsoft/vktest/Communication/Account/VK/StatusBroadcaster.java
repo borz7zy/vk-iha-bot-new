@@ -70,9 +70,13 @@ public class StatusBroadcaster extends CommandModule {
         if(statusBroadcastingTimer == null && statusBroadcastingEnabled) {
             statusBroadcastingTimer = new Timer("Status Broadcasting for " + vkAccount);
             saveStatus();
-            int periodMin = Parameters.get("StatusBroadcastingPeriod",3,
-                    "Период обновления статуса аккаунта в минутах. " +
+            int periodMin = applicationManager.getParameters().get("StatusBroadcastingPeriod",
+                    3,
+                    "Период обновления статуса аккаунта в минутах",
+                    "Определяет как часто бот будет обновлять статус на странице.\n" +
                             "По умолчанию это 3 минуты. Слишком малое время может привести к капче!");
+            if(periodMin == 0)
+                periodMin = 1;
             int periodMs = periodMin * 60 * 1000;
             statusBroadcastingTimer.schedule(new TimerTask(){
                 @Override
@@ -91,7 +95,7 @@ public class StatusBroadcaster extends CommandModule {
     }
 
     private void broadcastStatus(){
-        if(!applicationManager.running){
+        if(!applicationManager.isRunning()){
             stopModule();
             return;
         }
@@ -108,19 +112,21 @@ public class StatusBroadcaster extends CommandModule {
             newStatus = newStatus.replace("NAME", ApplicationManager.getVisibleName());
 
             //// TODO: 13.07.2017 fix it
-            if(applicationManager.getCommunicator() != null)
-                newStatus = newStatus.replace("WORKING", applicationManager.getWorkingTime());
+            //// TODO: 13.12.2017 обновить методы получения времени сколько работает бот
+//            if(applicationManager.getCommunicator() != null)
+//                newStatus = newStatus.replace("WORKING", applicationManager.getWorkingTime());
 
-            if(MainActivity.messageList != null)
-                newStatus = newStatus.replace("PROCESSED", String.valueOf(MainActivity.messageList.getMessagesProcessed()));
-            else
-                newStatus = newStatus.replace("PROCESSED", "(недоступно)");
+            //// TODO: 13.12.2017 обновить методы получения количества сообщений отправленных ботом
+            //newStatus = newStatus.replace("PROCESSED", String.valueOf(MainActivity.messageList.getMessagesProcessed()));
 
-            if(applicationManager.getCommunicator() != null)
-                newStatus = newStatus.replace("RECEIVED", String.valueOf(applicationManager.getCommunicator().getTotalReceivedMessagesCount()));
 
-            if(applicationManager.getCommunicator() != null)
-                newStatus = newStatus.replace("API", String.valueOf(applicationManager.getCommunicator().getTotalApiCount()));
+            //// TODO: 13.12.2017 обновить методы получения количества сообщений принятых ботом
+//            if(applicationManager.getCommunicator() != null)
+//                newStatus = newStatus.replace("RECEIVED", String.valueOf(applicationManager.getCommunicator().getTotalReceivedMessagesCount()));
+
+            //// TODO: 13.12.2017 обновить методы получения количества запросов
+//            if(applicationManager.getCommunicator() != null)
+//                newStatus = newStatus.replace("API", String.valueOf(applicationManager.getCommunicator().getTotalApiCount()));
 
             vkAccount.setStatus(newStatus);
         }

@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
@@ -27,10 +28,8 @@ public class BootReceiver extends BroadcastReceiver {
     }
     public static boolean isRun(Context context){
         try {
-            FileStorage fileStorage = new FileStorage("boot_receiver");
-            return fileStorage.getBoolean(ApplicationManager.constAutoRun, false);
-//            SharedPreferences sharedPreferences = context.getSharedPreferences(ApplicationManager.programName, Context.MODE_PRIVATE);
-//            return sharedPreferences.getBoolean(ApplicationManager.constAutoRun, false);
+            SharedPreferences sharedPreferences = context.getSharedPreferences(ApplicationManager.programName, Context.MODE_PRIVATE);
+            return sharedPreferences.getBoolean("autorun", false);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -39,14 +38,11 @@ public class BootReceiver extends BroadcastReceiver {
     }
     public static void setRun(Context context, boolean newVelue){
         try {
-            FileStorage fileStorage = new FileStorage("boot_receiver");
-            fileStorage.put(ApplicationManager.constAutoRun, newVelue);
-            fileStorage.commit();
 
-//            SharedPreferences sharedPreferences = context.getSharedPreferences(ApplicationManager.programName, Context.MODE_PRIVATE);
-//            SharedPreferences.Editor editor = sharedPreferences.edit();
-//            editor.putBoolean(ApplicationManager.constAutoRun, newVelue);
-//            editor.commit();
+            SharedPreferences sharedPreferences = context.getSharedPreferences(ApplicationManager.programName, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("autorun", newVelue);
+            editor.commit();
         }
         catch (Exception e){
             e.printStackTrace();

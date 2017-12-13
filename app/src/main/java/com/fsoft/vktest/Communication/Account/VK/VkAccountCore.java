@@ -103,7 +103,7 @@ public class VkAccountCore extends Account {
     }
     @Override public void login() {
         super.login();
-        new LoginWindow(this);
+        new LoginWindow(applicationManager, this);
     }
     @Override protected void startAccount() {
         super.startAccount();
@@ -1169,7 +1169,7 @@ public class VkAccountCore extends Account {
         if(e instanceof NullPointerException)
             return false;
         if(e instanceof OutOfMemoryError){
-            applicationManager.messageBox("У нас большие проблемы! Нам не хватает оперативной памяти!\n" +
+            messageBox("У нас большие проблемы! Нам не хватает оперативной памяти!\n" +
                     "Это может означать, что база ответов слишком большая для твоего телефона, либо твой " +
                     "телефон слишком слабый для бота.\n" +
                     "Для начала - попробуй уменьшить размер базы ответов.");
@@ -1193,7 +1193,7 @@ public class VkAccountCore extends Account {
             //help:     https://vk.com/dev/errors
 
             if(ke.getMessage().toLowerCase().contains("invalid access_token") || ke.getMessage().contains("invalid session")){
-                applicationManager.messageBox("У нас проблема: аккаунт "+this+" сообщает о некорректном токене.\n" +
+                messageBox("У нас проблема: аккаунт "+this+" сообщает о некорректном токене.\n" +
                         "Это означает, что в аккаунт надо войти заново.\n" +
                         "Такая ошибка возникает если, например, сменить пароль к аккаунту, или " +
                         "принудительно завершить все сессии в настройках на сайте ВК.");
@@ -1217,7 +1217,7 @@ public class VkAccountCore extends Account {
                 return false;
             }
             else if(ke.error_code == 6) { //Слишком много запросов в секунду.
-                applicationManager.messageBox("У нас проблема: аккаунт "+this+" перегружен. " +
+                messageBox("У нас проблема: аккаунт "+this+" перегружен. " +
                         "ВК ограничивает количество запросов от приложения, " +
                         "при этом бот работает на максимально допустимой скорости." +
                         "Проверь, не запущен ли ещё где-то другой бот, который работает с этим же аккаунтом.\n" +
@@ -1228,7 +1228,7 @@ public class VkAccountCore extends Account {
                 return true;
             }
             else if(ke.error_code == 9) { //Слишком много однотипных действий.
-                applicationManager.messageBox("У нас проблема: аккаунт "+this+" перегружен. " +
+                messageBox("У нас проблема: аккаунт "+this+" перегружен. " +
                         "ВК ограничивает количество запросов от приложения, " +
                         "при этом бот работает на максимально допустимой скорости." +
                         "Проверь, не запущен ли ещё где-то другой бот, который работает с этим же аккаунтом.\n" +
@@ -1245,7 +1245,7 @@ public class VkAccountCore extends Account {
             }
             else if(ke.error_code == 16) { //Требуется выполнение запросов по протоколу HTTPS, т.к.
                 // пользователь включил настройку, требующую работу через безопасное соединение.
-                applicationManager.messageBox("У нас проблема: аккаунт "+this+" требует работы по протоколу HTTPS. " +
+                messageBox("У нас проблема: аккаунт "+this+" требует работы по протоколу HTTPS. " +
                         "В настройках твоего аккаунта настроена принудительная работа по протоколу HTTPS. " +
                         "Бот с ним работать пока не умеет (да и это ему не нужно), поэтому не будет работать с этим аккаунтом " +
                         "пока установлена эта настройка.\n" +

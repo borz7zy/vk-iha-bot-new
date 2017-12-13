@@ -3,6 +3,7 @@ package com.fsoft.vktest.AnswerInfrastructure.Functions.Modules;
 import com.fsoft.vktest.AnswerInfrastructure.Answer;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Function;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
+import com.fsoft.vktest.AnswerInfrastructure.MessageBase;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.HttpServer;
 
@@ -27,7 +28,7 @@ public class BanMe extends Function {
             return super.processMessage(messageOriginal);
         Message message = remTreatment(messageOriginal);
 
-        if(message.getAuthor() == HttpServer.USER_ID)
+        if(message.getSource() == MessageBase.SOURCE_HTTP || message.getSource() == MessageBase.SOURCE_PROGRAM)
             return super.processMessage(messageOriginal);
 
         if(message.getText().equalsIgnoreCase(getInvoker())){

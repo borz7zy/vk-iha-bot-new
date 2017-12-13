@@ -11,7 +11,6 @@ import com.fsoft.vktest.Modules.Commands.ClearCache;
 import com.fsoft.vktest.Modules.Commands.CpuTemp;
 import com.fsoft.vktest.Modules.Commands.Decode;
 import com.fsoft.vktest.Modules.Commands.Encode;
-import com.fsoft.vktest.Modules.Commands.SetBotMark;
 import com.fsoft.vktest.Modules.Commands.Version;
 import com.fsoft.vktest.Communication.VkCommunicator;
 import com.fsoft.vktest.Modules.Autoreboot;
@@ -122,7 +121,6 @@ public class ApplicationManager {
         securityProvider = new SecurityProvider(this);
         httpServer = new HttpServer(this);
         commands = new ArrayList<>();
-        commands.add(new SetBotMark(this));
         commands.add(new Version(this));
         commands.add(new Encode(this));
         commands.add(new Decode(this));
@@ -146,7 +144,7 @@ public class ApplicationManager {
         return text;
     }
     public boolean isDonated(){
-        return securityProvider.isDonated();
+        return true;//// TODO: 13.12.2017 это блять заглушка!  securityProvider.isDonated();
     }
     public MainActivity getActivity() {
         return activity;

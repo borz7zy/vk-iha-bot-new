@@ -4,6 +4,7 @@ import com.fsoft.vktest.AnswerInfrastructure.Answer;
 import com.fsoft.vktest.AnswerInfrastructure.BotModule;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Function;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
+import com.fsoft.vktest.AnswerInfrastructure.MessageBase;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
@@ -428,7 +429,7 @@ public class Cities extends Function {
             Message message = remTreatment(messageOriginal);
 
             //С сервера нельзя играть в города, потому что там все пользователи как один
-            if(message.getAuthor() == HttpServer.USER_ID)
+            if(message.getSource() == MessageBase.SOURCE_HTTP)
                 return super.processMessage(messageOriginal);
 
             //если мы играем с этим пользователем - мы перехватываем все его сообщения

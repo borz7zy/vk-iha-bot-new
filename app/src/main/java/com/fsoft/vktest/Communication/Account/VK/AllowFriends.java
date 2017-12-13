@@ -85,23 +85,23 @@ public class AllowFriends extends CommandModule {
         this.blacklistDeletedFriendsEnabled = blacklistDeletedFriends;
         vkAccount.getFileStorage().put("blacklistDeletedFriendsEnabled", blacklistDeletedFriendsEnabled).commit();
         if(!rejectDeletedFriendsEnabled)
-            applicationManager.messageBox(log("! Внимание! Ты включил отправку удалившихся друзей в ЧС, " +
+            messageBox(log("! Внимание! Ты включил отправку удалившихся друзей в ЧС, " +
                     "но у тебя не включена отписка от них! \n" +
                     "Отправка удалившихся друзей в ЧС будет работать только в том случае, " +
                     "если включена отписка от удалившихся друзей!"));
         if(!applicationManager.isDonated())
-            applicationManager.messageBox(log("! Внимание! Ты включил отправку удалившихся друзей в ЧС, " +
+            messageBox(log("! Внимание! Ты включил отправку удалившихся друзей в ЧС, " +
                     "но у тебя не куплена донатка. \n" +
                     "Отправка удалившихся друзей в ЧС будет работать только в том случае, " +
                     "если куплена донатка для бота."));
     }
-    private void startModule(){
+    public void startModule(){
         if(acceptFriendRequestsEnabled)
             startAcceptFriendRequests();
         if(rejectDeletedFriendsEnabled)
             startRejectDeletedFriends();
     }
-    private void stopModule(){
+    public void stopModule(){
         stopAcceptFriendsRequest();
         stopRejectDeletedFriends();
     }

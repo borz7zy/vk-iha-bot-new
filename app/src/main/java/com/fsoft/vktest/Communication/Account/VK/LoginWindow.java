@@ -3,6 +3,7 @@ package com.fsoft.vktest.Communication.Account.VK;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -12,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Utils.F;
 import com.perm.kate.api.Auth;
 
@@ -30,36 +32,30 @@ import com.perm.kate.api.Auth;
  * validation: https://vk.com/dev/need_validation
  * Created by Dr. Failov on 21.02.2017.
  */
-public class LoginWindow extends Dialog {
-    private ApplicationManager applicationManager = null;
+public class LoginWindow extends CommandModule {
+    private Handler handler = new Handler();
     private VkAccountCore vkAccount = null;
     private Dialog loginDialog = null;
     private String customUrl = null;
 
-    public LoginWindow(VkAccountCore vkAccount, String customUrl) {
-        super(vkAccount.getApplicationManager().getContext());
+    public LoginWindow(ApplicationManager applicationManager, VkAccountCore vkAccount, String customUrl) {
+        super(applicationManager);
         this.vkAccount = vkAccount;
         this.customUrl = customUrl;
-        applicationManager = vkAccount.getApplicationManager();
         showLoginWindow();
     }
-    public LoginWindow(VkAccountCore vkAccount){
-        this(vkAccount, null);
+    public LoginWindow(ApplicationManager applicationManager, VkAccountCore vkAccount){
+        this(applicationManager, vkAccount, null);
     }
 
-    private String log(String text){
-        if(applicationManager != null)
-            return applicationManager.log(text);
-        return text;
-    }
     private void showLoginWindow(){
         if(loginDialog == null) {
-            applicationManager.handler.post(new Runnable() {
+            handler.post(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         log("Войди в аккаунт");
-                        Context context = applicationManager.activity;
+                        Context context = applicationManager.getContext();
                         final LoginView loginView = new LoginView(context);
                         loginView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 1));
 
@@ -118,7 +114,7 @@ public class LoginWindow extends Dialog {
                 "- Чтобы просто поговорить с ботом, каждое своё сообщение начинай с обращения \"Бот,\", например: \"Бот, как дела?\".\n" +
                 "Дальше разбирайся сам:) Удачи!";
         log(help);
-        applicationManager.messageBox(help);
+        messageBox(help);
     }
 
     class LoginView extends WebView {
