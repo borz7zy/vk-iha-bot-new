@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/VK_iHA_bot.iml" filepath="$PROJECT_DIR$/VK_iHA_bot.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mycheckboxview/mycheckboxview.iml" filepath="$PROJECT_DIR$/mycheckboxview/mycheckboxview.iml" />
     </modules>
   </component>
 </project>
