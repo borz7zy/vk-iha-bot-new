@@ -43,19 +43,31 @@ class MyImageView extends View {
     }
     @Override protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        neededWidth = getWidth() - getPaddingRight() - getPaddingLeft();
-        neededHeight = getHeight() - getPaddingBottom() - getPaddingTop();
+        canvas.drawColor(Color.argb(20, 255, 255, 255));  //DEBUG
+//        neededWidth = getWidth() - getPaddingRight() - getPaddingLeft();
+//        neededHeight = getHeight() - getPaddingBottom() - getPaddingTop();
         if(cache == null || (cache.getHeight() != neededHeight && cache.getWidth() != neededWidth)) {
             //в редакторе выполнять загрузку в основном потоке, иначе выносить в отдельный поток
-            if(isInEditMode())
+            if(isInEditMode()) {
                 loadAsync();
-            else
+                canvas.drawBitmap(cache, 0, 0, paint);
+                //canvas.drawBitmap(cache, getPaddingLeft() + (neededWidth - cache.getWidth())/2, getPaddingTop() + (neededHeight - cache.getHeight())/2, paint);
+            }
+            else {
                 startLoading();
-            paint.setColor(Color.GRAY);
-            canvas.drawRect(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight() - getPaddingBottom(), paint);
+                paint.setColor(Color.GRAY);
+                canvas.drawRect(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight() - getPaddingBottom(), paint);
+            }
         }
         else
-            canvas.drawBitmap(cache, getPaddingLeft() + (neededWidth - cache.getWidth())/2, getPaddingTop() + (neededHeight - cache.getHeight())/2, paint);
+            canvas.drawBitmap(cache, 0, 0, paint);
+            //canvas.drawBitmap(cache, getPaddingLeft() + (neededWidth - cache.getWidth())/2, getPaddingTop() + (neededHeight - cache.getHeight())/2, paint);
+    }
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        neededHeight = h - getPaddingBottom() - getPaddingTop();
+        neededWidth = w - getPaddingRight() - getPaddingLeft();
     }
 
     private void startLoading(){
@@ -78,7 +90,7 @@ class MyImageView extends View {
     private void loadAsync(){
         try {
             Bitmap tmp = BitmapFactory.decodeResource(getContext().getResources(), resource);
-            float coef = Math.min(neededHeight / (float)tmp.getHeight(), neededWidth / (float)tmp.getWidth());
+            float coef = Math.min(neededHeight/(float)tmp.getHeight(), neededWidth/(float)tmp.getWidth());
             cache = Bitmap.createScaledBitmap(tmp, (int)((float)tmp.getWidth()*coef), (int)((float)tmp.getHeight()*coef), false);
         }
         catch (Exception e){

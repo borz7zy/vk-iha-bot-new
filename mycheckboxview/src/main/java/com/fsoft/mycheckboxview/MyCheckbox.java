@@ -119,8 +119,8 @@ public class MyCheckbox extends LinearLayout {
         linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
 
         imageView = new MyImageView(getContext());
-        imageView.setLayoutParams(new LinearLayout.LayoutParams(Tools.dp(30), Tools.dp(30), 0));
-        imageView.setPadding(0, 0, Tools.dp(10), 0);
+        imageView.setLayoutParams(new LinearLayout.LayoutParams(Tools.dp(50), Tools.dp(50), 0));
+        imageView.setPadding(Tools.dp(10), Tools.dp(10), Tools.dp(10), Tools.dp(10));
         //imageView.setDrawable(R.drawable.menu_accurate);
 
         textView = new TextView(getContext());
