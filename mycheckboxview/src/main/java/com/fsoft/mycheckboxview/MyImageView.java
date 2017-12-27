@@ -46,7 +46,11 @@ class MyImageView extends View {
         neededWidth = getWidth() - getPaddingRight() - getPaddingLeft();
         neededHeight = getHeight() - getPaddingBottom() - getPaddingTop();
         if(cache == null || (cache.getHeight() != neededHeight && cache.getWidth() != neededWidth)) {
-            startLoading();
+            //в редакторе выполнять загрузку в основном потоке, иначе выносить в отдельный поток
+            if(isInEditMode())
+                loadAsync();
+            else
+                startLoading();
             paint.setColor(Color.GRAY);
             canvas.drawRect(getPaddingLeft(), getPaddingTop(), getWidth() - getPaddingRight(), getHeight() - getPaddingBottom(), paint);
         }
@@ -60,14 +64,8 @@ class MyImageView extends View {
                 @Override
                 public void run() {
                     try {
-                        Bitmap tmp = BitmapFactory.decodeResource(getContext().getResources(), resource);
-                        float coef = Math.min(neededHeight / (float)tmp.getHeight(), neededWidth / (float)tmp.getWidth());
-                        cache = Bitmap.createScaledBitmap(tmp, (int)((float)tmp.getWidth()*coef), (int)((float)tmp.getHeight()*coef), false);
+                        loadAsync();
                         postInvalidate();
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                        Log.d("MyImageView", "Error decoding: " + e.toString());
                     }
                     finally {
                         loadingThread = null;
@@ -75,6 +73,17 @@ class MyImageView extends View {
                 }
             });
             loadingThread.start();
+        }
+    }
+    private void loadAsync(){
+        try {
+            Bitmap tmp = BitmapFactory.decodeResource(getContext().getResources(), resource);
+            float coef = Math.min(neededHeight / (float)tmp.getHeight(), neededWidth / (float)tmp.getWidth());
+            cache = Bitmap.createScaledBitmap(tmp, (int)((float)tmp.getWidth()*coef), (int)((float)tmp.getHeight()*coef), false);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            Log.d("MyImageView", "Error decoding: " + e.toString());
         }
     }
 }

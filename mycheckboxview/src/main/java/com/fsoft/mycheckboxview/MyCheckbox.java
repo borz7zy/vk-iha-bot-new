@@ -24,14 +24,44 @@ public class MyCheckbox extends LinearLayout {
     private LinearLayout root;
     private LinearLayout linearLayout;
     private TextView textView;
+    private TextView hintView;
     private Check check = null;
     private MyImageView imageView;
+    private boolean locked = false;
     private int DPI = 0;
 
-
-    public MyCheckbox(Context context, boolean locked) {
+    public MyCheckbox(Context context) {
         super(context);
-        init(locked);
+        init();
+    }
+    public MyCheckbox(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init();
+        applyAttrib(attrs);
+    }
+    public MyCheckbox(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init();
+        applyAttrib(attrs);
+    }
+    public MyCheckbox(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        init();
+        applyAttrib(attrs);
+    }
+
+    @Override public void setHovered(boolean hovered) {
+        if(!isEnabled())
+            return;
+        if(check != null) {
+            setBackgroundColor(Color.argb(hovered ? 10 : 0, 255, 255, 255));
+            invalidate();
+        }
+        super.setHovered(hovered);
+    }
+    @Override public boolean performClick() {
+        setChecked(!getChecked());
+        return super.performClick();
     }
     @Override protected void dispatchSetPressed(boolean pressed) {
         if(!isEnabled())
@@ -43,24 +73,19 @@ public class MyCheckbox extends LinearLayout {
         }
         super.dispatchSetPressed(pressed);
     }
-    @Override public void setHovered(boolean hovered) {
-        if(!isEnabled())
-            return;
-        if(check != null) {
-            setBackgroundColor(Color.argb(hovered ? 10 : 0, 255, 255, 255));
-            invalidate();
-        }
-        super.setHovered(hovered);
+    @Override protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        setPadding(Tools.dp(10), Tools.dp(5), Tools.dp(10), Tools.dp(5));
     }
     public void setText(String text){
         if(textView != null)
             textView.setText(text);
     }
     public void setTextColor(int color){}
-    public void addHintView(View v){
-        v.setPadding(0, 0, 0, 0);
-        if(linearLayout != null)
-            linearLayout.addView(v);
+    public void setHint(String text){
+        if(hintView != null){
+            hintView.setText(text);
+        }
     }
     public void setChecked(boolean checked){
         if(check != null) {
@@ -80,18 +105,8 @@ public class MyCheckbox extends LinearLayout {
     public boolean isChecked(){
         return getChecked();
     }
-    @Override public boolean performClick() {
-        setChecked(!getChecked());
-        return super.performClick();
-    }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        setPadding(Tools.dp(10), Tools.dp(5), Tools.dp(10), Tools.dp(5));
-    }
-
-    protected void init(boolean locked){
+    protected void init(){
         removeAllViews();
         root = this;
         root.setOrientation(LinearLayout.HORIZONTAL);
@@ -100,11 +115,11 @@ public class MyCheckbox extends LinearLayout {
 
         linearLayout = new LinearLayout(getContext());
         linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.setPadding(0, Tools.dp(5), Tools.dp(10), Tools.dp(5));
+        linearLayout.setPadding(Tools.dp(5), Tools.dp(5), Tools.dp(10), Tools.dp(5));
         linearLayout.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
 
         imageView = new MyImageView(getContext());
-        imageView.setLayoutParams(new LinearLayout.LayoutParams(DPI / 3, DPI / 5, 0));
+        imageView.setLayoutParams(new LinearLayout.LayoutParams(Tools.dp(30), Tools.dp(30), 0));
         imageView.setPadding(0, 0, Tools.dp(10), 0);
         //imageView.setDrawable(R.drawable.menu_accurate);
 
@@ -133,9 +148,17 @@ public class MyCheckbox extends LinearLayout {
             check.setPadding(Tools.dp(5), Tools.dp(5), Tools.dp(5), Tools.dp(5));
             root.addView(check);
         }
+    }
+    protected void applyAttrib(AttributeSet attrs){
+        boolean checked = attrs.getAttributeBooleanValue("app", "checked", false);
+        String text = attrs.getAttributeValue("app", "text");
+        String hint = attrs.getAttributeValue("app", "hint");
+        int image = attrs.getAttributeResourceValue("app", "image", R.drawable.ic_lock);
 
-
-
+        setChecked(checked);
+        setImage(image);
+        setText(text);
+        setHint(hint);
     }
 
     private class Check extends View{
@@ -266,6 +289,8 @@ public class MyCheckbox extends LinearLayout {
                 //Logger.log("percent = " + animPercent);
                 if(animPercent < 2)
                     return;
+                if(isInEditMode())
+                    animPercent = 100;
                 float maxWidth = getWidth() - getPaddingRight() - getPaddingLeft();
                 float maxHeight = getHeight() - getPaddingBottom() - getPaddingTop();
                 paint.setStrokeWidth(maxWidth*0.21f);
@@ -305,6 +330,10 @@ public class MyCheckbox extends LinearLayout {
                 }
             }
             void setChecked(boolean p){
+                if(isInEditMode()){
+                    animPercent = p?100:0;
+                    return;
+                }
                 if(pressed != p){
                     pressed = p;
                     if(p)
