@@ -4,7 +4,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:background="@color/main_background">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -13,24 +14,33 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Введи сообщение и нажми Отправить"
-            android:id="@+id/dialog_send_message_to_bot_label_result"
+            android:text="Здесь ты можешь проверить как бот отвечает на разные сообщения. Введи сообщение и нажми Отправить."
             android:textColor="@color/main_text_color"
             android:textSize="14sp"
-            android:paddingBottom="20dp"/>
+            android:paddingBottom="10dp"/>
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:theme="@android:style/Theme.Holo"
+            android:background="#FFFFFF"
             android:hint="Введи сообщение"
-            android:id="@+id/dialog_send_message_to_bot_field_message"
-            android:textColor="@color/main_text_color"
+            android:textColorHint="#999999"
+            android:id="@+id/dialogSendMessageToBotFieldMessage"
+            android:textColor="#000000"
             android:textSize="14sp"
             android:paddingBottom="10dp"
             android:paddingTop="8dp"
             android:paddingRight="10dp"
             android:paddingLeft="10dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Здесь будет ответ бота"
+            android:id="@+id/dialogSendMessageToBotLabelResult"
+            android:textColor="@color/main_text_color"
+            android:textSize="14sp"
+            android:paddingBottom="10dp"/>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,27 +48,27 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/dialog_send_message_to_bot_button_close"
+                android:id="@+id/dialogSendMessageToBotButtonClose"
                 android:layout_alignParentStart="true"
                 android:background="@color/button_background"
                 android:textColor="@color/main_text_color"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:paddingEnd="20dp"
-                android:paddingStart="20dp"
+                android:paddingEnd="15dp"
+                android:paddingStart="15dp"
                 android:text="Закрыть"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/dialog_send_message_to_bot_button_send"
+                android:id="@+id/dialogSendMessageToBotButtonSend"
                 android:layout_alignParentEnd="true"
                 android:background="@color/button_background"
                 android:textColor="@color/main_text_color"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:paddingEnd="20dp"
-                android:paddingStart="20dp"
+                android:paddingEnd="15dp"
+                android:paddingStart="15dp"
                 android:text="Отправить"/>
         </RelativeLayout>
     </LinearLayout>
