@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 
+import com.fsoft.vktest.R;
+
 /**
  * Created by Dr. Failov on 28.11.2017.
  */
@@ -16,6 +18,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //проверить запущен ли сервис. если нет - запустить.
+        setContentView(R.layout.activity_main);
     }
 
     @Override

@@ -7,7 +7,8 @@ android {
 
     defaultConfig {
         applicationId "com.fsoft.vktest"
-        minSdkVersion 7
+        //minSdkVersion 7
+        minSdkVersion 9
         targetSdkVersion 19
         versionCode 40
         versionName "5.0"
@@ -28,4 +29,6 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':mycheckboxview')
+    compile 'com.android.support:support-v4:25.4.0'
+    //compile 'com.android.support:support-v4:21.0.3'
 }
