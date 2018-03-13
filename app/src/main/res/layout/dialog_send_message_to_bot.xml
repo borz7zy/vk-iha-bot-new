@@ -1,76 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:background="@color/main_background">
+    android:orientation="vertical"
+    android:background="@color/actionbar_color"
+    android:padding="3dp">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/main_background"
         android:orientation="vertical">
-
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Здесь ты можешь проверить как бот отвечает на разные сообщения. Введи сообщение и нажми Отправить."
-            android:textColor="@color/main_text_color"
-            android:textSize="14sp"
-            android:paddingBottom="10dp"/>
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="#FFFFFF"
-            android:hint="Введи сообщение"
-            android:textColorHint="#999999"
-            android:id="@+id/dialogSendMessageToBotFieldMessage"
-            android:textColor="#000000"
-            android:textSize="14sp"
-            android:paddingBottom="10dp"
-            android:paddingTop="8dp"
-            android:paddingRight="10dp"
-            android:paddingLeft="10dp"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Здесь будет ответ бота"
-            android:id="@+id/dialogSendMessageToBotLabelResult"
-            android:textColor="@color/main_text_color"
-            android:textSize="14sp"
-            android:paddingBottom="10dp"/>
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:layout_height="42dp"
+            android:layout_weight="0"
+            android:gravity="center_vertical"
+            android:background="@color/actionbar_color">
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="15dp"
+                android:layout_weight="0"
+                android:src="@drawable/ic_chat"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:text="Общение с ботом"
+                android:textColor="@color/main_text_color"
+                android:textStyle="bold"
+                android:textSize="18sp"/>
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+            <ImageView
+                android:layout_width="42dp"
+                android:layout_height="42dp"
                 android:id="@+id/dialogSendMessageToBotButtonClose"
-                android:layout_alignParentStart="true"
-                android:background="@color/button_background"
-                android:textColor="@color/main_text_color"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingEnd="15dp"
-                android:paddingStart="15dp"
-                android:text="Закрыть"/>
+                android:padding="11dp"
+                android:layout_marginRight="5dp"
+                android:layout_weight="0"
+                android:src="@drawable/ic_cross"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/dialogSendMessageToBotButtonSend"
-                android:layout_alignParentEnd="true"
-                android:background="@color/button_background"
-                android:textColor="@color/main_text_color"
-                android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:paddingEnd="15dp"
-                android:paddingStart="15dp"
-                android:text="Отправить"/>
-        </RelativeLayout>
+                android:text="Здесь ты можешь проверить как бот отвечает на разные сообщения. Введи сообщение и нажми Отправить."
+                android:textColor="@color/main_text_color"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/dialogSendMessageToBotFieldMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="#FFFFFF"
+                android:hint="Введи сообщение"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="8dp"
+                android:textColor="#000000"
+                android:textColorHint="#999999"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/dialogSendMessageToBotLabelResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:text="Здесь будет ответ бота"
+                android:textColor="@color/main_text_color"
+                android:layout_marginTop="5dp"
+                android:textSize="14sp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
+
+                <TextView
+                    android:id="@+id/dialogSendMessageToBotButtonSend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:background="@color/button_background"
+                    android:paddingBottom="10dp"
+                    android:paddingEnd="15dp"
+                    android:paddingStart="15dp"
+                    android:paddingTop="10dp"
+                    android:text="Отправить"
+                    android:textColor="@color/main_text_color" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="20dp"
+            android:layout_gravity="right"
+            android:layout_marginRight="3dp"
+            android:layout_marginBottom="3dp"
+            android:src="@drawable/iha_bot" />
     </LinearLayout>
 
 </ScrollView>
