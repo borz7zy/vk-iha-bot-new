@@ -15,7 +15,7 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/item_chat_imageview_avatar"
+            android:id="@+id/item_user_imageview_avatar"
             android:src="@drawable/example_avatar"/>
 
         <ImageView
@@ -33,28 +33,17 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/item_chat_textView_name"
+            android:id="@+id/item_user_textView_name"
             android:text="Нет имени"
             android:textSize="16sp"
             android:textColor="@color/white"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/item_chat_textView_status"
+            android:id="@+id/item_user_textView_status"
             android:text="Статус неизвестен"
             android:textSize="14sp"
             android:textColor="@color/hint_text_color"/>
     </LinearLayout>
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/item_chat_textView_time"
-        android:text="Неизвестно"
-        android:textSize="14sp"
-        android:textColor="@color/hint_text_color"/>
 </LinearLayout>
