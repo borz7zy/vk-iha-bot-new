@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_weight="0"
+        android:gravity="center_vertical"
+        android:background="@color/actionbar_color">
+        <ImageView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="15dp"
+            android:layout_weight="0"
+            android:src="@drawable/ic_user"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="Настройки аккаунта"
+            android:textColor="@color/main_text_color"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@color/main_background">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <FrameLayout
+                    android:layout_width="70dp"
+                    android:layout_height="70dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/activityAccountSettingsImageViewAvatar"
+                        android:src="@drawable/example_avatar"/>
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/mask_round"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="15dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/activityAccountSettingsTextViewName"
+                        android:text="Аккаунт без имени"
+                        android:textSize="20sp"
+                        android:textColor="@color/header_text_color"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/activityAccountSettingsTextViewStatus"
+                        android:text="Статус неизвестен"
+                        android:textSize="14sp"
+                        android:textColor="@color/hint_text_color"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Принято сообщений: "
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="normal"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Н/Д"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:id="@+id/activityAccountSettingsTextViewReceivedMessages"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Отправлено сообщений: "
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="normal"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Н/Д"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:id="@+id/activityAccountSettingsTextViewSentMessages"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Отправлено запросов к API: "
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="normal"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Н/Д"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:id="@+id/activityAccountSettingsTextViewSentRequests"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Принято друзей: "
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="normal"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Н/Д"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:id="@+id/activityAccountSettingsTextViewAcceptedFriends"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Отклонено подписок: "
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="normal"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Н/Д"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:id="@+id/activityAccountSettingsTextViewRejectedSubscriptions"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Заблокировано пользователей: "
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="normal"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Н/Д"
+                    android:gravity="right"
+                    android:layout_weight="1"
+                    android:textSize="16sp"
+                    android:id="@+id/activityAccountSettingsTextViewBlacklistedUsers"
+                    android:textColor="@color/main_text_color"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <com.fsoft.mycheckboxview.MyCheckbox
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:checked="false"
+                app:hint="Бота на аккаунте можно выключить, не удаляя аккаунт из списка. Выключенный аккаунт не используется вообще ни для каких запросов."
+                app:text="Состояние"
+                app:image="@drawable/ic_power"/>
+
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
+
+

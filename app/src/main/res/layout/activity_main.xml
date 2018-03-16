@@ -1,10 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+
+<!--Здесь будет только координация главного меню и основного контента-->
+
+<TextView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/main_background">
-    <!--Здесь будет только координация главного меню и основного контента-->
+    />
+<!--<me.tangke.slidemenu.SlideMenu-->
+    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--xmlns:slidemenudemo="http://schemas.android.com/apk/res-auto"-->
+    <!--android:id="@+id/slideMenu"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--slidemenudemo:primaryShadowWidth="0dp"-->
+    <!--slidemenudemo:secondaryShadowWidth="0dp"-->
+    <!--slidemenudemo:slideDirection="left" >-->
 
-</LinearLayout>
+    <!--<FrameLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="@color/main_background"-->
+        <!--slidemenudemo:layout_role="content" />-->
+
+    <!--<FrameLayout-->
+        <!--android:layout_width="200dip"-->
+        <!--android:layout_height="match_parent"-->
+        <!--slidemenudemo:layout_role="primaryMenu" />-->
+
+<!--</me.tangke.slidemenu.SlideMenu>-->

@@ -30,5 +30,6 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':mycheckboxview')
     compile 'com.android.support:support-v4:25.4.0'
+    //compile ('me.tangke.slidemenu:slidemenu:1.1.0')
     //compile 'com.android.support:support-v4:21.0.3'
 }
