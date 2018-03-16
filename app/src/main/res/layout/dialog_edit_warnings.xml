@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:background="@color/actionbar_color"
+android:padding="3dp">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/main_background"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="42dp"
+        android:layout_weight="0"
+        android:gravity="center_vertical"
+        android:background="@color/actionbar_color">
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="15dp"
+            android:layout_weight="0"
+            android:src="@drawable/ic_chat"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.5"
+            android:text="Редактирование предупреждений"
+            android:textColor="@color/main_text_color"
+            android:textStyle="bold"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:textSize="18sp"/>
+        <ImageView
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:id="@+id/dialogEditWarningsButtonCancel"
+            android:padding="11dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="0"
+            android:src="@drawable/ic_cross"/>
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Когда пользователи общаются между собой в чате где есть бот и не общаются с ботом, бот может обратить на себя внимание, чтобы с ним больше общались. Если с ним всё ещё не общаются, он покинет такую беседу, чтобы уменьшить нагрузку."
+            android:textSize="14sp"
+            android:padding="5dp"
+            android:textColor="@color/main_text_color"
+            android:layout_marginBottom="10dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Что писать после 700 сообщений не боту:"
+            android:textSize="14sp"
+            android:padding="5dp"
+            android:textColor="@color/main_text_color"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:textColor="#000000"
+            android:background="#FFFFFF"
+            android:padding="10dp"
+            android:textSize="14sp"
+            android:textColorHint="#777777"
+            android:id="@+id/dialogEditWarningsField700"
+            android:hint=""
+            android:text=""/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Что писать после 800 сообщений не боту:"
+            android:textSize="14sp"
+            android:padding="5dp"
+            android:textColor="@color/main_text_color"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:textColor="#000000"
+            android:background="#FFFFFF"
+            android:padding="10dp"
+            android:textSize="14sp"
+            android:textColorHint="#777777"
+            android:id="@+id/dialogEditWarningsField800"
+            android:hint=""
+            android:text=""/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Что писать после 900 сообщений не боту:"
+            android:textSize="14sp"
+            android:padding="5dp"
+            android:textColor="@color/main_text_color"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:textColor="#000000"
+            android:background="#FFFFFF"
+            android:padding="10dp"
+            android:textSize="14sp"
+            android:textColorHint="#777777"
+            android:id="@+id/dialogEditWarningsField900"
+            android:hint=""
+            android:text=""/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Что писать после 1000 сообщений не боту, перед тем как выйти с беседы:"
+            android:textSize="14sp"
+            android:padding="5dp"
+            android:textColor="@color/main_text_color"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:textColor="#000000"
+            android:background="#FFFFFF"
+            android:padding="10dp"
+            android:textSize="14sp"
+            android:textColorHint="#777777"
+            android:id="@+id/dialogEditWarningsField1000"
+            android:hint=""
+            android:text=""/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:id="@+id/dialogEditWarningsButtonClear"
+                android:background="@color/button_background"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingEnd="15dp"
+                android:paddingStart="15dp"
+                android:textSize="14sp"
+                android:layout_margin="3dp"
+                android:textColor="@color/main_text_color"
+                android:text="По умолч."/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:layout_marginTop="5dp"
+                android:id="@+id/dialogEditWarningsButtonSave"
+                android:background="@color/button_background"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingEnd="15dp"
+                android:paddingStart="15dp"
+                android:layout_margin="3dp"
+                android:textColor="@color/main_text_color"
+                android:text="Сохранить"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="70dp"
+        android:layout_height="20dp"
+        android:layout_gravity="right"
+        android:layout_marginRight="3dp"
+        android:layout_marginBottom="3dp"
+        android:src="@drawable/iha_bot" />
+</LinearLayout>
+
+</ScrollView>
