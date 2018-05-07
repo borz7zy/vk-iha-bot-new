@@ -2,7 +2,8 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "25.0.2"
+    //buildToolsVersion "25.0.2"
+    buildToolsVersion "27.0.3"
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
@@ -31,9 +32,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':mycheckboxview')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation project(':mycheckboxview')
     //compile 'com.android.support:support-v4:25.4.0'
-    compile 'me.tangke.slidemenu:slidemenu:1.1.0'
+    implementation 'me.tangke.slidemenu:slidemenu:1.1.0'
     //compile 'com.android.support:support-v4:21.0.3'
 }
