@@ -39,7 +39,8 @@ public class FileStorage {
         try {
             jsonObject = new JSONObject(fileData);
         }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
+            log("Initializing new file: " + fileName);
             jsonObject = new JSONObject();
         }
     }

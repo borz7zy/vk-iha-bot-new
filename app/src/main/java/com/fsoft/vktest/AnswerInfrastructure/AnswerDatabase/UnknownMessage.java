@@ -1,5 +1,6 @@
 package com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase;
 
+import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
 
 import org.json.JSONArray;
@@ -22,26 +23,26 @@ public class UnknownMessage {
     private String preparedText = "";//Текст, который используется для быстрого сравнения слов и фраз без предварительной их подготовки
     private String attachments = "";//вложения в вопросе. Пример: PPPM - 3 фото и один трек (PMVDRS = PhotoDocumentVideoMusicRecordSticker)
     private Date date = new Date();//Когда это прислали
-    private long author = 0;       //Кто отправил
+    private User author = null;       //Кто отправил
     private float familiarity = 0; //насколько это "знакомый" вопрос. Чем выше число, тем более точный ответ на это сообдение уже имеется
     private int frequency = 1;     //Количество раз сколько этот вопрос задавали
 
     public UnknownMessage() {
     }
-    public UnknownMessage(String text, String attachments, long author, float familiarity) {
+    public UnknownMessage(String text, String attachments, User author, float familiarity) {
         this.text = text;
         this.attachments = attachments;
         this.author = author;
         this.familiarity = familiarity;
     }
-    public UnknownMessage(String text, String attachments, Date date, long author, float familiarity) {
+    public UnknownMessage(String text, String attachments, Date date, User author, float familiarity) {
         this.text = text;
         this.attachments = attachments;
         this.date = date;
         this.author = author;
         this.familiarity = familiarity;
     }
-    public UnknownMessage(String text, ArrayList<Attachment> attachments, Date date, long author, float familiarity) {
+    public UnknownMessage(String text, ArrayList<Attachment> attachments, Date date, User author, float familiarity) {
         this.text = text;
         this.attachments = "";
         for (Attachment attachment:attachments)
@@ -71,7 +72,7 @@ public class UnknownMessage {
         this.author = author;
         this.familiarity = familiarity;
     }
-    public UnknownMessage(String text, long author) {
+    public UnknownMessage(String text, User author) {
         this.text = text;
         this.author = author;
     }
@@ -84,7 +85,7 @@ public class UnknownMessage {
         jsonObject.put("text", text);
         jsonObject.put("attachments", attachments);
         jsonObject.put("date", sdf.format(date));
-        jsonObject.put("author", author);
+        jsonObject.put("author", author.toJson());
         jsonObject.put("familiarity", familiarity);
         jsonObject.put("frequency", frequency);
         return jsonObject;
@@ -93,7 +94,7 @@ public class UnknownMessage {
         text = jsonObject.optString("text", text);
         attachments = jsonObject.optString("attachments", attachments);
         date = sdf.parse(jsonObject.optString("date"));
-        author = jsonObject.optLong("author", author);
+        author = new User(jsonObject.optJSONObject("author"));
         familiarity = (float)jsonObject.optDouble("familiarity", familiarity);
         frequency = jsonObject.optInt("frequency", frequency);
     }
@@ -118,10 +119,10 @@ public class UnknownMessage {
     public void setDate(Date date) {
         this.date = date;
     }
-    public long getAuthor() {
+    public User getAuthor() {
         return author;
     }
-    public void setAuthor(long author) {
+    public void setAuthor(User author) {
         this.author = author;
     }
     public float getFamiliarity() {

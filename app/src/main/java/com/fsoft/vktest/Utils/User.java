@@ -1,0 +1,105 @@
+package com.fsoft.vktest.Utils;
+
+/*
+* 2018-05-14
+* Этот класс представляет пользователя
+* в тех местах, где надо понять кто сделал что либо
+* например
+*
+* кто создал этот ответ?
+* кто написал это сообщение?
+* кто редактировал ответ?
+*
+*
+* Тут должно быть:
+* string имя соцсети(vk, telegram)
+* string однозначное имя пользователя без всяких там собачек, решеток
+* string Удобочитаемое имя
+*
+* */
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.text.ParseException;
+
+public class User {
+    public static final String NETWORK_TELEGRAM = "telegram";
+    public static final String NETWORK_VK = "vk";
+
+
+    private String network = ""; //имя соцсети
+    private String id = "";      //однозначное имя пользователя без всяких там собачек, решеток
+    private String name = "";    //Удобочитаемое имя
+
+    public User() {
+    }
+
+    public User(String network, String id, String name) {
+        this.network = network;
+        this.id = id;
+        this.name = name;
+    }
+    public User(JSONObject jsonObject) throws JSONException, ParseException {
+        fromJson(jsonObject);
+    }
+
+    public User tg(String id){
+        network = NETWORK_TELEGRAM;
+        this.id = id;
+        return this;
+    }
+    public User vk(String id){
+        network = NETWORK_VK;
+        this.id = id;
+        return this;
+    }
+    public User tg(String id, String name){
+        network = NETWORK_TELEGRAM;
+        this.id = id;
+        this.name = name;
+        return this;
+    }
+    public User vk(String id, String name){
+        network = NETWORK_VK;
+        this.id = id;
+        this.name = name;
+        return this;
+    }
+
+    public JSONObject toJson() throws JSONException{
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("network", network);
+        jsonObject.put("id", id);
+        jsonObject.put("name", name);
+        return jsonObject;
+    }
+    public void fromJson(JSONObject jsonObject) throws JSONException, ParseException {
+        network = jsonObject.optString("network", network);
+        id = jsonObject.optString("id", id);
+        name = jsonObject.optString("name", name);
+    }
+
+    public String getNetwork() {
+        return network;
+    }
+
+    public void setNetwork(String network) {
+        this.network = network;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}

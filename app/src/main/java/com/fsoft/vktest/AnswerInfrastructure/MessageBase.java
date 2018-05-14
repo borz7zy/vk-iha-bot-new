@@ -1,8 +1,8 @@
 package com.fsoft.vktest.AnswerInfrastructure;
 
 import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
+import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
-import com.perm.kate.api.User;
 
 import java.util.ArrayList;
 
@@ -51,8 +51,7 @@ public class MessageBase {
     private long source_id = 0L;           //Если это чат, то ID чата, если это стена, то ID стены, и т.д.
     private long message_id = 0L;           //Если это сообщение, то ID сообщения, или же ID коммента на стене, или же...
     private String text = "";               //что в этой хуйне написано
-    private long author = 0L;               //кто эту хуйню написал
-    private User authorAccount = null;      //инфа об авторе сообщения
+    private User author = null;               //кто эту хуйню написал
     protected ArrayList<Attachment> attachments = null;//что он к этой хуйне приложил
     protected VkAccountCore botAccount = null;     // кто из ботов эту хуйню обнаружил
     protected Answer answer = null;            // когда ответ подобран, ложим его сюда
@@ -72,7 +71,7 @@ public class MessageBase {
     protected long comment_reply_comment_id = 0L;
     protected long comment_reply_user_id = 0L;
 
-    public MessageBase(String source, String text, long author, ArrayList<Attachment> attachments, VkAccountCore botAccount) {
+    public MessageBase(String source, String text, User author, ArrayList<Attachment> attachments, VkAccountCore botAccount) {
         this.source = source;
         this.text = text;
         this.author = author;
@@ -113,7 +112,7 @@ public class MessageBase {
         this.text = text;
         return this;
     }
-    public MessageBase withAuthor(long author) {
+    public MessageBase withAuthor(User author) {
         this.author = author;
         return this;
     }
@@ -173,19 +172,11 @@ public class MessageBase {
     public void setText(String text) {
         this.text = text;
     }
-    public long getAuthor() {
+    public User getAuthor() {
         return author;
     }
-    public void setAuthor(long author) {
+    public void setAuthor(User author) {
         this.author = author;
-    }
-    public User getAuthorAccount() {
-        if(authorAccount != null)
-            return authorAccount;
-        if(botAccount == null)
-            return null;
-        authorAccount = botAccount.getUserAccount(author);
-        return authorAccount;
     }
     public ArrayList<Attachment> getAttachments() {
         return attachments;

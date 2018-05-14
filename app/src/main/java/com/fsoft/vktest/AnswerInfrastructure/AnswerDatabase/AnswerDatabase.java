@@ -2144,6 +2144,10 @@ public class AnswerDatabase extends BotModule {
 
         private void readFromFile(){
             try {
+                if(!timesUsedFile.exists()) {
+                    log("Файла " + timesUsedFile.getName() + " не существует. Пропускаем его загрузку.");
+                    return;
+                }
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(timesUsedFile));
                 String line;
                 int lineNumber = 0;

@@ -1,27 +1,57 @@
 package com.fsoft.vktest.ViewsLayer;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.View;
 import android.view.Window;
+import android.widget.FrameLayout;
 
+import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.BotService;
 import com.fsoft.vktest.R;
+
+import me.tangke.slidemenu.SlideMenu;
 
 /**
  * Created by Dr. Failov on 28.11.2017.
  */
 
-public class MainActivity extends Activity {
+
+//todo Надо чтобы "отправитель", "автор" были у нас Stringами, потому что в том же телеграме это строка
+    //примеры vk:id1488    tg:drfailov
+
+
+
+public class MainActivity extends FragmentActivity {
+    private String TAG = "MainActivity";
     private Handler handler = new Handler();
+    private FrameLayout mainFrame = null;
+    private SlideMenu slideMenu = null;
+    private Fragment activeFragment = null;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //проверить запущен ли сервис. если нет - запустить.
         setContentView(R.layout.activity_main);
+        mainFrame = findViewById(R.id.main_frame);
+        slideMenu = findViewById(R.id.main_slideMenu);
+        configureSideMenu();
+
+        openMessagesTab();
+        //проверить запущен ли сервис. если нет - запустить.
+        Log.d(TAG, "Starting service...");
+        Intent intent = new Intent(getApplicationContext(), BotService.class);
+        startService(intent);
     }
 
     @Override
@@ -32,11 +62,54 @@ public class MainActivity extends Activity {
 
 
     public void showMessage(final String text){
+        Log.d(TAG, "Message: " + text);
         handler.post(new Runnable() {
             @Override
             public void run() {
-
+                Snackbar.make(mainFrame, text, Snackbar.LENGTH_SHORT).show();
             }
         });
+    }
+    public void configureSideMenu(){
+        try {
+            findViewById(R.id.side_menu_button_accounts).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openAccountsTab();
+                }
+            });
+            findViewById(R.id.side_menu_button_messages).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openMessagesTab();
+                }
+            });
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            showMessage("Ошибка настройки бокового меню: " + e.getMessage());
+        }
+    }
+
+    public void openMessagesTab(){
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        if(activeFragment != null) {
+            fragmentTransaction.remove(activeFragment);
+            activeFragment = null;
+        }
+        fragmentTransaction.add(R.id.main_frame, new MessagesFragment());
+        fragmentTransaction.commit();
+        slideMenu.close(true);
+    }
+
+    public void openAccountsTab(){
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        if(activeFragment != null) {
+            fragmentTransaction.remove(activeFragment);
+            activeFragment = null;
+        }
+        fragmentTransaction.add(R.id.main_frame, new AccountsFragment());
+        fragmentTransaction.commit();
+        slideMenu.close(true);
     }
 }

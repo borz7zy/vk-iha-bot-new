@@ -2,16 +2,17 @@
 <me.tangke.slidemenu.SlideMenu
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:slidemenudemo="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/slideMenu"
+    android:id="@+id/main_slideMenu"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     slidemenudemo:slideDirection="right">
 
-    <include
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         slidemenudemo:layout_role="content"
-        layout="@layout/activity_messages_list"/>
+        android:id="@+id/main_frame"
+        android:background="@color/main_background"/>
 
     <include
         android:layout_width="300dip"
