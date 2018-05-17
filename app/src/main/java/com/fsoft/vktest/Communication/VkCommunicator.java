@@ -128,6 +128,9 @@ public class VkCommunicator extends CommandModule {
             return "Аккаунт " + id + " удалён из списка, но его файл удалить не получается.";
     }
 
+    //todo кажется логичным засунуть сюда функции которые нужны для разных соцсетей, чтобы он сам решал где достать аккаунт
+
+
 
     private class Status extends CommandModule{
         public Status(ApplicationManager applicationManager) {

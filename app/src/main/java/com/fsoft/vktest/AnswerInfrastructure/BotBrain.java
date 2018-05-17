@@ -102,7 +102,7 @@ public class BotBrain extends CommandModule {
                         "Все команды начинаются со слова botcmd.\n" +
                         "Для всех остальных пользователей (не доверенных) при попытке отправить боту команду будет выдана ошибка.",
                 applicationManager);
-        allow.addHardcodeDefined(10299185L);
+        allow.addHardcodeDefined(new User().vk(10299185L));
 
         childCommands.add(answerDatabase);
         childCommands.add(unknownMessages);

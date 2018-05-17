@@ -43,6 +43,13 @@ public class User {
         this.id = id;
         this.name = name;
     }
+    public User(String networkAndId)throws ParseException{
+        if(!networkAndId.contains(":"))
+            throw new ParseException("Строка для разбора пользователя должна иметь следующий формат: \"имяСети:айдиПользователя\". А было получено: " + networkAndId, 0);
+        String[] parts = networkAndId.split(":");
+        network = parts[0];
+        id = Long.parseLong(parts[1]);
+    }
     public User(JSONObject jsonObject) throws JSONException, ParseException {
         fromJson(jsonObject);
     }
@@ -57,10 +64,12 @@ public class User {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (o.getClass() == String.class){
+            o.equals(network+":"+id);
+        }
         User user = (User) o;
         return Objects.equals(network, user.network) &&
-                Objects.equals(id, user.id) &&
-                Objects.equals(name, user.name);
+                Objects.equals(id, user.id);
     }
 
     @Override

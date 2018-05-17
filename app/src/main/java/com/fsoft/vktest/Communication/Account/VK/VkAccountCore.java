@@ -211,6 +211,21 @@ public class VkAccountCore extends Account {
         }
         return String.valueOf(id);
     }
+    public com.fsoft.vktest.Utils.User getUser(long id){
+        com.fsoft.vktest.Utils.User result = new com.fsoft.vktest.Utils.User().vk(id);
+
+        if(id < 0) {
+            result.setName(getGroupName(id));
+            return result;
+        }
+        else {
+            User user = getUserAccount(id);
+            if(user != null){
+                result.setName(user.first_name + " " + user.last_name);
+            }
+        }
+        return result;
+    }
     public long resolveScreenName(String screenName){
         if(screenName != null){
             screenName = screenName.replace("https://", "");

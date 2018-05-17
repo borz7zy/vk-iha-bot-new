@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Универсальное решение для хранения разных всяких там список пользователей
@@ -50,41 +51,32 @@ public class UserList extends CommandModule {
     public boolean has(User user){
         if(hardcodeDefined.contains(user))
             return true;
-        return getIfExists(userId) != null;
-    }
-    public boolean has(String userId){
-        try{
-            Long longId = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(userId);
-            return has(longId);
-        }
-        catch (Exception e){
-            return false;
-        }
+        return getIfExists(user) != null;
     }
     public void add(User user, String comment) throws Exception{
-        log(". ("+name+") Внесение в список страницы " + userId + " ...");
+        log(". ("+name+") Внесение в список страницы " + user + " ...");
         if (user == null)
             throw new Exception("Ошибка добавления страницы " + user + " в список " + name + ". Возможно, вы ввели неправильный ID страницы.");
         if (getIfExists(user) != null)
-            throw new Exception("Ошибка добавления страницы " + userId + " в список " + name + ". Страница уже находится в этом списке.");
-        if(!list.add(new UserListElement(userId, comment)))
-            throw new Exception("Страница " + userId + " почему-то не добавлена в список " + name + ". Сейчас в этом списке " + list.size() + " страниц.");
+            throw new Exception("Ошибка добавления страницы " + user + " в список " + name + ". Страница уже находится в этом списке.");
+        if(!list.add(new UserListElement(user, comment)))
+            throw new Exception("Страница " + user + " почему-то не добавлена в список " + name + ". Сейчас в этом списке " + list.size() + " страниц.");
         save();
     }
-    public void rem(long userId) throws Exception{
-        UserListElement existing = getIfExists(userId);
-        if (userId == -1L)
-            throw new Exception("Ошибка удаления страницы " + userId + " из списка " + name + ". Возможно, вы ввели неправильный ID страницы.");
+    public void rem(User user) throws Exception{
+        UserListElement existing = getIfExists(user);
+        if (user == null)
+            throw new Exception("Ошибка удаления страницы " + user + " из списка " + name + ". Возможно, вы ввели неправильный ID страницы.");
         if (existing == null)
-            throw new Exception("Ошибка удаления страницы " + userId + " из списка " + name + ". Страница не находится в этом списке.");
+            throw new Exception("Ошибка удаления страницы " + user + " из списка " + name + ". Страница не находится в этом списке.");
         if(!list.remove(existing))
-            throw new Exception("Страница " + userId + " почему-то не удалена из списка " + name + ". Сейчас в этом списке " + list.size() + " страниц.");
+            throw new Exception("Страница " + user + " почему-то не удалена из списка " + name + ". Сейчас в этом списке " + list.size() + " страниц.");
         save();
     }
     public ArrayList<UserListElement> getList() {
         return list;
     }
-    public void addHardcodeDefined(long id){
+    public void addHardcodeDefined(User id){
         hardcodeDefined.add(id);
     }
 
@@ -99,9 +91,9 @@ public class UserList extends CommandModule {
         for(String s:array){
             try {
                 JSONObject jsonObject = new JSONObject(s);
-                long id = jsonObject.getLong("id");
+                User user = new User(jsonObject.getJSONObject("user"));
                 String comment = jsonObject.getString("comment");
-                UserListElement entry = new UserListElement(id, comment);
+                UserListElement entry = new UserListElement(user, comment);
                 list.add(entry);
             }
             catch (Exception e){
@@ -139,7 +131,14 @@ public class UserList extends CommandModule {
 
     private UserListElement getIfExists(User user){
         for (int i = 0; i < list.size(); i++) {
-            if(list.get(i).equals(user))
+            if(list.get(i).user.equals(user))
+                return list.get(i);
+        }
+        return null;
+    }
+    private UserListElement getIfExists(long user){
+        for (int i = 0; i < list.size(); i++) {
+            if(list.get(i).user.getId() == user)
                 return list.get(i);
         }
         return null;
@@ -212,9 +211,9 @@ public class UserList extends CommandModule {
             return result;
         }
 
-        private void add(String userId, String comment) throws Exception{
-            Long longId = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(userId);
-            UserList.this.add(longId, comment);
+        private void add(String userId, String comment) throws Exception{//resolve screen name here
+            //Long longId = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(userId);
+            UserList.this.add(new User(userId), comment);
         }
     }
     private class Rem extends CommandModule{
@@ -255,8 +254,8 @@ public class UserList extends CommandModule {
         }
 
         private void rem(String userId) throws Exception{
-            Long longId = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(userId);
-            UserList.this.rem(longId);
+            //Long longId = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(userId);
+            UserList.this.rem(new User(userId));
         }
 
     }
@@ -370,7 +369,7 @@ public class UserList extends CommandModule {
         public JSONObject toJson() throws JSONException{
             JSONObject jsonObject = new JSONObject();
 
-            jsonObject.put("id", id);
+            jsonObject.put("user", user.toJson());
 
             if(date != null)
                 jsonObject.put("date", sdf.format(date));
@@ -381,7 +380,7 @@ public class UserList extends CommandModule {
         }
         private void fromJson(JSONObject jsonObject)throws JSONException, ParseException{
             if(jsonObject.has("id"))
-                id = new User(jsonObject.getJSONObject("User"));
+                user = new User(jsonObject.getJSONObject("User"));
 
             if(jsonObject.has("comment"))
                 comment = jsonObject.getString("comment");
@@ -395,30 +394,25 @@ public class UserList extends CommandModule {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             UserListElement that = (UserListElement) o;
-
-            return getId() == that.getId();
-
+            return Objects.equals(user, that.user);
         }
+
         @Override
         public int hashCode() {
-            return (int) (getId() ^ (getId() >>> 32));
+            return Objects.hash(user);
         }
 
         @Override
         public String toString() {
-            if (id >= 0)
-                return  "http://vk.com/id" + id + "  (" + applicationManager.getCommunicator().getActiveAccount().getUserName(id) + ", " + comment + ", добавлен "+sdf.format(date)+")";
-            else
-                return "http://vk.com/club" + Math.abs(id) + "  (" + applicationManager.getCommunicator().getActiveAccount().getUserName(id) + ", " + comment + ", добавлен "+sdf.format(date)+")";
+            return  user.getName() + ", " + user.getGlobalId()+ ", " + comment + ", добавлен "+sdf.format(date)+")";
         }
 
-        public long getId() {
-            return id;
+        public User getUser() {
+            return user;
         }
-        public void setId(long id) {
-            this.id = id;
+        public void setUser(User user) {
+            this.user = user;
         }
         public String getComment() {
             return comment;

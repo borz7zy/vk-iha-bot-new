@@ -328,8 +328,8 @@ public class Learning extends Function {
             return false;
         return userData.isBadTeacher();
     }
-    public boolean isAllowed(String id){
-        UserData userData = getByGlobalId(id);
+    public boolean isAllowed(User user){
+        UserData userData = getByUser(user);
         if(userData == null)
             return false;
         return userData.isAllowedTeacher();
@@ -465,6 +465,12 @@ public class Learning extends Function {
         //// TODO: 16.10.2017 Как вариант для оптимизации, использовать HashMap в качестве кэша. Он имеет ряд полезных оптимизаций.
         for (UserData user:users)
             if(user.user.getGlobalId().equals(id))
+                return user;
+        return null;
+    }
+    private UserData getByUser(User inUser){
+        for (UserData user:users)
+            if(user.user.equals(inUser))
                 return user;
         return null;
     }

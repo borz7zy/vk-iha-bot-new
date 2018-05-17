@@ -14,6 +14,7 @@ import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.ResourceFileReader;
 import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.Utils.Parameters;
+import com.fsoft.vktest.Utils.User;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Этот класс фильтрует базар бота, чтобы он не сказал ничего запрещенного.
@@ -64,7 +66,7 @@ import java.util.Map;
  * Created by Dr. Failov on 30.03.2017.
  */
 public class Filter extends BotModule{
-    private HashMap<Long, Integer> warnings = new HashMap<>();
+    private HashMap<User, Integer> warnings = new HashMap<>();
     private ArrayList<String> fuckingWords = null;
     private String allowedSymbols = null;
     private FileStorage storage = null;
@@ -82,7 +84,13 @@ public class Filter extends BotModule{
         //READ WARNINGS
         try {
             JSONArray warningsJsonArray = storage.getJsonArray("warnings", new JSONArray());
-            warnings = F.hashMapFromJsonArray(warningsJsonArray);
+            warnings = new HashMap<>();
+            for (int i = 0; i < warningsJsonArray.length(); i++) {
+                JSONObject jsonObject = warningsJsonArray.getJSONObject(i);
+                User key = new User(jsonObject.getJSONObject("key"));
+                int value = jsonObject.getInt("value");
+                warnings.put(key, value);
+            }
         }
         catch (Exception e){
             e.printStackTrace();
@@ -208,6 +216,26 @@ public class Filter extends BotModule{
         return filterForbidden(filterLinks(filterSymbols(input)));
     }
 
+    private void saveDataToStorage(){
+        try {
+            JSONArray warningsJsonArray = new JSONArray();
+            Set<Map.Entry<User, Integer>> set = warnings.entrySet();
+            Iterator<Map.Entry<User, Integer>> iterator = set.iterator();
+            while (iterator.hasNext()){
+                Map.Entry<User, Integer> entry = iterator.next();
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("key", entry.getKey().toJson());
+                jsonObject.put("value", entry.getValue());
+                warningsJsonArray.put(jsonObject);
+            }
+            storage.put("warnings", warningsJsonArray);
+            storage.commit();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            log("! Ошибка сохранения списка предупреждений фильтра: " +e.getMessage() +"!");
+        }
+    }
     private String filterSymbols(String input){
         //оставить только разрещённые символы. Всякую псевдографику нахуй
         return F.filterSymbols(input, allowedSymbols);
@@ -402,50 +430,26 @@ public class Filter extends BotModule{
     private String replaceCharAt(String in, char c, int index){
         return in.substring(0, Math.max(index-1, 0)) + c + in.substring(Math.min(index + 1, in.length()), in.length());
     }
-    private int addWarnings(long userId){
+    private int addWarnings(User userId){
         int cnt = 1;
         if(warnings.containsKey(userId)){
             cnt += warnings.get(userId);
         }
         warnings.put(userId, cnt);
-        try {
-            JSONArray warningsJsonArray = F.hashMapToJsonArray(warnings);
-            storage.put("warnings", warningsJsonArray);
-            storage.commit();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            log("! Ошибка сохранения предупреждения для пользователя: " + userId + "     " +e.getMessage() +"!");
-        }
+        saveDataToStorage();
         return cnt;
     }
-    private int resetWarnings(long userId){
+    private int resetWarnings(User userId){
         int result = 0;
         if(warnings.containsKey(userId)){
             result = warnings.remove(userId);
         }
-        try {
-            JSONArray warningsJsonArray = F.hashMapToJsonArray(warnings);
-            storage.put("warnings", warningsJsonArray);
-            storage.commit();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            log("! Ошибка сохранения предупреждения для пользователя: " + userId + "     " +e.getMessage() +"!");
-        }
+        saveDataToStorage();
         return result;
     }
-    private void setWarnings(long userId, int numberOfWarnings){
+    private void setWarnings(User userId, int numberOfWarnings){
         warnings.put(userId, numberOfWarnings);
-        try {
-            JSONArray warningsJsonArray = F.hashMapToJsonArray(warnings);
-            storage.put("warnings", warningsJsonArray);
-            storage.commit();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            log("! Ошибка сохранения предупреждения для пользователя: " + userId + "     " +e.getMessage() +"!");
-        }
+        saveDataToStorage();
     }
     private int getWarnings(long userId){
         int cnt = 0;
@@ -508,14 +512,19 @@ public class Filter extends BotModule{
             CommandParser commandParser = new CommandParser(input);
             if(commandParser.getWord().toLowerCase().equals("warning")
                     && commandParser.getWord().toLowerCase().equals("reset")){
-                Long id = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(commandParser.getWord());
-                int oldValue = resetWarnings(id);
-                String userName =  applicationManager.getCommunicator().getActiveAccount().getUserName(id);
-                String result = "Счетчик сброшен для пользователя " + userName + " ("+id+"). Было " + oldValue + " предупреждений.";
-                boolean isIgnored = applicationManager.getBrain().getIgnor().has(message.getAuthor());
-                if(isIgnored)
-                    result += " Обрати внимание, пользователь всё ещё находится в игноре.";
-                return result;
+                try {
+                    User user = new User(commandParser.getWord());
+                    int oldValue = resetWarnings(user);
+                    String userName = applicationManager.getCommunicator().getActiveAccount().getUserName(user.getId());
+                    String result = "Счетчик сброшен для пользователя " + userName + " (" + user + "). Было " + oldValue + " предупреждений.";
+                    boolean isIgnored = applicationManager.getBrain().getIgnor().has(message.getAuthor());
+                    if (isIgnored)
+                        result += " Обрати внимание, пользователь всё ещё находится в игноре.";
+                    return result;
+                }
+                catch (Exception e){
+                    return "Ошибка выполнения команды: " + e.getMessage();
+                }
             }
             return super.processCommand(message);
         }
@@ -547,10 +556,10 @@ public class Filter extends BotModule{
             if(commandParser.getWord().toLowerCase().equals("warning")
                     && commandParser.getWord().toLowerCase().equals("get")){
                 String result = "Счетчик предупреждений:\n";
-                Iterator<Map.Entry<Long, Integer>> iterator = warnings.entrySet().iterator();
+                Iterator<Map.Entry<User, Integer>> iterator = warnings.entrySet().iterator();
                 while (iterator.hasNext()) {
-                    Map.Entry<Long, Integer> cur = iterator.next();
-                    result += "- Пользователь vk.com/id" + cur.getKey() + " получил " + cur.getValue() + " предупреждений.\n";
+                    Map.Entry<User, Integer> cur = iterator.next();
+                    result += "- Пользователь " + cur.getKey() + " получил " + cur.getValue() + " предупреждений.\n";
                 }
                 return result;
             }
@@ -583,15 +592,21 @@ public class Filter extends BotModule{
             CommandParser commandParser = new CommandParser(input);
             if(commandParser.getWord().toLowerCase().equals("warning")
                     && commandParser.getWord().toLowerCase().equals("set")){
-                Long id = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(commandParser.getWord());
-                int warnings = commandParser.getInt();
-                setWarnings(id, warnings);
-                String userName =  applicationManager.getCommunicator().getActiveAccount().getUserName(id);
-                String result = "Счетчик задан для пользователя " + userName + " ("+id+"). ";
-                boolean isIgnored = applicationManager.getBrain().getIgnor().has(message.getAuthor());
-                if(isIgnored)
-                    result += " Обрати внимание, пользователь находится в игноре.";
-                return result;
+                //todo в справке написан формат screen-name. Надо его реализовать.
+                try {
+                    User user = new User(commandParser.getWord());
+                    int warnings = commandParser.getInt();
+                    setWarnings(user, warnings);
+                    //String userName = applicationManager.getCommunicator().getActiveAccount().getUserName(id);
+                    String result = "Счетчик задан для пользователя " + user + " (" + user.getGlobalId() + "). ";
+                    boolean isIgnored = applicationManager.getBrain().getIgnor().has(message.getAuthor());
+                    if (isIgnored)
+                        result += " Обрати внимание, пользователь находится в игноре.";
+                    return result;
+                }
+                catch (Exception e){
+                    return "Ошибка выполнения команды: " + e.getMessage();
+                }
             }
             return super.processCommand(message);
         }
