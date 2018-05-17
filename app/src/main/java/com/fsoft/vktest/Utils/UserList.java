@@ -26,7 +26,7 @@ import java.util.Locale;
 
 public class UserList extends CommandModule {
     private ArrayList<UserListElement> list = new ArrayList<>();
-    private ArrayList<Long> hardcodeDefined = new ArrayList<>();
+    private ArrayList<User> hardcodeDefined = new ArrayList<>();
     private String name; //allow, ignor ...
     private String shortDescription; //Список игнорируемых пользователей
     private String description; //Список пользователей, которым бот не будет отвечать. Кроме того, ....
@@ -47,8 +47,8 @@ public class UserList extends CommandModule {
     }
 
 
-    public boolean has(long userId){
-        if(hardcodeDefined.contains(userId))
+    public boolean has(User user){
+        if(hardcodeDefined.contains(user))
             return true;
         return getIfExists(userId) != null;
     }
@@ -61,11 +61,11 @@ public class UserList extends CommandModule {
             return false;
         }
     }
-    public void add(long userId, String comment) throws Exception{
+    public void add(User user, String comment) throws Exception{
         log(". ("+name+") Внесение в список страницы " + userId + " ...");
-        if (userId == -1L || userId == 0)
-            throw new Exception("Ошибка добавления страницы " + userId + " в список " + name + ". Возможно, вы ввели неправильный ID страницы.");
-        if (getIfExists(userId) != null)
+        if (user == null)
+            throw new Exception("Ошибка добавления страницы " + user + " в список " + name + ". Возможно, вы ввели неправильный ID страницы.");
+        if (getIfExists(user) != null)
             throw new Exception("Ошибка добавления страницы " + userId + " в список " + name + ". Страница уже находится в этом списке.");
         if(!list.add(new UserListElement(userId, comment)))
             throw new Exception("Страница " + userId + " почему-то не добавлена в список " + name + ". Сейчас в этом списке " + list.size() + " страниц.");
@@ -137,9 +137,9 @@ public class UserList extends CommandModule {
         return description;
     }
 
-    private UserListElement getIfExists(long number){
+    private UserListElement getIfExists(User user){
         for (int i = 0; i < list.size(); i++) {
-            if(list.get(i).getId() == number)
+            if(list.get(i).equals(user))
                 return list.get(i);
         }
         return null;
@@ -349,17 +349,17 @@ public class UserList extends CommandModule {
     private class UserListElement{
         private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm", Locale.getDefault());
 
-        private long id;
+        private User user;
         private String comment;
         private Date date;
 
-        public UserListElement(long id, String comment) {
-            this.id = id;
+        public UserListElement(User user, String comment) {
+            this.user = user;
             this.comment = comment;
             this.date = new Date();
         }
-        public UserListElement(long id, String comment, Date date) {
-            this.id = id;
+        public UserListElement(User user, String comment, Date date) {
+            this.user = user;
             this.comment = comment;
             this.date = date;
         }
@@ -381,7 +381,7 @@ public class UserList extends CommandModule {
         }
         private void fromJson(JSONObject jsonObject)throws JSONException, ParseException{
             if(jsonObject.has("id"))
-                id = jsonObject.getLong("id");
+                id = new User(jsonObject.getJSONObject("User"));
 
             if(jsonObject.has("comment"))
                 comment = jsonObject.getString("comment");

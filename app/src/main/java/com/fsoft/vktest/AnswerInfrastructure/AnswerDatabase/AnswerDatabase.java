@@ -218,6 +218,9 @@ import java.util.Set;
  *
  * - Подобрать ответ с максимальным коэффициентом
  *
+ *
+ *
+ * user data: {"network":"vk","id":"drfailov","name":"Роман Папуша"}
  * Created by Dr. Failov on 11.04.2014.
  * Updated by Dr. Failov on 15.05.2017.
  */
@@ -818,7 +821,7 @@ public class AnswerDatabase extends BotModule {
                 answerElements.remove(i--);
         return answerElements;
     }
-    private void editAnswer(long id, Answer newAnswer, long autor) throws Exception{
+    private void editAnswer(long id, Answer newAnswer, User autor) throws Exception{
         if(newAnswer == null)
             throw new Exception("Ответ для редактирования не был получен!");
         if(id == 0)
@@ -1095,7 +1098,7 @@ public class AnswerDatabase extends BotModule {
                     "Проверь, не запущена ли какая-то длительная процедура, типа фильтрации."));
         return removed;
     }
-    private int replaceAllAnswersContains(String text, String toReplace, long author) throws Exception{
+    private int replaceAllAnswersContains(String text, String toReplace, User author) throws Exception{
         if(text.equals(""))
             throw new Exception("Текст, который нужно заменить, не был получен.");
         if(toReplace.equals(""))

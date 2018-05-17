@@ -15,8 +15,8 @@ import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.Utils.Parameters;
 import com.fsoft.vktest.Utils.TimeCounter;
+import com.fsoft.vktest.Utils.User;
 import com.fsoft.vktest.Utils.UserList;
-import com.perm.kate.api.User;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -251,13 +251,11 @@ public class BotBrain extends CommandModule {
         //нужно будет загружать инфу о пользователе только в том случае, если либо включено
         // добавление обращения, либо если в ответе есть какая-то константа, которую надо заменить на инфу о пользователе
         if(treatmentEnabled || answer.text.contains("%")) {
-            User user = applicationManager.getCommunicator().getActiveAccount().getUserAccount(message.getAuthor());
-
             //если нигде в тексте не упоминается имя, добавить его в начале
-            if(user.first_name != null &&
+            if(message.getAuthor().getName() != null &&
                     !answer.text.toLowerCase().contains("%username%") &&
                     !answer.text.toLowerCase().contains("%usersurname%"))
-                answer.text = user.first_name + ", " + answer.text;
+                answer.text = message.getAuthor().getName() + ", " + answer.text;
         }
         message.setAnswer(answer);
         return message;
@@ -272,7 +270,7 @@ public class BotBrain extends CommandModule {
         //нужно будет загружать инфу о пользователе только в том случае, если либо включено
         // добавление обращения, либо если в ответе есть какая-то константа, которую надо заменить на инфу о пользователе
         if(answer.text.contains("%")) {
-            User user = message.getAuthorAccount();
+            User user = message.getAuthor();
             /*
             Hello, deAr %username%
             Hello, deAr %usernamE%
@@ -281,16 +279,16 @@ public class BotBrain extends CommandModule {
             * "bdate,first_name,last_name,about,interests,home_town,screen_name,is_friend,books,photo_id"*/
 
             //прописать в ответ константы, которые могут быть в ответе
-            if(user.first_name != null)
-                answer.text = F.replaceCaseInsensitive(answer.text, "%USERNAME%", user.first_name);
-            if(user.last_name != null)
-                answer.text = F.replaceCaseInsensitive(answer.text, "%USERSURNAME%", user.last_name);
-            if(user.domain != null)
-                answer.text = F.replaceCaseInsensitive(answer.text, "%USERDOMAIN%", user.domain);
-            if(user.status != null)
-                answer.text = F.replaceCaseInsensitive(answer.text, "%USERSTATUS%", user.status);
+//            if(user.first_name != null)
+//                answer.text = F.replaceCaseInsensitive(answer.text, "%USERNAME%", user.first_name);
+//            if(user.last_name != null)
+//                answer.text = F.replaceCaseInsensitive(answer.text, "%USERSURNAME%", user.last_name);
+//            if(user.domain != null)
+//                answer.text = F.replaceCaseInsensitive(answer.text, "%USERDOMAIN%", user.domain);
+//            if(user.status != null)
+//                answer.text = F.replaceCaseInsensitive(answer.text, "%USERSTATUS%", user.status);
             //// TODO: 23.09.2017 Я хуй его знает в каком блять виде приходит аватарка пользователя! Нужно реализовать вставку аватара
-            log("BotBrain.java: user.photo_id = " + user.photo_id);
+            //log("BotBrain.java: user.photo_id = " + user.photo_id);
             //if(answer.text.toLowerCase().contains("%userphoto%"))
 //            if(user.photo_id != null)
 //                answer.text = F.replaceCaseInsensitive(answer.text, "%USERNAME%", user.first_name);

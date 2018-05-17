@@ -11,6 +11,7 @@ import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.ResourceFileReader;
+import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
 import com.perm.kate.api.Document;
 
@@ -23,7 +24,7 @@ import java.util.HashMap;
  * Created by Dr. Failov on 12.02.2017.
  */
 public class FileManager extends CommandModule {
-    private HashMap<Long, FileSession> current = new HashMap<>();
+    private HashMap<User, FileSession> current = new HashMap<>();
 
     public FileManager(ApplicationManager applicationManager) {
         super(applicationManager);
@@ -45,33 +46,33 @@ public class FileManager extends CommandModule {
         return result;
     }
     @Override public String processCommand(Message message) {
-        long senderId = message.getAuthor();
+        User sender = message.getAuthor();
         String input = message.getText();
-        if(isOpened(senderId)){
+        if(isOpened(sender)){
             if(input.equals("end")){
-                if(endSession(senderId))
-                    return "Сессия для "+applicationManager.getCommunicator().getActiveAccount().getUserName(senderId)+" закрыта.";
+                if(endSession(sender))
+                    return "Сессия для "+sender.getName()+" закрыта.";
                 else
-                    return "Сессия для "+applicationManager.getCommunicator().getActiveAccount().getUserName(senderId)+" не закрыта. А она вообще была открыта?";
+                    return "Сессия для "+sender.getName()+" не закрыта. А она вообще была открыта?";
             }
-            FileSession fileSession = getSession(senderId);
+            FileSession fileSession = getSession(sender);
             if(fileSession != null)
                 return fileSession.processCommand(message);
         }
         else if(input.equals("filemanager")){
-            FileSession fileSession = openSession(senderId);
+            FileSession fileSession = openSession(sender);
             if(fileSession != null)
-                return "Сессия файл-менеджера для пользователя "+applicationManager.getCommunicator().getActiveAccount().getUserName(senderId)+" открыта. Вот краткая инструкция:\n (каждую команду писать начиная с botcmd)\n"+getHelp()+"\n" + fileSession.list();
+                return "Сессия файл-менеджера для пользователя "+sender.getName()+" открыта. Вот краткая инструкция:\n (каждую команду писать начиная с botcmd)\n"+getHelp()+"\n" + fileSession.list();
             else
-                return "Сессия для "+applicationManager.getCommunicator().getActiveAccount().getUserName(senderId)+" не открыта. Не знаю почему.";
+                return "Сессия для "+sender.getName()+" не открыта. Не знаю почему.";
         }
         return "";
     }
 
-    private boolean isOpened(Long user){
+    private boolean isOpened(User user){
         return current.containsKey(user);
     }
-    private FileSession openSession(long userId){
+    private FileSession openSession(User userId){
         if(!isOpened(userId)){
             FileSession fileSession = new FileSession(userId);
             current.put(userId, fileSession);
@@ -80,7 +81,7 @@ public class FileManager extends CommandModule {
         else
             return getSession(userId);
     }
-    private boolean endSession(long userId){
+    private boolean endSession(User userId){
         if(isOpened(userId)){
             current.remove(userId);
             return true;
@@ -88,7 +89,7 @@ public class FileManager extends CommandModule {
         else
             return false;
     }
-    private FileSession getSession(long userId){
+    private FileSession getSession(User userId){
         if(isOpened(userId))
             return current.get(userId);
         return null;
@@ -96,9 +97,9 @@ public class FileManager extends CommandModule {
 
     private class FileSession implements Command{
         File currentFile = getRoot();
-        Long userId = 0L;
+        User userId = null;
 
-        public FileSession(Long userId) {
+        public FileSession(User userId) {
             this.userId = userId;
         }
         @Override public String processCommand(Message message) {

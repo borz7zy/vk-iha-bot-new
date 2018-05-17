@@ -13,6 +13,7 @@ import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.Utils.TimeCounter;
+import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
 
 import java.io.*;
@@ -232,11 +233,11 @@ public class HttpServer extends CommandModule {
 
                     log(". HTTP (port "+port+"): " + inputText);
 
-                    long user = userId;
+                    User user = new User().vk(userId);
                     Message messageWithAnswer = applicationManager.getBrain().processMessage(new Message(
                             MessageBase.SOURCE_HTTP,
                             inputText,
-                            userId,
+                            user,
                             new ArrayList<Attachment>(),
                             null,
                             null

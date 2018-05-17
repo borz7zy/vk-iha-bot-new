@@ -2,6 +2,7 @@ package com.fsoft.vktest.AnswerInfrastructure;
 
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
+import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class Message extends MessageBase{
     protected OnAnswerReady onAnswerReady = null;
 
 
-    public Message(String source, String text, long author, ArrayList<Attachment> attachments, VkAccountCore botAccount, OnAnswerReady onAnswerReady) {
+    public Message(String source, String text, User author, ArrayList<Attachment> attachments, VkAccountCore botAccount, OnAnswerReady onAnswerReady) {
         super(source, text, author, attachments, botAccount);
         this.onAnswerReady = onAnswerReady;
     }

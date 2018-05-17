@@ -3,6 +3,7 @@ package com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase;
 import android.app.Activity;
 
 import com.fsoft.vktest.AnswerInfrastructure.Message;
+import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
 
 import org.json.JSONArray;
@@ -18,6 +19,26 @@ import java.util.Locale;
 /**
  * Этот класс представляет полноценный обьект в базе используемый для поиска и редактирования
  * Для подбора ответа этот обьект не используется
+ *
+ *
+
+ {
+ "id":1,
+ "questionDate"::"2018-05-14_14:06",
+ "createdDate":"2018-05-14_14:06",
+ "editedDate":"2018-05-14_14:06".
+ "questionAuthor":null,
+ "createdAuthor":{"network":"vk","id":"drfailov","name":"Роман Папуша"},
+ "editedAuthor":null,
+ "questionText":"",
+ "answerText":"",
+ "questionAttachments":"",
+ "botGender":45,
+ "userGender":45,
+ "timesUsed":0,
+ "answerAttachments"[]
+ }
+
  * Created by Dr. Failov on 21.04.2017.
  */
 public class AnswerElement{
@@ -46,9 +67,9 @@ public class AnswerElement{
     private Date questionDate = null;
     private Date createdDate = null;
     private Date editedDate = null;
-    private long questionAuthor = 0;
-    private long createdAuthor = 0;
-    private long editedAuthor = 0;
+    private User questionAuthor = null;
+    private User createdAuthor = null;
+    private User editedAuthor = null;
     private String questionText = null;
     private String answerText = null;
     private String questionAttachments = "";//ex. PPPM - 3 фото и один трек (PMVDRS = PhotoDocumentVideoMusicRecordSticker)
@@ -57,7 +78,7 @@ public class AnswerElement{
     private char userGender = '-'; //М\Ж\Н\-
     private int timesUsed = 0; //Количество раз, сколько раз бот использовал этот ответ
 
-    public AnswerElement(long id, Date questionDate, Date createdDate, Date editedDate, long questionAuthor, long createdAuthor, long editedAuthor, String questionText, String answerText, String questionAttachments, ArrayList<Attachment> answerAttachments, char botGender, char userGender, int timesUsed) {
+    public AnswerElement(long id, Date questionDate, Date createdDate, Date editedDate, User questionAuthor, User createdAuthor, User editedAuthor, String questionText, String answerText, String questionAttachments, ArrayList<Attachment> answerAttachments, char botGender, char userGender, int timesUsed) {
         this.id = id;
         this.questionDate = questionDate;
         this.createdDate = createdDate;
@@ -74,7 +95,7 @@ public class AnswerElement{
         this.timesUsed = timesUsed;
     }
 
-    public AnswerElement(long createdAuthor, String questionText, String answerText) {
+    public AnswerElement(User createdAuthor, String questionText, String answerText) {
         this.createdAuthor = createdAuthor;
         this.questionText = questionText;
         this.answerText = answerText;
@@ -138,11 +159,11 @@ public class AnswerElement{
         if(jsonObject.has("editedDate"))
             editedDate = sdf.parse(jsonObject.getString("editedDate"));
         if(jsonObject.has("questionAuthor"))
-            questionAuthor = jsonObject.getLong("questionAuthor");
+            questionAuthor = new User(jsonObject.getJSONObject("questionAuthor"));
         if(jsonObject.has("createdAuthor"))
-            createdAuthor = jsonObject.getLong("createdAuthor");
+            createdAuthor = new User(jsonObject.getJSONObject("createdAuthor"));
         if(jsonObject.has("editedAuthor"))
-            editedAuthor = jsonObject.getLong("editedAuthor");
+            editedAuthor = new User(jsonObject.getJSONObject("editedAuthor"));
         if(jsonObject.has("questionText"))
             questionText = jsonObject.getString("questionText");
         if(jsonObject.has("answerText"))
@@ -191,8 +212,8 @@ public class AnswerElement{
         int result = (int) (getId() ^ (getId() >>> 32));
         result = 31 * result + (getCreatedDate() != null ? getCreatedDate().hashCode() : 0);
         result = 31 * result + (getEditedDate() != null ? getEditedDate().hashCode() : 0);
-        result = 31 * result + (int) (getCreatedAuthor() ^ (getCreatedAuthor() >>> 32));
-        result = 31 * result + (int) (getEditedAuthor() ^ (getEditedAuthor() >>> 32));
+        result = 31 * result + (getCreatedAuthor() != null ? getCreatedAuthor().hashCode() : 0);
+        result = 31 * result + (getEditedAuthor() != null ? getEditedAuthor().hashCode() : 0);
         result = 31 * result + (getQuestionText() != null ? getQuestionText().hashCode() : 0);
         result = 31 * result + (getAnswerText() != null ? getAnswerText().hashCode() : 0);
         result = 31 * result + (getQuestionAttachments() != null ? getQuestionAttachments().hashCode() : 0);
@@ -208,9 +229,9 @@ public class AnswerElement{
                 "\nДата задания вопроса: " + (questionDate == null?"не указана":sdf.format(questionDate)) +
                 "\nДата создания: " + (createdDate == null?"не указана":sdf.format(createdDate)) +
                 "\nДата редактирования: " + (editedDate == null?"не редактировалось":sdf.format(editedDate)) +
-                "\nАвтор вопроса: " + (questionAuthor == 0?"не указан":("http://vk.com/id" + questionAuthor)) +
-                "\nАвтор ответа: " + (createdAuthor == 0?"не указан":("http://vk.com/id" + createdAuthor)) +
-                "\nАвтор редактирования: " + (editedAuthor == 0?"не редактировалось":("http://vk.com/id" + editedAuthor)) +
+                "\nАвтор вопроса: " + (questionAuthor == null?"не указан":(questionAuthor)) +
+                "\nАвтор ответа: " + (createdAuthor == null?"не указан":(createdAuthor)) +
+                "\nАвтор редактирования: " + (editedAuthor == null?"не редактировалось":(editedAuthor)) +
                 "\nТекст вопроса: " + questionText +
                 "\nТекст ответа: " + answerText +
                 "\nВложения в вопросе: " + questionAttachments +
@@ -295,22 +316,22 @@ public class AnswerElement{
     public Date getEditedDate() {
         return editedDate;
     }
-    public long getCreatedAuthor() {
+    public User getCreatedAuthor() {
         return createdAuthor;
     }
-    public void setCreatedAuthor(long createdAuthor) {
+    public void setCreatedAuthor(User createdAuthor) {
         this.createdAuthor = createdAuthor;
     }
-    public long getEditedAuthor() {
+    public User getEditedAuthor() {
         return editedAuthor;
     }
-    public void setEditedAuthor(long editedAuthor) {
+    public void setEditedAuthor(User editedAuthor) {
         this.editedAuthor = editedAuthor;
     }
     public String getQuestionText() {
         return questionText;
     }
-    public void setQuestionText(String questionText, long author) {
+    public void setQuestionText(String questionText, User author) {
         //author - имя автора кто вносит эти правки
         this.questionText = questionText;
         editedDate = new Date();
@@ -319,7 +340,7 @@ public class AnswerElement{
     public String getAnswerText() {
         return answerText;
     }
-    public void setAnswerText(String answerText, long author) {
+    public void setAnswerText(String answerText, User author) {
         //author - имя автора кто вносит эти правки
         this.answerText = answerText;
         editedDate = new Date();
@@ -368,10 +389,10 @@ public class AnswerElement{
     public void setEditedDate(Date editedDate) {
         this.editedDate = editedDate;
     }
-    public long getQuestionAuthor() {
+    public User getQuestionAuthor() {
         return questionAuthor;
     }
-    public void setQuestionAuthor(long questionAuthor) {
+    public void setQuestionAuthor(User questionAuthor) {
         this.questionAuthor = questionAuthor;
     }
     public void setQuestionText(String questionText) {

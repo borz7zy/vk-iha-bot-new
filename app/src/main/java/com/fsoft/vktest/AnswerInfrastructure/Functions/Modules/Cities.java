@@ -14,6 +14,7 @@ import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.Parameters;
 import com.fsoft.vktest.Utils.ResourceFileReader;
+import com.fsoft.vktest.Utils.User;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,7 +39,7 @@ public class Cities extends Function {
     private File citiesFile = null;
     // История игры с каждым пользователем.
     // история нужна для того чтобы не допускать повтора
-    private HashMap<Long, ArrayList<String>> gameHistory = new HashMap<>();
+    private HashMap<User, ArrayList<String>> gameHistory = new HashMap<>();
 
     // Общее число городов в базе
     // при поиске по базе заполнять это число, чтобы можно было его использовать
@@ -199,7 +200,7 @@ public class Cities extends Function {
         log(". Из базы удалено " + removed + " городов.");
         return removed;
     }
-    private boolean wasBefore(String in, long id){
+    private boolean wasBefore(String in, User id){
         if(!gameHistory.containsKey(id))
             return false;
         ArrayList<String> history = gameHistory.get(id);
@@ -209,7 +210,7 @@ public class Cities extends Function {
                 return true;
         return false;
     }
-    private String getLastCityFromHistory(long id){
+    private String getLastCityFromHistory(User id){
         if(!gameHistory.containsKey(id))
             return null;
         ArrayList<String> history = gameHistory.get(id);
@@ -266,7 +267,7 @@ public class Cities extends Function {
         //выбрать случайным образом
         return correctCities.get(new Random().nextInt(correctCities.size()));
     }
-    private int stopGame(long id){
+    private int stopGame(User id){
         //returns number of cities played
         if(!gameHistory.containsKey(id))
             return 0;
@@ -480,7 +481,7 @@ public class Cities extends Function {
                             }
                             historyList.add(text);
                             char lastLetter = getLastLetter(text);
-                            String result = getNextCityOnLetter(lastLetter, message.getAuthor());
+                            String result = getNextCityOnLetter(lastLetter, message.getAuthor().getId());
                             historyList.add(result);
                             result = F.makeBeginWithUpper(result.trim());
                             message.setAnswer(new Answer(result));
@@ -753,14 +754,14 @@ public class Cities extends Function {
                         return "Сейчас нет ни одной активной игры.";
 
                     String result = "Список активных игр в \"Города\":\n";
-                    Set<Map.Entry<Long, ArrayList<String>>> set = gameHistory.entrySet();
-                    Iterator<Map.Entry<Long, ArrayList<String>>> iterator = set.iterator();
+                    Set<Map.Entry<User, ArrayList<String>>> set = gameHistory.entrySet();
+                    Iterator<Map.Entry<User, ArrayList<String>>> iterator = set.iterator();
                     while (iterator.hasNext()){
-                        Map.Entry<Long, ArrayList<String>> entry = iterator.next();
-                        Long id = entry.getKey();
+                        Map.Entry<User, ArrayList<String>> entry = iterator.next();
+                        User id = entry.getKey();
                         ArrayList<String> history = entry.getValue();
-                        String name = applicationManager.getCommunicator().getActiveAccount().getUserFullName(id);
-                        result += name + " vk.com/id" + id + ", Городов: " + history.size() + "\n";
+                        String name = id.getName();
+                        result += name + " " + id + ", Городов: " + history.size() + "\n";
                     }
                     result += "----\n";
                     result += "Всего активно игр: " + gameHistory.size() + "\n";

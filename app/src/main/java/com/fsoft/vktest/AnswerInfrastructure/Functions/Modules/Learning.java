@@ -8,6 +8,7 @@ import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Utils.F;
+import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
 
 import org.json.JSONArray;
@@ -287,11 +288,11 @@ public class Learning extends Function {
             return messageOriginal;
         Message message = remTreatment(messageOriginal);
         //если это плохой учитель - игнорировать его
-        if(isBad(message.getAuthor()))
+        if(isBad(message.getAuthor().getGlobalId()))
             return message;
         //// TODO: 09.11.2017 какое-то это дерьмо. Чувствую будет ломать систему
 
-        UserData user = getById(message.getAuthor());
+        UserData user = getByGlobalId(message.getAuthor().getGlobalId());
         if(user == null){
             user = new UserData(message.getAuthor(), message.getBotAccount().getId());
             users.add(user);
@@ -321,14 +322,14 @@ public class Learning extends Function {
         stopTimer();
     }
 
-    public boolean isBad(long id){
-        UserData userData = getById(id);
+    public boolean isBad(String id){
+        UserData userData = getByGlobalId(id);
         if(userData == null)
             return false;
         return userData.isBadTeacher();
     }
-    public boolean isAllowed(long id){
-        UserData userData = getById(id);
+    public boolean isAllowed(String id){
+        UserData userData = getByGlobalId(id);
         if(userData == null)
             return false;
         return userData.isAllowedTeacher();
@@ -460,10 +461,10 @@ public class Learning extends Function {
             return null;
         }
     }
-    private UserData getById(long id){
+    private UserData getByGlobalId(String id){
         //// TODO: 16.10.2017 Как вариант для оптимизации, использовать HashMap в качестве кэша. Он имеет ряд полезных оптимизаций.
         for (UserData user:users)
-            if(user.getId() == id)
+            if(user.user.getGlobalId().equals(id))
                 return user;
         return null;
     }
@@ -513,7 +514,7 @@ public class Learning extends Function {
     private class UserData{
         //класс хранит информацию о пользователе.
         //ID пользователя в VK
-        private long id = -1;
+        private User user = null;
         //Счётчик сообщений с этим пользователем
         private long lsCounter = 0;
         //ID аккаунта бота, с которым юзер общается
@@ -558,8 +559,8 @@ public class Learning extends Function {
         private String comment = "";
 
 
-        public UserData(long id, long botId) {
-            this.id = id;
+        public UserData(User user, long botId) {
+            this.user = user;
             this.botId = botId;
         }
         public UserData(JSONObject jsonObject) throws Exception{
@@ -569,7 +570,7 @@ public class Learning extends Function {
         public JSONObject toJson() throws Exception{
             JSONObject result = new JSONObject();
 
-            result.put("id", id);
+            result.put("user", user.toJson());
 
             result.put("lsCounter", lsCounter);
 
@@ -621,8 +622,8 @@ public class Learning extends Function {
             return result;
         }
         private void fromJson(JSONObject jsonObject) throws Exception{
-            if(jsonObject.has("id") && !jsonObject.isNull("id"))
-                id = jsonObject.getLong("id");
+            if(jsonObject.has("user") && !jsonObject.isNull("user"))
+                user = new User(jsonObject.getJSONObject("user"));
 
             if(jsonObject.has("lsCounter") && !jsonObject.isNull("lsCounter"))
                 lsCounter = jsonObject.getLong("lsCounter");
@@ -735,7 +736,7 @@ public class Learning extends Function {
             //сюда приходит сообщение уже без обращения и только от этого пользователя
             String text = message.getText().trim();
             String treatment = applicationManager.getBrain().getTreatment();
-            String username = applicationManager.getCommunicator().getActiveAccount().getUserName(message.getAuthor());
+            String username = message.getAuthor().getName();
 
             // + обучение начать
             // + обучение стоп
@@ -951,7 +952,7 @@ public class Learning extends Function {
             //<editor-fold desc="обучение статус">
             if(text.toLowerCase().trim().equals("обучение статус")){
                 String result = "Статус учителя:\n";
-                result += "Твой ID: " + (getId()) + "\n";
+                result += "Твой ID: " + (user.getId()) + "\n";
                 result += "Счётчик общения с ботом: " + (getLsCounter()) + "\n";
                 result += "ID бота для которого ты учитель: " + (getBotId()) + "\n";
                 result += "Дата первого сообщения: " + (sdf.format(getFirstMessageDate())) + "\n";
@@ -1095,7 +1096,7 @@ public class Learning extends Function {
                 // Сохранить ответ на вопрос PendingQuestion
                 // Если это доверенный пользователь, внести в базу,
                 // если недоверенный то в песочницу
-                AnswerElement answerElement = new AnswerElement(getId(), pendingQuestion.getText(), message.getText());
+                AnswerElement answerElement = new AnswerElement(user, pendingQuestion.getText(), message.getText());
                 answerElement.setQuestionAuthor(pendingQuestion.getAuthor());
                 answerElement.setAnswerAttachments(message.getAttachments());
                 answerElement.setQuestionDate(pendingQuestion.getDate());
@@ -1113,7 +1114,7 @@ public class Learning extends Function {
                 }
                 clearQuestion();
                 //отправить пользлвателю ответ
-                String userName = applicationManager.getCommunicator().getActiveAccount().getUserName(id);
+                String userName = user.getName();
                 String treatment = applicationManager.getBrain().getTreatment();
                 String text = userName + ", спасибо! Я запомнил, что на " +
                         "\""+answerElement.getQuestionText()+"\" надо отвечать \""+answerElement.getAnswerText()+"\".\n" +
@@ -1141,7 +1142,7 @@ public class Learning extends Function {
                 //1...8
                 String text = message.getText().trim().replace(" ", "").replace(",", "").replace(".", "");
                 String treatment = applicationManager.getBrain().getTreatment();
-                String userName = applicationManager.getCommunicator().getActiveAccount().getUserName(id);
+                String userName = user.getName();
                 if(!F.isDigitsOnly(text)){
                     message.sendAnswer(new Answer(userName + ", формат ответа неправильный. " +
                             "Нужно в ответе написать номера хороших ответов. " +
@@ -1163,7 +1164,7 @@ public class Learning extends Function {
                 for (AnswerElement answerElement:approvedAnswers) {
                     answerElement.setEditedAuthor(message.getAuthor());
                     answerElement.setEditedDate(new Date());
-                    UserData author = getById(answerElement.getCreatedAuthor());
+                    UserData author = getByGlobalId(answerElement.getCreatedAuthor().getGlobalId());
                     if(author != null)
                         author.databaseAddCounter++;
                     databaseAddCounter++;
@@ -1171,7 +1172,7 @@ public class Learning extends Function {
                 }
                 //добавить счётчики юзерам, ответы которых были отклонены
                 for(AnswerElement answerElement:rejectedAnswers){
-                    UserData user = getById(answerElement.getCreatedAuthor());
+                    UserData user = getByGlobalId(answerElement.getCreatedAuthor().getGlobalId());
                     if(user != null)
                         user.addAnswersRejectedCounter(1);
                 }
@@ -1294,10 +1295,10 @@ public class Learning extends Function {
                     if(account == null)
                         applicationManager.getCommunicator().getActiveAccount();
                     if(account != null)
-                        account.sendMessage(id, null, answer);
+                        account.sendMessage(user.getId(), null, answer);
                     else {
                         revertQuestion();
-                        log("! Ошибка отправки сообщения пользователю " + id + "\n" + answer.toString() + "\nОжидающие вопросы анулированы.");
+                        log("! Ошибка отправки сообщения пользователю " + user.getName() + "\n" + answer.toString() + "\nОжидающие вопросы анулированы.");
                     }
                 }
             }).start();
@@ -1333,11 +1334,11 @@ public class Learning extends Function {
         private void revertQuestion(UnknownMessage pendingQuestion, ArrayList<AnswerElement> pendingModeration){
             //вернуть заданный пользователю вопрос обратно в базу
             if(pendingQuestion != null){
-                log(". Возврат вопроса для пользователя " + getId() + " обратно в базу неизвестных...");
+                log(". Возврат вопроса для пользователя " + user.getName() + " обратно в базу неизвестных...");
                 applicationManager.getBrain().getUnknownMessages().add(pendingQuestion);
             }
             if(pendingModeration != null){
-                log(". Возврат модераций для пользователя " + getId() + " обратно в песочницу...");
+                log(". Возврат модераций для пользователя " + user.getName() + " обратно в песочницу...");
                 sandbox.addAll(pendingModeration);
             }
         }
@@ -1409,7 +1410,7 @@ public class Learning extends Function {
             //если не сталось вопросов, ничего не отправлять
             UnknownMessage unknownMessage = applicationManager.getBrain().getUnknownMessages().popTop();
 
-            String userName = applicationManager.getCommunicator().getActiveAccount().getUserName(id);
+            String userName = user.getName();
             String treatment = applicationManager.getBrain().getTreatment();
             String time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
             String text = userName + ", привет! Мне нужна твоя помощь. Я не знаю как ответить на эту фразу:\n" +
@@ -1439,7 +1440,7 @@ public class Learning extends Function {
             //если не сталось вопросов, ничего не отправлять
             ArrayList<AnswerElement> moderation = popModeration();
 
-            String userName = applicationManager.getCommunicator().getActiveAccount().getUserName(id);
+            String userName = user.getName();
             String treatment = applicationManager.getBrain().getTreatment();
             String time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
             ArrayList<Attachment> attachments = new ArrayList<>();
@@ -1450,7 +1451,7 @@ public class Learning extends Function {
                     ".\n";
             for (int i = 0; i < moderation.size(); i++) {
                 AnswerElement answerElement = moderation.get(i);
-                String authorFullName = applicationManager.getCommunicator().getActiveAccount().getUserFullName(answerElement.getCreatedAuthor());
+                String authorFullName = answerElement.getCreatedAuthor().getName();
                 //1...8
                 text += (i+1) + ") " + answerElement.getQuestionText() + " -> " + answerElement.getAnswerText() + "\n";
                 if(answerElement.getAnswerAttachments().size() != 0){
@@ -1495,11 +1496,11 @@ public class Learning extends Function {
 
 
 
-        public long getId() {
-            return id;
+        public User getUser() {
+            return user;
         }
-        public void setId(long id) {
-            this.id = id;
+        public void setUser(User user) {
+            this.user = user;
         }
         public long getLsCounter() {
             return lsCounter;
