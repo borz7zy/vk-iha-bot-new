@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.util.Log;
 
 import com.fsoft.vktest.AnswerInfrastructure.BotBrain;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
@@ -109,7 +110,7 @@ public class ApplicationManager {
     private long startedTime = 0; //нужен для учёта времени аптайма
     private boolean standby = false;
 
-    public ApplicationManager(BotService service){
+    public ApplicationManager(BotService service) throws Exception{
         applicationManager = this;
         this.service = service;
         startedTime = System.currentTimeMillis();
@@ -141,6 +142,7 @@ public class ApplicationManager {
         return service;
     }
     public String log(String text){
+        Log.d("VK iHA bot", text);
         return text;
     }
     public boolean isDonated(){

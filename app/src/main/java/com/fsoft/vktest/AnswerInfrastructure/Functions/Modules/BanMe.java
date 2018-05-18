@@ -6,6 +6,7 @@ import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.AnswerInfrastructure.MessageBase;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.HttpServer;
+import com.fsoft.vktest.Utils.User;
 
 import java.util.ArrayList;
 
@@ -15,7 +16,7 @@ import java.util.ArrayList;
  */
 
 public class BanMe extends Function {
-    private ArrayList<Long> warned = new ArrayList<>();
+    private ArrayList<User> warned = new ArrayList<>();
 
 
     public BanMe(ApplicationManager applicationManager) {

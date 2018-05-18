@@ -259,26 +259,21 @@ public class F {
             return false;
         }
     }
-    public static boolean copyFile(int fromResourceId, Resources resources, File to){
-        try{
-            OutputStream out = new FileOutputStream(to);
-            InputStream in = resources.openRawResource(fromResourceId);
-            try {
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = in.read(buf)) > 0){
-                    out.write(buf, 0, len);
-                }
-            } finally {
-                in.close();
-                out.close();
-            }
-            //ApplicationManager.log("Копирование успешно.");
-            return true;
+    public static void copyFile(int fromResourceId, Resources resources, File to)throws Exception{
+        if(!to.getParentFile().isDirectory()){
+            to.getParentFile().mkdir();
         }
-        catch(Exception ex){
-            //ApplicationManager.log("Ошибка копирования: " + ex.toString());
-            return false;
+        OutputStream out = new FileOutputStream(to, false);
+        InputStream in = resources.openRawResource(fromResourceId);
+        try {
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0){
+                out.write(buf, 0, len);
+            }
+        } finally {
+            in.close();
+            out.close();
         }
     }
     public static int countLines(String filename) {

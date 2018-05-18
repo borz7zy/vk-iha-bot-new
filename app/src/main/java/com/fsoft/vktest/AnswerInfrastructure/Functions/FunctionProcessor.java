@@ -34,7 +34,7 @@ public class FunctionProcessor extends BotModule {
     //// TODO: 11.03.2017 Как насчёт написать функцию которая будет генерировать изображение - сертификат пидора.
     //// TODO: 11.03.2017 всякая хуйня с чатами. Рулетки и прочая хуйня.
 
-    public FunctionProcessor(ApplicationManager applicationManager) {
+    public FunctionProcessor(ApplicationManager applicationManager) throws Exception {
         super(applicationManager);
         addChildModule(new Binary(applicationManager));
         addChildModule(new BrickLanguage(applicationManager));

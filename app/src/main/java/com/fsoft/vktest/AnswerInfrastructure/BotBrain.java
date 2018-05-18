@@ -77,7 +77,7 @@ public class BotBrain extends CommandModule {
     private Learning learning = null;
     private Filter filter = null;
 
-    public BotBrain(ApplicationManager applicationManager) {
+    public BotBrain(ApplicationManager applicationManager) throws Exception {
         super(applicationManager);
         fileStorage = new FileStorage("iHA_Brain", applicationManager);
         answerDatabase = new AnswerDatabase(applicationManager);

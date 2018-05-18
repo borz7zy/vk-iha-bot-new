@@ -14,7 +14,7 @@ import java.io.*;
 public class ResourceFileReader extends CommandModule {
     private File file = null;
 
-    public ResourceFileReader(ApplicationManager applicationManager, int resourceId) {
+    public ResourceFileReader(ApplicationManager applicationManager, int resourceId) throws Exception {
         super(applicationManager);
 
         Resources resources = null;

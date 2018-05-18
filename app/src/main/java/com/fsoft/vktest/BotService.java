@@ -26,18 +26,23 @@ public class BotService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        applicationManager = new ApplicationManager(this);
+        try {
+            applicationManager = new ApplicationManager(this);
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+            Intent notificationIntent = new Intent(this, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        Notification notification = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.bot_noti)
-                .setContentTitle("VK iHA bot")
-                .setContentText(ApplicationManager.getShortName() + " работает")
-                .setContentIntent(pendingIntent).build();
-        startForeground(1, notification);
-
+            Notification notification = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.bot_noti)
+                    .setContentTitle("VK iHA bot")
+                    .setContentText(ApplicationManager.getShortName() + " работает")
+                    .setContentIntent(pendingIntent).build();
+            startForeground(1, notification);
+        }
+        catch (Exception e){
+            Log.d("iHA bot", "Error starting service: " + e.getMessage());
+            e.printStackTrace();
+        }
 //            Log.d("BOT", "Планирование перезапуска...");
 //            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 //            Intent intent = new Intent(getApplicationContext(), MainActivity.class);

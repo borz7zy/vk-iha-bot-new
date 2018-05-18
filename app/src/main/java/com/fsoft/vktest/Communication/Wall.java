@@ -8,6 +8,7 @@ import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 
+import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Comment;
 import com.perm.kate.api.WallMessage;
 
@@ -209,10 +210,12 @@ public class Wall extends CommandModule {
                                 //это новый комментарий под записью.
                                 log(". COMM("+getWallName()+") " + comment.message);
                                 setCommentsDetected(getCommentsDetected()+1);
+                                User author = new User().vk(comment.from_id);
+                                author.setName(vkCommunicator.getActiveAccount().getUserFullName(comment.from_id));
                                 Message message = new Message(
                                         Message.SOURCE_COMMENT,
                                         comment.message,
-                                        comment.from_id,
+                                        author,
                                         comment.attachments,
                                         accountToReadComments,
                                         new Message.OnAnswerReady() {
@@ -239,10 +242,12 @@ public class Wall extends CommandModule {
                         //это новый пост на стене
                         log(". POST("+getWallName()+") " + wallMessage.text);
                         setPostsDetected(getPostsDetected()+1);
+                        User author = new User().vk(wallMessage.from_id);
+                        author.setName(vkCommunicator.getActiveAccount().getUserFullName(wallMessage.from_id));
                         Message message = new Message(
                                 Message.SOURCE_WALL,
                                 wallMessage.text,
-                                wallMessage.from_id,
+                                author,
                                 wallMessage.attachments,
                                 accountToReadWall,
                                 new Message.OnAnswerReady() {

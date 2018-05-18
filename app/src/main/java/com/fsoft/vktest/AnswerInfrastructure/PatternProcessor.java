@@ -32,7 +32,7 @@ public class PatternProcessor extends BotModule {
     private ArrayList<Pattern> patterns = new ArrayList<>();
     private File fileToSave = null;
 
-    public PatternProcessor(ApplicationManager applicationManager) {
+    public PatternProcessor(ApplicationManager applicationManager) throws Exception {
         super(applicationManager);
         this.applicationManager = applicationManager;
         fileToSave = new ResourceFileReader(applicationManager, R.raw.pattern_answers).getFile();

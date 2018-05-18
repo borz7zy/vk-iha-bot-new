@@ -45,7 +45,7 @@ public class Cities extends Function {
     // при поиске по базе заполнять это число, чтобы можно было его использовать
     private int citiesCounter = -1;
 
-    public Cities(ApplicationManager applicationManager) {
+    public Cities(ApplicationManager applicationManager) throws Exception {
         super(applicationManager);
         citiesFile = new ResourceFileReader(applicationManager, R.raw.cities_database).getFile();
 

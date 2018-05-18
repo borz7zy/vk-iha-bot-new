@@ -235,7 +235,7 @@ public class AnswerDatabase extends BotModule {
     //// TODO: 02.10.2017 Дата последнего ответа от автора
 
 
-    public AnswerDatabase(ApplicationManager applicationManager) {
+    public AnswerDatabase(ApplicationManager applicationManager) throws Exception {
         super(applicationManager);
         fileAnswers = new ResourceFileReader(applicationManager, R.raw.answer_database).getFile();
         answerUsageCounter = new AnswerUsageCounter(applicationManager);

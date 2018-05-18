@@ -8,6 +8,7 @@ import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.Parameters;
+import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
 import com.perm.kate.api.Message;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
@@ -199,7 +200,8 @@ public class MessageProcessor extends CommandModule {
 
                 //подготовить обьект для передачи в программу
                 String text = kateMessage.body.replaceAll(" +", " ");
-                long author = kateMessage.uid;
+                User author = new User().vk(kateMessage.uid);
+                author.setName(vkAccount.getUserFullName(kateMessage.uid));
                 String source = com.fsoft.vktest.AnswerInfrastructure.Message.SOURCE_DIALOG;
                 ArrayList<Attachment> attachments = kateMessage.attachments;
                 com.fsoft.vktest.AnswerInfrastructure.Message.OnAnswerReady onAnswerReady =
@@ -244,7 +246,7 @@ public class MessageProcessor extends CommandModule {
             vkAccount.markAsRead(message.getMessage_id());
             messageSentCounter++;
             if(message.getSource().equals(com.fsoft.vktest.AnswerInfrastructure.Message.SOURCE_DIALOG))         //ЛИЧКА
-                vkAccount.sendMessage(message.getAuthor(), 0L, message.getAnswer());
+                vkAccount.sendMessage(message.getAuthor().getId(), 0L, message.getAnswer());
             else if(answerInChatsEnabled) {             //ЧАТ
                 offTopCounter.registerNotOffTopMessage(message.getChat_id());
 
@@ -262,7 +264,7 @@ public class MessageProcessor extends CommandModule {
                     && message.getSource().equals(com.fsoft.vktest.AnswerInfrastructure.Message.SOURCE_DIALOG)){
                 vkAccount.markAsRead(message.getMessage_id());
                 log("! Инструкция (" + vkAccount+ "): " + instructor.getInstructionText());
-                vkAccount.sendMessage(message.getAuthor(), 0L, new Answer(instructor.getInstructionText()));
+                vkAccount.sendMessage(message.getAuthor().getId(), 0L, new Answer(instructor.getInstructionText()));
             }
         }
     }
@@ -941,7 +943,7 @@ public class MessageProcessor extends CommandModule {
         }
     }
     class Instructor extends CommandModule {
-        private ArrayList<Long> instructed = new ArrayList<>();
+        private ArrayList<User> instructed = new ArrayList<>();
         private boolean instructionEnabled = false;
         private String instructionText =
                 "Если ты хочешь со мной поговорить, начни своё сообщение с текста \"Бот, \", и тогда я тебе отвечу.";
@@ -959,7 +961,7 @@ public class MessageProcessor extends CommandModule {
         public String getInstructionText() {
             return instructionText;
         }
-        public boolean needInstruction(Long id){
+        public boolean needInstruction(User id){
             if(!instructionEnabled)
                 return false;
             if(instructed.contains(id))

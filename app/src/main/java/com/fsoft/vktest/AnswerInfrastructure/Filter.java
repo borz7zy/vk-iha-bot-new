@@ -72,7 +72,7 @@ public class Filter extends BotModule{
     private FileStorage storage = null;
     private boolean enabled = true;
 
-    public Filter(ApplicationManager applicationManager) {
+    public Filter(ApplicationManager applicationManager) throws Exception {
         super(applicationManager);
         storage = new FileStorage("FilterSettings", applicationManager);
         enabled = storage.getBoolean("enabled", enabled);

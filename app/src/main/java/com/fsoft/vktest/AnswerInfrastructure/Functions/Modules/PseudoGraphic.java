@@ -122,20 +122,26 @@ public class PseudoGraphic extends Function {
             res += data;
         return res;
     }
-    private void loadLetters(){
-        symbols = new ArrayList<>();
-        ResourceFileReader resourceFileReader = new ResourceFileReader(applicationManager, R.raw.symbols_database);
-        String text = resourceFileReader.readFile();
-        String[] letters = text.split("NS:");
-        for (int i = 0; i < letters.length; i++) {
-            String[] lines = letters[i].split("\n");
-            if(lines.length >= 4){
-                symbols.add(new Symbol(lines[0], new String[]{
-                        lines[1],
-                        lines[2],
-                        lines[3]
-                }));
+    private void loadLetters() {
+        try {
+            symbols = new ArrayList<>();
+            ResourceFileReader resourceFileReader = new ResourceFileReader(applicationManager, R.raw.symbols_database);
+            String text = resourceFileReader.readFile();
+            String[] letters = text.split("NS:");
+            for (int i = 0; i < letters.length; i++) {
+                String[] lines = letters[i].split("\n");
+                if (lines.length >= 4) {
+                    symbols.add(new Symbol(lines[0], new String[]{
+                            lines[1],
+                            lines[2],
+                            lines[3]
+                    }));
+                }
             }
+        }
+        catch (Exception e){
+            log("! Ошибка загрузки списка символов псевдографики: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
