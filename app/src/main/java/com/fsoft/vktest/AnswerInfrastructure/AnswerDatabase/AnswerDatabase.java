@@ -522,6 +522,7 @@ public class AnswerDatabase extends BotModule {
                         if(answerMicroElement.isValidated()) {
                             //непроверенные ответы не принимают участия в формировании ответов
                             answers.add(answerMicroElement);
+                            lastId = answerMicroElement.getId();
                         }
                     }
                     else {//FAIL

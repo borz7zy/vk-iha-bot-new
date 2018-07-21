@@ -129,9 +129,9 @@ public class AnswerElement{
             jsonObject.put("createdDate", sdf.format(createdDate));
         if(editedDate != null)
             jsonObject.put("editedDate", sdf.format(editedDate));
-        jsonObject.put("questionAuthor", questionAuthor);
-        jsonObject.put("createdAuthor", createdAuthor);
-        jsonObject.put("editedAuthor", editedAuthor);
+        jsonObject.put("questionAuthor", questionAuthor.toJson());
+        jsonObject.put("createdAuthor", createdAuthor.toJson());
+        jsonObject.put("editedAuthor", editedAuthor.toJson());
         if(questionText != null)
             jsonObject.put("questionText", questionText);
         if(answerText != null)

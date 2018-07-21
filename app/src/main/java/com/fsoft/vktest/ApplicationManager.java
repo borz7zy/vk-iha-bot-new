@@ -66,7 +66,7 @@ import java.util.*;
  * Created by Dr. Failov on 14.08.2018.
  */
 public class ApplicationManager {
-    static public String programName = "DrFailov_VK_iHA_bot";
+    static public String programName = "DrFailov_iHA_bot";
     //-------------- НЕ МЕНЯТЬ!!! Иначе надо будет переписывать хэш-суммы!!!!---------------------------------------
     static public String getVisibleName(){
         //обязательно должно содержать "Dr.Failov iHA bot"

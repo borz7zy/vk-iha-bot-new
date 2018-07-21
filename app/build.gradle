@@ -37,4 +37,5 @@ dependencies {
     //compile 'com.android.support:support-v4:25.4.0'
     implementation 'me.tangke.slidemenu:slidemenu:1.1.0'
     //compile 'com.android.support:support-v4:21.0.3'
+    implementation 'com.android.volley:volley:1.1.1'
 }

@@ -282,6 +282,7 @@ public class Filter extends BotModule{
     private void readBlacklist(){
         //READ BLACKLIST
         try {
+            fuckingWords = new ArrayList<>();
             File blacklistFile = new ResourceFileReader(applicationManager, R.raw.blacklist).getFile();
             BufferedReader bufferedReader = new BufferedReader(new FileReader(blacklistFile));
             String line;

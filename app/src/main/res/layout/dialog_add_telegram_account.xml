@@ -24,12 +24,12 @@ android:padding="3dp">
             android:layout_marginLeft="5dp"
             android:layout_marginRight="15dp"
             android:layout_weight="0"
-            android:src="@drawable/ic_chat"/>
+            android:src="@drawable/ic_tg_logo"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:text="Редактирование обращения"
+            android:text="Добавление аккаунта Telegram"
             android:textColor="@color/main_text_color"
             android:textStyle="bold"
             android:textSize="18sp"/>
@@ -40,7 +40,7 @@ android:padding="3dp">
         <ImageView
             android:layout_width="42dp"
             android:layout_height="42dp"
-            android:id="@+id/dialogChangeTreatmentButtonCancel"
+            android:id="@+id/dialogadd_telegram_accountButtonCancel"
             android:padding="11dp"
             android:layout_marginRight="5dp"
             android:layout_weight="0"
@@ -54,13 +54,14 @@ android:padding="3dp">
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="10dp">
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Введите новые обращения:"
-            android:textSize="14sp"
             android:padding="5dp"
-            android:textColor="@color/main_text_color"/>
+            android:text="Введи токен для Telegram бота"
+            android:textColor="@color/main_text_color"
+            android:textSize="14sp" />
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -70,14 +71,15 @@ android:padding="3dp">
             android:padding="10dp"
             android:textSize="14sp"
             android:textColorHint="#777777"
-            android:id="@+id/dialog_change_treatment_field_treatment"
-            android:text="бот"/>
+            android:id="@+id/dialog_add_telegram_account_field_token"
+            android:text=""
+            android:hint="000000000:AAAAAAA-BBBBBBBB-CCCCCCC"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Бот отвечает на сообщение человеку только если человек обращается именно к боту. Например: ''Бот, привет''. \nБот умеет откликаться сразу на несколько обращений.\nОбращения вводите через запятую.\nНапример: ''Вася'' или ''Вася, Петя, Бот''."
+            android:text="Для работы с Telegram требуется создать аккаунт бота. Чтобы это сделать, найди в телеграме бота @BotFather и следуй инструкции. Ты получишь от него токен. Его и надо ввести сюда, чтобы бот заработал."
             android:textSize="12sp"
             android:textColor="@color/hint_text_color"
             android:padding="5dp"/>
@@ -91,23 +93,9 @@ android:padding="3dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:id="@+id/dialogChangeTreatmentButtonClear"
-                android:background="@color/button_background"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingEnd="15dp"
-                android:paddingStart="15dp"
-                android:textSize="14sp"
-                android:layout_margin="3dp"
-                android:textColor="@color/main_text_color"
-                android:text="Убрать обр."/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:layout_marginTop="5dp"
-                android:id="@+id/dialogChangeTreatmentButtonSave"
+                android:id="@+id/dialogAdd_telegram_accountButtonSave"
                 android:background="@color/button_background"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
