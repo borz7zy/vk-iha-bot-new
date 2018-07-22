@@ -13,6 +13,7 @@ import com.fsoft.vktest.R;
 
 public class AccountsFragment extends Fragment {
     private String TAG = "AccountsFragment";
+    private View addAccountButton = null;
 
     public AccountsFragment() {
     }
@@ -21,7 +22,15 @@ public class AccountsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_accounts_list, container, false);
+        View view = inflater.inflate(R.layout.activity_accounts_list, container, false);
+        addAccountButton = view.findViewById(R.id.activityAccountListButtonAdd);
+        addAccountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addAccount();
+            }
+        });
+        return view;
     }
 
 
@@ -29,5 +38,9 @@ public class AccountsFragment extends Fragment {
     public void onAttach(Context context) {
         Log.d(TAG, "Attached Accounts Tab...");
         super.onAttach(context);
+    }
+
+    public void addAccount(){
+        
     }
 }
