@@ -493,11 +493,6 @@ public class PatternProcessor extends BotModule {
                         "Предположительно, Вы допустили ошибку в регулярном выражении шаблонизатора: \n" +
                         pattern + " --> " + answer + " \n" +
                         "Удалите шаблон и исправьте ошибку.");
-                if(applicationManager.getActivity() != null)
-                    applicationManager.getActivity().showMessage(e.toString() + "\n" +
-                            "Предположительно, Вы допустили ошибку в регулярном выражении шаблонизатора: \n" +
-                            pattern + " --> " + answer + " \n" +
-                            "Удалите шаблон и исправьте ошибку.");
             }
             return null;
         }

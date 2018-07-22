@@ -9,6 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.BotService;
+import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
 import com.fsoft.vktest.R;
 
 public class AccountsFragment extends Fragment {
@@ -41,6 +44,10 @@ public class AccountsFragment extends Fragment {
     }
 
     public void addAccount(){
-        
+        ApplicationManager applicationManager = BotService.applicationManager;
+        TgAccount tgAccount = new TgAccount(applicationManager, "tg"+System.currentTimeMillis());
+        applicationManager.getCommunicator().addAccount(tgAccount);
+        tgAccount.login();
+
     }
 }

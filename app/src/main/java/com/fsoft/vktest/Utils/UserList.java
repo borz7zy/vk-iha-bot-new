@@ -212,7 +212,7 @@ public class UserList extends CommandModule {
         }
 
         private void add(String userId, String comment) throws Exception{//resolve screen name here
-            //Long longId = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(userId);
+            //Long longId = applicationManager.getCommunicator().getActiveVkAccount().resolveScreenName(userId);
             UserList.this.add(new User(userId), comment);
         }
     }
@@ -254,7 +254,7 @@ public class UserList extends CommandModule {
         }
 
         private void rem(String userId) throws Exception{
-            //Long longId = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(userId);
+            //Long longId = applicationManager.getCommunicator().getActiveVkAccount().resolveScreenName(userId);
             UserList.this.rem(new User(userId));
         }
 
@@ -301,7 +301,7 @@ public class UserList extends CommandModule {
         }
 
         private UserListElement getIfExists(String userId) throws Exception{
-            Long longId = applicationManager.getCommunicator().getActiveAccount().resolveScreenName(userId);
+            Long longId = applicationManager.getCommunicator().getActiveVkAccount().resolveScreenName(userId);
             if(longId == -1 || longId == 0)
                 throw new Exception("Не удалось опознать ID пользователя.");
             return UserList.this.getIfExists(longId);

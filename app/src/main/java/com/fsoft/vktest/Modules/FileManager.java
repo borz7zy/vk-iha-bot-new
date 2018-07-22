@@ -4,13 +4,11 @@ import android.os.Environment;
 
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
-import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
 import com.fsoft.vktest.Modules.Commands.Command;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;
-import com.fsoft.vktest.Utils.ResourceFileReader;
 import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
 import com.perm.kate.api.Document;
@@ -181,7 +179,7 @@ public class FileManager extends CommandModule {
                 return "Файла  "+file+" нет";
         }
         private String put(String dest, Document document) throws Exception {
-            File dloaded = applicationManager.getCommunicator().getActiveAccount().downloadDocument(document);
+            File dloaded = applicationManager.getCommunicator().getActiveVkAccount().downloadDocument(document);
             if(dloaded != null && dloaded.isFile()){
                 File destination = new File(currentFile + File.separator + dest);
                 boolean copied = F.copyFile(dloaded.getPath(), destination.getPath());

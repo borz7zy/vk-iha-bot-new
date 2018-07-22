@@ -1,11 +1,7 @@
 package com.fsoft.vktest.AnswerInfrastructure;
 
-import android.util.Log;
-
-import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.AnswerElement;
 import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.AnswerMicroElement;
 import com.fsoft.vktest.ApplicationManager;
-import com.fsoft.vktest.Communication.HttpServer;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.R;
@@ -13,21 +9,14 @@ import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.ResourceFileReader;
 import com.fsoft.vktest.Utils.FileStorage;
-import com.fsoft.vktest.Utils.Parameters;
 import com.fsoft.vktest.Utils.User;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -516,7 +505,7 @@ public class Filter extends BotModule{
                 try {
                     User user = new User(commandParser.getWord());
                     int oldValue = resetWarnings(user);
-                    String userName = applicationManager.getCommunicator().getActiveAccount().getUserName(user.getId());
+                    String userName = applicationManager.getCommunicator().getActiveVkAccount().getUserName(user.getId());
                     String result = "Счетчик сброшен для пользователя " + userName + " (" + user + "). Было " + oldValue + " предупреждений.";
                     boolean isIgnored = applicationManager.getBrain().getIgnor().has(message.getAuthor());
                     if (isIgnored)
@@ -598,7 +587,7 @@ public class Filter extends BotModule{
                     User user = new User(commandParser.getWord());
                     int warnings = commandParser.getInt();
                     setWarnings(user, warnings);
-                    //String userName = applicationManager.getCommunicator().getActiveAccount().getUserName(id);
+                    //String userName = applicationManager.getCommunicator().getActiveVkAccount().getUserName(id);
                     String result = "Счетчик задан для пользователя " + user + " (" + user.getGlobalId() + "). ";
                     boolean isIgnored = applicationManager.getBrain().getIgnor().has(message.getAuthor());
                     if (isIgnored)

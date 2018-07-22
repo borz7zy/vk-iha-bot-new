@@ -1297,9 +1297,9 @@ public class Learning extends Function {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    VkAccount account = applicationManager.getCommunicator().getAccount(botId);
+                    VkAccount account = applicationManager.getCommunicator().getVkAccount(botId);
                     if(account == null)
-                        applicationManager.getCommunicator().getActiveAccount();
+                        applicationManager.getCommunicator().getActiveVkAccount();
                     if(account != null)
                         account.sendMessage(user.getId(), null, answer);
                     else {

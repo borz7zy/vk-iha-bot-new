@@ -26,7 +26,7 @@ import java.util.TimerTask;
  */
 
 public class Wall extends CommandModule {
-    private VkCommunicator vkCommunicator = null;
+    private Communicator communicator = null;
     private FileStorage file = null;
     private long id;
     private Timer wallTimer = null;
@@ -62,8 +62,8 @@ public class Wall extends CommandModule {
         *
         * */
 
-    public Wall(long id, VkCommunicator vkCommunicator) {
-        super(vkCommunicator.getApplicationManager());
+    public Wall(long id, Communicator communicator) {
+        super(communicator.getApplicationManager());
         this.id = id;
         file = new FileStorage("wall"+id, applicationManager);
         enabled = file.getBoolean("enabled", enabled);
@@ -194,7 +194,7 @@ public class Wall extends CommandModule {
     private void findNewPosts(){
         if(enabled && wallTimer != null) {
             try {
-                VkAccount accountToReadWall = vkCommunicator.getActiveAccount();
+                VkAccount accountToReadWall = communicator.getActiveVkAccount();
                 ArrayList<WallMessage> messages = accountToReadWall.getWallMessagesUnsafe(id, scanPosts);
                 requestsCounter ++;
                 for(WallMessage wallMessage:messages){
@@ -203,7 +203,7 @@ public class Wall extends CommandModule {
                         long commentsNow = wallMessage.comment_count;
                         if(commentsNow > commentsEarlier){
                             int newComments = (int)(commentsNow - commentsEarlier);
-                            VkAccount accountToReadComments = vkCommunicator.getActiveAccount();
+                            VkAccount accountToReadComments = communicator.getActiveVkAccount();
                             ArrayList<Comment> comments = accountToReadComments.getWallCommentsUnsafe(id, wallMessage.id, newComments);
                             requestsCounter ++;
                             for(Comment comment:comments){
@@ -211,7 +211,7 @@ public class Wall extends CommandModule {
                                 log(". COMM("+getWallName()+") " + comment.message);
                                 setCommentsDetected(getCommentsDetected()+1);
                                 User author = new User().vk(comment.from_id);
-                                author.setName(vkCommunicator.getActiveAccount().getUserFullName(comment.from_id));
+                                author.setName(communicator.getActiveVkAccount().getUserFullName(comment.from_id));
                                 Message message = new Message(
                                         Message.SOURCE_COMMENT,
                                         comment.message,
@@ -243,7 +243,7 @@ public class Wall extends CommandModule {
                         log(". POST("+getWallName()+") " + wallMessage.text);
                         setPostsDetected(getPostsDetected()+1);
                         User author = new User().vk(wallMessage.from_id);
-                        author.setName(vkCommunicator.getActiveAccount().getUserFullName(wallMessage.from_id));
+                        author.setName(communicator.getActiveVkAccount().getUserFullName(wallMessage.from_id));
                         Message message = new Message(
                                 Message.SOURCE_WALL,
                                 wallMessage.text,
@@ -298,7 +298,7 @@ public class Wall extends CommandModule {
             @Override
             public void run() {
                 try{
-                    wallName = vkCommunicator.getActiveAccount().getUserFullName(getId());
+                    wallName = communicator.getActiveVkAccount().getUserFullName(getId());
                 }
                 catch (Exception e){
                     e.printStackTrace();

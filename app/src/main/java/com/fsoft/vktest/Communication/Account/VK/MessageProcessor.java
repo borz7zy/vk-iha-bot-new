@@ -1,13 +1,10 @@
 package com.fsoft.vktest.Communication.Account.VK;
 
-import android.util.Log;
-
 import com.fsoft.vktest.AnswerInfrastructure.Answer;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.CommandParser;
-import com.fsoft.vktest.Utils.Parameters;
 import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
 import com.perm.kate.api.Message;
@@ -865,7 +862,7 @@ public class MessageProcessor extends CommandModule {
                         ArrayList<Long> members = message.chat_members;
                         for (Long user : members) {
                             if (user != null && user != vkAccount.getId()
-                                    && applicationManager.getCommunicator().containsAccount(user)) {
+                                    && applicationManager.getCommunicator().containsVkAccount(user)) {
                                 log(". (" + vkAccount + ") EXCLUDE FROM CHAT" + message.chat_id);
                                 vkAccount.sendMessage(null, message.chat_id,
                                         new Answer("В беседе может быть только один бот."));

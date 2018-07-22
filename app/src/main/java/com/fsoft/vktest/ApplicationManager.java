@@ -7,13 +7,12 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.fsoft.vktest.AnswerInfrastructure.BotBrain;
-import com.fsoft.vktest.AnswerInfrastructure.Message;
+import com.fsoft.vktest.Communication.Communicator;
 import com.fsoft.vktest.Modules.Commands.ClearCache;
 import com.fsoft.vktest.Modules.Commands.CpuTemp;
 import com.fsoft.vktest.Modules.Commands.Decode;
 import com.fsoft.vktest.Modules.Commands.Encode;
 import com.fsoft.vktest.Modules.Commands.Version;
-import com.fsoft.vktest.Communication.VkCommunicator;
 import com.fsoft.vktest.Modules.Autoreboot;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.DatabaseBackuper;
@@ -21,8 +20,6 @@ import com.fsoft.vktest.Modules.FileManager;
 import com.fsoft.vktest.Communication.HttpServer;
 import com.fsoft.vktest.Modules.SecurityProvider;
 import com.fsoft.vktest.Utils.CommandParser;
-import com.fsoft.vktest.Utils.F;
-import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.Utils.Parameters;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
 
@@ -56,7 +53,7 @@ import java.util.*;
  * Этот же модуль отвечает за отображение сообщений на активити.
  * Этот модуль содержит функции проверки наличия обращения, убирания обращения из Message
  *
- * VkCommunicator занимается работой с сетью. С аккаунтами. Именно этот модуль хранит аккаунты, запускает их. Аккаунты
+ * Communicator занимается работой с сетью. С аккаунтами. Именно этот модуль хранит аккаунты, запускает их. Аккаунты
  * инициируют вызовы других модулей.
  * /// как должны идти сообщения написанные боту изнутри программы?
  *
@@ -94,8 +91,7 @@ public class ApplicationManager {
     private static ApplicationManager applicationManager = null;
 
     private BotService service = null;//это в общем то наш сервис. Он должен быть по любому
-    private MainActivity activity = null;
-    private VkCommunicator vkCommunicator;
+    private Communicator communicator;
     private BotBrain brain;
     private Parameters parameters;
 
@@ -116,7 +112,7 @@ public class ApplicationManager {
         startedTime = System.currentTimeMillis();
         parameters = new Parameters(this);
         CommandParser.applicationManager = this;
-        vkCommunicator = new VkCommunicator(this);
+        communicator = new Communicator(this);
         brain = new BotBrain(this);
         databaseBackuper = new DatabaseBackuper(this);
         securityProvider = new SecurityProvider(this);
@@ -129,7 +125,7 @@ public class ApplicationManager {
         commands.add(new ClearCache(this));
         commands.add(new FileManager(this));
         commands.add(new Autoreboot(this));
-        commands.add(vkCommunicator);
+        commands.add(communicator);
         commands.add(parameters);
         commands.add(brain);
         commands.add(databaseBackuper);
@@ -148,14 +144,8 @@ public class ApplicationManager {
     public boolean isDonated(){
         return true;//// TODO: 13.12.2017 это блять заглушка!  securityProvider.isDonated();
     }
-    public MainActivity getActivity() {
-        return activity;
-    }
-    public void setActivity(MainActivity activity) {
-        this.activity = activity;
-    }
-    public VkCommunicator getCommunicator() {
-        return vkCommunicator;
+    public Communicator getCommunicator() {
+        return communicator;
     }
     public BotBrain getBrain() {
         return brain;
@@ -183,14 +173,14 @@ public class ApplicationManager {
         try {
             if(wifiLock == null) {
                 log(". Блокировка состояния Wi-Fi...");
-                WifiManager wifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                WifiManager wifiManager = (WifiManager) getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
                 wifiLock = wifiManager.createWifiLock(programName);
                 wifiLock.acquire();
             }
 
             if(wakeLock == null) {
                 log(". Блокировка состояния CPU...");
-                PowerManager pm = (PowerManager) activity.getApplicationContext().getSystemService(Context.POWER_SERVICE);
+                PowerManager pm = (PowerManager) getContext().getApplicationContext().getSystemService(Context.POWER_SERVICE);
                 wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
                 wakeLock.acquire();
             }

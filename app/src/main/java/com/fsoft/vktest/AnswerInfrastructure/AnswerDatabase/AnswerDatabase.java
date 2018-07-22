@@ -1744,7 +1744,7 @@ public class AnswerDatabase extends BotModule {
                                 JSONObject jsonObject = new JSONObject(line);
                                 AnswerElement currentAnswerElement = new AnswerElement(jsonObject);
                                 //если вложения этого ответа не прошли проверку, а какой-то из них недоступен
-                                if (!applicationManager.getCommunicator().getActiveAccount()
+                                if (!applicationManager.getCommunicator().getActiveVkAccount()
                                         .checkAttachments(currentAnswerElement.getAnswerAttachments())) {
                                     //просто нихуя с ним не делать
                                     removedAnswers ++;

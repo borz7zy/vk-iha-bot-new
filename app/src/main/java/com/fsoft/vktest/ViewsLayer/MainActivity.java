@@ -15,6 +15,7 @@ import android.view.Window;
 import android.widget.FrameLayout;
 
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.BotApplication;
 import com.fsoft.vktest.BotService;
 import com.fsoft.vktest.R;
 
@@ -31,6 +32,11 @@ import me.tangke.slidemenu.SlideMenu;
 
 
 public class MainActivity extends FragmentActivity {
+    private static MainActivity instance = null;
+    public static MainActivity getInstance() {
+        return instance;
+    }
+
     private String TAG = "MainActivity";
     private Handler handler = new Handler();
     private FrameLayout mainFrame = null;
@@ -41,6 +47,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this;
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         mainFrame = findViewById(R.id.main_frame);
@@ -51,13 +58,23 @@ public class MainActivity extends FragmentActivity {
         //проверить запущен ли сервис. если нет - запустить.
         Log.d(TAG, "Starting service...");
         Intent intent = new Intent(getApplicationContext(), BotService.class);
+        if(getApplication() instanceof BotApplication)
+            ((BotApplication)getApplication()).setMainActivity(this);
         startService(intent);
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+//        if(BotService.applicationManager != null)
+//            BotService.applicationManager.setActivity(this);
+    }
+
+    @Override
     protected void onDestroy() {
+        instance = null;
         super.onDestroy();
-        //сообщить сервису что активити больше нег
+        //сообщить сервису что активити больше не
     }
 
 

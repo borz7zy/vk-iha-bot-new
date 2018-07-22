@@ -3,6 +3,7 @@ package com.fsoft.vktest.Communication;
 import com.fsoft.vktest.AnswerInfrastructure.*;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
 import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Utils.*;
@@ -29,13 +30,14 @@ import java.util.regex.Pattern;
  * class for communication with VK
  * Created by Dr. Failov on 05.08.2014.
  */
-public class VkCommunicator extends CommandModule {
+public class Communicator extends CommandModule {
     private ArrayList<VkAccount> vkAccounts = new ArrayList<>();
+    private ArrayList<TgAccount> tgAccounts = new ArrayList<>();
     private WallManager wallManager = null;
     private FileStorage file = null;
     private boolean running = false;
 
-    public VkCommunicator(ApplicationManager applicationManager) {
+    public Communicator(ApplicationManager applicationManager) {
         super(applicationManager);
         file = new FileStorage("communicator", applicationManager);
         wallManager = new WallManager(this);
@@ -55,9 +57,13 @@ public class VkCommunicator extends CommandModule {
         childCommands.add(new Poll(applicationManager));
         childCommands.add(new HttpGet(applicationManager));
 
-        String accountList[] = file.getStringArray("accounts", new String[0]);
+        String accountList[] = file.getStringArray("VKaccounts", new String[0]);
         for (String acc:accountList)
             vkAccounts.add(new VkAccount(applicationManager, acc));
+
+        accountList = file.getStringArray("TGaccounts", new String[0]);
+        for (String acc:accountList)
+            tgAccounts.add(new TgAccount(applicationManager, acc));
     }
     public FileStorage getFile() {
         return file;
@@ -74,11 +80,20 @@ public class VkCommunicator extends CommandModule {
         for(VkAccount vkAccount:vkAccounts)
             vkAccount.stopAccount();
     }
-    public boolean containsAccount(long id){
-        return getAccount(id) != null;
+    public boolean containsVkAccount(long id){
+        return getVkAccount(id) != null;
     }
-    public VkAccount getAccount(long id){
+    public boolean containsTgAccount(long id){
+        return getTgAccount(id) != null;
+    }
+    public VkAccount getVkAccount(long id){
         for (VkAccount account : vkAccounts)
+            if (account.getId() == id)
+                return account;
+        return null;
+    }
+    public TgAccount getTgAccount(long id){
+        for (TgAccount account : tgAccounts)
             if (account.getId() == id)
                 return account;
         return null;
@@ -86,7 +101,10 @@ public class VkCommunicator extends CommandModule {
     public ArrayList<VkAccount> getVkAccounts() {
         return vkAccounts;
     }
-    public VkAccount getActiveAccount(){
+    public ArrayList<TgAccount> getTgAccounts() {
+        return tgAccounts;
+    }
+    public VkAccount getActiveVkAccount(){
         int cycles = 0;
         while(cycles ++ < 1000) {
             for (VkAccount account : vkAccounts)
@@ -99,18 +117,31 @@ public class VkCommunicator extends CommandModule {
     public String addAccount(VkAccount vkAccount){
         if(vkAccount == null)
             return "Аккаунт не получен";
-        if(containsAccount(vkAccount.getId()))
+        if(containsVkAccount(vkAccount.getId()))
             return "Такой аккаунт уже есть";
         vkAccounts.add(vkAccount);
 
         String[] accountList = new String[vkAccounts.size()];
         for (int i = 0; i < vkAccounts.size(); i++)
             accountList[i] = vkAccounts.get(i).getFileName();
-        file.put("accounts", accountList).commit();
+        file.put("VKaccounts", accountList).commit();
         return "Аккаунт " + vkAccount.getId() + " добавлен. Список аккаунтов сохранён.";
     }
+    public String addAccount(TgAccount tgAccount){
+        if(tgAccount == null)
+            return "Аккаунт не получен";
+        if(containsTgAccount(tgAccount.getId()))
+            return "Такой аккаунт уже есть";
+        tgAccounts.add(tgAccount);
+
+        String[] accountList = new String[tgAccounts.size()];
+        for (int i = 0; i < tgAccounts.size(); i++)
+            accountList[i] = tgAccounts.get(i).getFileName();
+        file.put("TGaccounts", accountList).commit();
+        return "Аккаунт " + tgAccount.getId() + " добавлен. Список аккаунтов сохранён.";
+    }
     public String remAccount(long id){
-        VkAccount accountToRemove = getAccount(id);
+        VkAccount accountToRemove = getVkAccount(id);
         if(accountToRemove == null)
             return "Аккаунта с ID="+id+" нет.";
         if(running)
@@ -189,14 +220,14 @@ public class VkCommunicator extends CommandModule {
                         return log("! Я не могу отправить твоё сообщение, потому что оно содержит текст, который запрещено отправлять.");
                     else
                         text = applicationManager.getBrain().getFilter().filterText(text);
-                    long ownerID = getActiveAccount().resolveScreenName(ownerIDstring);
+                    long ownerID = getActiveVkAccount().resolveScreenName(ownerIDstring);
                     if(ownerID == 0 || ownerID == -1)
                         return log("! Я не могу отправить пост, потому что ты написал неправильный адрес стены, " +
                                 "которую я не смог распознать: " + ownerIDstring);
                     String link = "http://vk.com/id"+ownerID;
                     if(ownerID < 0)
                         link = "http://vk.com/club" + (-ownerID);
-                    if(getActiveAccount().createWallMessage(ownerID, new Answer(text, message.getAttachments()))) {
+                    if(getActiveVkAccount().createWallMessage(ownerID, new Answer(text, message.getAttachments()))) {
                         return log(". На стену " + link + " было отправлено " +
                                 (message.getAttachments().isEmpty() ? "" : message.getAttachments().size() + " вложений и ") +
                                 "сообщение: " + text);
@@ -285,7 +316,7 @@ public class VkCommunicator extends CommandModule {
                                 "который я не смог распознать: " + linkToPost);
 
                     String link = "https://vk.com/wall"+wallId+"_" + postId;
-                    if(getActiveAccount().createWallComment(wallId, postId, new Answer(text, message.getAttachments()), null)) {
+                    if(getActiveVkAccount().createWallComment(wallId, postId, new Answer(text, message.getAttachments()), null)) {
                         return log(". Под постом " + link + " был оставлен комментарий с " +
                                 (message.getAttachments().isEmpty() ? "" : message.getAttachments().size() + " вложениями и ") +
                                 "сообщением: " + text);
@@ -560,7 +591,7 @@ public class VkCommunicator extends CommandModule {
                     if(token.trim().equals(""))
                         return "Я не получил от тебя токен добавляемого аккаунта. \n" +
                                 "Правильный формат команды: botcmd acc add <ID аккаунта> <Токен аккаунта>";
-                    if(containsAccount(id))
+                    if(containsVkAccount(id))
                         return "Аккаунт, который ты пытаешься добавить, уже добавлен. \n" +
                                 "Если добавить его дважды, будут возникать ошибки в работе бота.";
 
@@ -604,7 +635,7 @@ public class VkCommunicator extends CommandModule {
             if(commandParser.getWord().toLowerCase().trim().equals("acc")){
                 if(commandParser.getWord().toLowerCase().trim().equals("rem")){
                     long id = commandParser.getLong();
-                    if(!containsAccount(id))
+                    if(!containsVkAccount(id))
                         return "Ты пытаешься удалить аккаунт " + id + ", которого нет.\n" +
                                 "Правильный формат команды: botcmd acc rem <ID аккаунта>";
                     return remAccount(id);
@@ -678,10 +709,10 @@ public class VkCommunicator extends CommandModule {
                 long wallId = message.getSource_id();
                 if(wallId == 0)
                     return "Не могу получить ID стены, на которой ты это написал.";
-                VkAccount wallAccount = getAccount(wallId);
+                VkAccount wallAccount = getVkAccount(wallId);
                 if(wallAccount == null)
                     return "Для того, чтобы заблокировать пользователя, необходимо, чтобы этот " +
-                            "аккаунт ("+getActiveAccount().getUserFullName(wallId)+") был добавлен в бота.";
+                            "аккаунт ("+ getActiveVkAccount().getUserFullName(wallId)+") был добавлен в бота.";
                 long idToBan = message.getComment_reply_user_id();
                 if(idToBan == 0)
                     idToBan = message.getComment_post_author();
@@ -689,28 +720,28 @@ public class VkCommunicator extends CommandModule {
                     return "Не могу получить ID пользователя, которого нужно забанить.";
                 if(wallId > 0){
                     if(wallAccount.addToBlacklist(idToBan))
-                        return "Пользователь " + getActiveAccount().getUserFullName(idToBan) +
+                        return "Пользователь " + getActiveVkAccount().getUserFullName(idToBan) +
                                 " успешно заблокирован на странице " + wallAccount + ".";
                     else
-                        return "Не могу заблокировать пользователя " + getActiveAccount().getUserFullName(idToBan) +
+                        return "Не могу заблокировать пользователя " + getActiveVkAccount().getUserFullName(idToBan) +
                                 " на странице " + wallAccount + "!";
                 }
                 if(wallId < 0){
                     ArrayList<Long> admins = wallAccount.getGroupAdmins();
                     for (Long adminId:admins){
-                        VkAccount adminAccount = getAccount(adminId);
+                        VkAccount adminAccount = getVkAccount(adminId);
                         if(adminAccount != null) {
                             if(adminAccount.banGroupUserForMonth(Math.abs(wallId), idToBan))
-                                return "Пользователь " + getActiveAccount().getUserFullName(idToBan) +
+                                return "Пользователь " + getActiveVkAccount().getUserFullName(idToBan) +
                                         " был успешно заблокирован в группе " + wallAccount + ". " +
                                         "Для блокировки использовался аккаунт " + adminAccount + ".";
                             else
                                 return "Несмотря на то, что " + adminAccount + " является администратором сообщества, " +
-                                        "у меня не получилось заблокировать пользователя " + getActiveAccount().getUserFullName(idToBan) +
+                                        "у меня не получилось заблокировать пользователя " + getActiveVkAccount().getUserFullName(idToBan) +
                                         " в группе " + wallAccount + " из-за непредвиденной ошибки в момент блокировки.";
                         }
                     }
-                    return "Я не могу заблокировать пользователя " + getActiveAccount().getUserFullName(idToBan)
+                    return "Я не могу заблокировать пользователя " + getActiveVkAccount().getUserFullName(idToBan)
                             + " в группе " + wallAccount + " потому что у меня нет аккаунта ни одного из администраторов группы.";
                 }
             }
@@ -832,7 +863,7 @@ public class VkCommunicator extends CommandModule {
                 if(ownerId == 0 || postId == 0)
                     return log("! Не могу проголосовать, потому что не могу распознать ссылку:\n" + link);
 
-                WallMessage wallMessage = getActiveAccount().getWallPost(ownerId, postId);
+                WallMessage wallMessage = getActiveVkAccount().getWallPost(ownerId, postId);
                 if(wallMessage == null)
                     return log("! Я не могу проголосовать, потому что не могу загрузить сожержимое поста:" + link +
                     "\nЕсли это закрытая стена, я не смогу проголосовать.");

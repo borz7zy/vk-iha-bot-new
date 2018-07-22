@@ -18,15 +18,15 @@ import java.util.ArrayList;
  * Created by Dr. Failov on 11.03.2017.
  */
 public class WallManager extends CommandModule {
-    private VkCommunicator vkCommunicator = null;
+    private Communicator communicator = null;
     private ArrayList<Wall> walls = new ArrayList<>();
     private FileStorage fileStorage = null;
     private boolean running = false;
 
-    public WallManager(VkCommunicator vkCommunicator) {
-        super(vkCommunicator.getApplicationManager());
-        this.vkCommunicator = vkCommunicator;
-        this.fileStorage = vkCommunicator.getFile();
+    public WallManager(Communicator communicator) {
+        super(communicator.getApplicationManager());
+        this.communicator = communicator;
+        this.fileStorage = communicator.getFile();
         childCommands.add(new AddWall(applicationManager));
         childCommands.add(new RemWall(applicationManager));
         childCommands.add(new GetWalls(applicationManager));
@@ -35,7 +35,7 @@ public class WallManager extends CommandModule {
             String wallsJsonString = fileStorage.getString("walls", "[]");
             JSONArray wallsJson = new JSONArray(wallsJsonString);
             for (int i=0; i<wallsJson.length(); i++)
-                walls.add(new Wall(wallsJson.getLong(i), vkCommunicator));
+                walls.add(new Wall(wallsJson.getLong(i), communicator));
         }
         catch (Exception e){
             e.printStackTrace();
@@ -78,7 +78,7 @@ public class WallManager extends CommandModule {
                 return log("! Ошибка добавления стены " + id + " потому что с этим номером что-то не так. Проверь правильность написания ID стены.");
             if(hasWall(id))
                 return log("! Ошибка добавления стены " + id + " в список стен, поскольку эта стена уже в этом списке есть.");
-            Wall wall = new Wall(id, vkCommunicator);
+            Wall wall = new Wall(id, communicator);
             walls.add(wall);
             saveWalls();
             if(running) {
@@ -185,7 +185,7 @@ public class WallManager extends CommandModule {
         }
         public String add(String userId){
             try{
-                Long longId = vkCommunicator.getActiveAccount().resolveScreenName(userId);
+                Long longId = communicator.getActiveVkAccount().resolveScreenName(userId);
                 return add(longId);
             }
             catch (Throwable e){
@@ -224,7 +224,7 @@ public class WallManager extends CommandModule {
         }
         public String rem(String wallName){
             try{
-                Long longId = vkCommunicator.getActiveAccount().resolveScreenName(wallName);
+                Long longId = communicator.getActiveVkAccount().resolveScreenName(wallName);
                 return rem(longId);
             }
             catch (Throwable e){

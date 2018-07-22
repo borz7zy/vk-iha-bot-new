@@ -58,7 +58,7 @@ public class TgAccountCore extends Account {
 
     public TgAccountCore(ApplicationManager applicationManager, String fileName) {
         super(applicationManager, fileName);
-        queue = Volley.newRequestQueue(applicationManager.getContext());
+        queue = Volley.newRequestQueue(applicationManager.getContext().getApplicationContext());
     }
 
     @Override public void login() {
@@ -85,6 +85,7 @@ public class TgAccountCore extends Account {
                     public void onResponse(String response) {
                         try{
                             User user = new User(new JSONObject(response));
+                            listener.gotUser(user);
                         }
                         catch (Exception e){
                             listener.error(e);
@@ -99,6 +100,7 @@ public class TgAccountCore extends Account {
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+        queue.start();
     }
 
     public interface GetMeListener{

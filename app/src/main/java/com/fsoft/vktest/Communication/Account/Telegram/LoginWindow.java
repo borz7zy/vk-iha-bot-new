@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -20,6 +22,7 @@ import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.F;
+import com.fsoft.vktest.ViewsLayer.MainActivity;
 import com.perm.kate.api.Auth;
 
 /**
@@ -38,7 +41,7 @@ public class LoginWindow extends CommandModule {
     private Handler handler = new Handler();
     private TgAccountCore tgAccount = null;
     private Dialog loginDialog = null;
-    private Context context = null;
+    private MainActivity context = null;
 
     private EditText tokenField;
     private TextView saveButton;
@@ -46,6 +49,7 @@ public class LoginWindow extends CommandModule {
 
     public LoginWindow(ApplicationManager applicationManager, TgAccountCore tgAccount) {
         super(applicationManager);
+        context = MainActivity.getInstance();
         this.tgAccount = tgAccount;
         showLoginWindow();
     }
@@ -57,12 +61,10 @@ public class LoginWindow extends CommandModule {
                 public void run() {
                     try {
                         log("Войди в аккаунт");
-                        context = applicationManager.getContext();
-
                         loginDialog = new Dialog(context);
-                        //loginDialog.setTitle("Войдите в аккаунт");
+                        loginDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                         loginDialog.setContentView(R.layout.dialog_add_telegram_account);
-                        //loginDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                        loginDialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
                         tokenField = loginDialog.findViewById(R.id.dialog_add_telegram_account_field_token);
                         saveButton = loginDialog.findViewById(R.id.dialogAdd_telegram_accountButtonSave);
                         closeButton = loginDialog.findViewById(R.id.dialogadd_telegram_accountButtonCancel);
@@ -122,6 +124,7 @@ public class LoginWindow extends CommandModule {
             public void gotUser(User user) {
                 Toast.makeText(context, "Вход выполнен!", Toast.LENGTH_SHORT).show();
                 closeLoginWindow();
+                tgAccount.startAccount();
             }
 
             @Override
