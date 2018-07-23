@@ -58,12 +58,19 @@ public class TgAccountCore extends Account {
 
     public TgAccountCore(ApplicationManager applicationManager, String fileName) {
         super(applicationManager, fileName);
+        userName = getFileStorage().getString("userName", userName);
+        screenName = getFileStorage().getString("screenName", screenName);
         queue = Volley.newRequestQueue(applicationManager.getContext().getApplicationContext());
+    }
+
+    public void login(Runnable howToRefresh) {
+        super.login();
+        new LoginWindow(applicationManager, this, howToRefresh);
     }
 
     @Override public void login() {
         super.login();
-        new LoginWindow(applicationManager, this);
+        new LoginWindow(applicationManager, this, null);
     }
 
     @Override
@@ -95,9 +102,11 @@ public class TgAccountCore extends Account {
     }
     public void setUserName(String userName) {
         this.userName = userName;
+        getFileStorage().put("userName", userName).commit();
     }
     public void setScreenName(String screenName) {
         this.screenName = screenName;
+        getFileStorage().put("screenName", screenName).commit();
     }
 
     public void getMe(final GetMeListener listener){
@@ -122,8 +131,8 @@ public class TgAccountCore extends Account {
                             }
                             JSONObject result = jsonObject.getJSONObject("result");
                             User user = new User(result);
-                            screenName = user.getFirst_name() + " " + user.getLast_name();
-                            userName = user.getUsername();
+                            setScreenName(user.getFirst_name() + " " + user.getLast_name());
+                            setUserName(user.getUsername());
                             listener.gotUser(user);
                         }
                         catch (Exception e){

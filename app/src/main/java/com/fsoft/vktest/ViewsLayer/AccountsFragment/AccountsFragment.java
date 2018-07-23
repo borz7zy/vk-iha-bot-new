@@ -69,8 +69,12 @@ public class AccountsFragment extends Fragment {
     public void addAccount(){
         TgAccount tgAccount = new TgAccount(applicationManager, "tg"+System.currentTimeMillis());
         applicationManager.getCommunicator().addAccount(tgAccount);
-        tgAccount.login();
-
+        tgAccount.login(new Runnable() {
+            @Override
+            public void run() {
+                refresh();
+            }
+        });
     }
 
     private void refresh(){

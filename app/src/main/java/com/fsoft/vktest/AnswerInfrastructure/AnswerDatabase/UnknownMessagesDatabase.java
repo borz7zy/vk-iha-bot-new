@@ -57,6 +57,8 @@ public class UnknownMessagesDatabase extends CommandModule {
                             "Если установить слишком большой лимит, со временем может потребоваться больше оперативной памяти, " +
                             "что может привести к ошибкам, если память устройства закончится.");
             file = new File(applicationManager.getHomeFolder(), "Unknown.txt");
+            if(!file.exists())
+                return;
             BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
             String line;
             int lineNumber = 0;

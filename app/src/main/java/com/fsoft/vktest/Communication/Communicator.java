@@ -166,9 +166,9 @@ public class Communicator extends CommandModule {
             accountToRemove.stopAccount();
         tgAccounts.remove(accountToRemove);
 
-        String[] accountList = new String[vkAccounts.size()];
-        for (int i = 0; i < vkAccounts.size(); i++)
-            accountList[i] = vkAccounts.get(i).getFileName();
+        String[] accountList = new String[tgAccounts.size()];
+        for (int i = 0; i < tgAccounts.size(); i++)
+            accountList[i] = tgAccounts.get(i).getFileName();
         file.put("TGaccounts", accountList).commit();
 
         if(accountToRemove.remove())

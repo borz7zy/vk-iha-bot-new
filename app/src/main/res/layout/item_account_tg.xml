@@ -3,74 +3,79 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/main_background">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="10dp">
 
         <FrameLayout
             android:layout_width="50dp"
-            android:layout_height="50dp">
+            android:layout_height="50dp"
+            android:layout_weight="0">
 
             <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
                 android:id="@+id/item_account_imageview_avatar"
-                android:src="@drawable/example_avatar"/>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/example_avatar" />
 
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/mask_round"/>
+                android:src="@drawable/mask_round" />
         </FrameLayout>
+
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="15dp"
+            android:layout_weight="1"
             android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
                 <ImageView
                     android:layout_width="15dp"
                     android:layout_height="15dp"
-                    android:src="@drawable/ic_tg_logo"
-                    android:layout_marginEnd="10dp"/>
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/ic_tg_logo" />
+
                 <TextView
+                    android:id="@+id/item_account_textView_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/item_account_textView_name"
                     android:text="Аккаунт без имени"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"/>
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
             </LinearLayout>
+
             <TextView
+                android:id="@+id/item_account_textView_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/item_account_textView_status"
                 android:text="Статус неизвестен"
-                android:textSize="14sp"
-                android:textColor="@color/hint_text_color"/>
+                android:textColor="@color/hint_text_color"
+                android:textSize="14sp" />
         </LinearLayout>
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+
         <ImageView
+            android:id="@+id/item_account_button_menu"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_weight="0"
-            android:padding="10dp"
-            android:id="@+id/item_account_button_menu"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_dots_v"
-            android:alpha="0.5"/>
+            android:layout_weight="0"
+            android:alpha="0.5"
+            android:padding="10dp"
+            android:src="@drawable/ic_dots_v" />
     </LinearLayout>
 
     <LinearLayout
@@ -220,4 +225,9 @@
             android:textStyle="bold"
             android:text="Неивестно"/>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#22FFFFFF"
+        android:layout_marginTop="10dp"/>
 </LinearLayout>

@@ -233,8 +233,7 @@ public class FileStorage {
             JSONArray jsonArray = new JSONArray();
             for (int i = 0; i < values.length; i++)
                 jsonArray.put(values[i]);
-            jsonObject.put(key, jsonArray.toString());
-            put(key, jsonObject.toString());
+            put(key, jsonArray);
         }
         catch (Exception e){
             log("! Не могу сохранить значение " + key + " в " + fileName + "!");
@@ -247,8 +246,7 @@ public class FileStorage {
             JSONArray jsonArray = new JSONArray();
             for (int i = 0; i < values.length; i++)
                 jsonArray.put(values[i]);
-            jsonObject.put(key, jsonArray.toString());
-            put(key, jsonObject.toString());
+            put(key, jsonArray);
         }
         catch (Exception e){
             log("! Не могу сохранить значение " + key + " в " + fileName + "!");
@@ -261,8 +259,7 @@ public class FileStorage {
             JSONArray jsonArray = new JSONArray();
             for (int i = 0; i < values.length; i++)
                 jsonArray.put(values[i]);
-            jsonObject.put(key, jsonArray.toString());
-            put(key, jsonObject.toString());
+            put(key, jsonArray);
         }
         catch (Exception e){
             log("! Не могу сохранить значение " + key + " в " + fileName + "!");

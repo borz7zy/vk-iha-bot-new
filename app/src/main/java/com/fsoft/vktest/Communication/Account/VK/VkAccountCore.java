@@ -100,6 +100,8 @@ public class VkAccountCore extends Account {
 
     public VkAccountCore(ApplicationManager applicationManager, String fileName) {
         super(applicationManager, fileName);
+        userName = getFileStorage().getString("userName", userName);
+        screenName = getFileStorage().getString("screenName", screenName);
     }
     @Override public void login() {
         super.login();
@@ -108,7 +110,7 @@ public class VkAccountCore extends Account {
     @Override protected void startAccount() {
         super.startAccount();
         if(isToken_ok())
-            getUserName();
+            loadUserName();
     }
     @Override public void stopAccount() {
         super.stopAccount();
@@ -137,6 +139,20 @@ public class VkAccountCore extends Account {
     }
     public void resetValidation_url() {
         this.validation_url = null;
+    }
+    public String getUserName() {
+        return userName;
+    }
+    public String getScreenName() {
+        return screenName;
+    }
+    public void setUserName(String userName) {
+        this.userName = userName;
+        getFileStorage().put("userName", userName).commit();
+    }
+    public void setScreenName(String screenName) {
+        this.screenName = screenName;
+        getFileStorage().put("screenName", screenName).commit();
     }
 
     //access to server API functions
@@ -1290,18 +1306,18 @@ public class VkAccountCore extends Account {
         }
         return false;
     }
-    private void getUserName(){
+    private void loadUserName(){
         new Thread(new Runnable() {
             @Override
             public void run() {
                 User user = getUserAccount(getId());
                 if(user != null){
-                    userName = user.first_name + " " + user.last_name;
-                    screenName = user.domain;
+                    setUserName(user.first_name + " " + user.last_name);
+                    setScreenName(user.domain);
                 }
                 else{
-                    userName = String.valueOf(getId());
-                    screenName = String.valueOf(getId());
+                    setUserName(String.valueOf(getId()));
+                    setScreenName(String.valueOf(getId()));
                 }
 
             }

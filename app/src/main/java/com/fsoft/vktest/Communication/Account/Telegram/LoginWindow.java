@@ -2,6 +2,7 @@ package com.fsoft.vktest.Communication.Account.Telegram;
 
 import android.app.Dialog;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -31,15 +32,17 @@ public class LoginWindow extends CommandModule {
     private TgAccountCore tgAccount = null;
     private Dialog loginDialog = null;
     private MainActivity context = null;
+    private Runnable howToRefresh = null;
 
     private EditText tokenField;
     private TextView saveButton;
     private View closeButton;
 
-    public LoginWindow(ApplicationManager applicationManager, TgAccountCore tgAccount) {
+    public LoginWindow(ApplicationManager applicationManager, TgAccountCore tgAccount, Runnable howToRefresh) {
         super(applicationManager);
         context = MainActivity.getInstance();
         this.tgAccount = tgAccount;
+        this.howToRefresh = howToRefresh;
         showLoginWindow();
     }
 
@@ -51,6 +54,7 @@ public class LoginWindow extends CommandModule {
                     try {
                         log("Войди в аккаунт");
                         loginDialog = new Dialog(context);
+                        loginDialog.setCancelable(false);
                         loginDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                         loginDialog.setContentView(R.layout.dialog_add_telegram_account);
                         loginDialog.getWindow().getAttributes().width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -69,7 +73,10 @@ public class LoginWindow extends CommandModule {
                                 @Override
                                 public void onClick(View v) {
                                     closeLoginWindow();
-                                    Toast.makeText(context, applicationManager.getCommunicator().remTgAccount(tgAccount), Toast.LENGTH_SHORT).show();
+                                    String resultOfDeletion = applicationManager.getCommunicator().remTgAccount(tgAccount);
+                                    Toast.makeText(context, resultOfDeletion, Toast.LENGTH_SHORT).show();
+                                    if(howToRefresh != null)
+                                        howToRefresh.run();
                                 }
                             });
                         loginDialog.show();
@@ -115,6 +122,8 @@ public class LoginWindow extends CommandModule {
                 Toast.makeText(context, "Вход выполнен!", Toast.LENGTH_SHORT).show();
                 closeLoginWindow();
                 tgAccount.startAccount();
+                if(howToRefresh != null)
+                    howToRefresh.run();
             }
 
             @Override
@@ -123,18 +132,10 @@ public class LoginWindow extends CommandModule {
                 saveButton.setText("Сохранить");
                 tgAccount.setId(0);
                 tgAccount.setToken("");
-                Toast.makeText(context, "Токен не сработал: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Токен не сработал: " + error.getClass().getName() + " " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
         saveButton.setEnabled(false);
         saveButton.setText("Проверка...");
-    }
-    private void loginSuccess(String token, long id){
-        closeLoginWindow();
-        if(tgAccount != null) {
-            tgAccount.setToken(token);
-            tgAccount.setId(id);
-            tgAccount.startAccount();
-        }
     }
 }
