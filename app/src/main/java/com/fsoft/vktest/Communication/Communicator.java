@@ -4,6 +4,7 @@ import com.fsoft.vktest.AnswerInfrastructure.*;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
+import com.fsoft.vktest.Communication.Account.Telegram.TgAccountCore;
 import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Utils.*;
@@ -140,7 +141,7 @@ public class Communicator extends CommandModule {
         file.put("TGaccounts", accountList).commit();
         return "Аккаунт " + tgAccount.getId() + " добавлен. Список аккаунтов сохранён.";
     }
-    public String remAccount(long id){
+    public String remVkAccount(long id){
         VkAccount accountToRemove = getVkAccount(id);
         if(accountToRemove == null)
             return "Аккаунта с ID="+id+" нет.";
@@ -151,12 +152,29 @@ public class Communicator extends CommandModule {
         String[] accountList = new String[vkAccounts.size()];
         for (int i = 0; i < vkAccounts.size(); i++)
             accountList[i] = vkAccounts.get(i).getFileName();
-        file.put("accounts", accountList).commit();
+        file.put("VKaccounts", accountList).commit();
 
         if(accountToRemove.remove())
-            return "Аккаунт " + id + " успешно удалён.";
+            return "Аккаунт VK " + id + " успешно удалён.";
         else
-            return "Аккаунт " + id + " удалён из списка, но его файл удалить не получается.";
+            return "Аккаунт VK " + id + " удалён из списка, но его файл удалить не получается.";
+    }
+    public String remTgAccount(TgAccountCore accountToRemove){
+        if(accountToRemove == null)
+            return log("Функция удаления TG аккаунта вызвана с аргументом null");
+        if(running)
+            accountToRemove.stopAccount();
+        tgAccounts.remove(accountToRemove);
+
+        String[] accountList = new String[vkAccounts.size()];
+        for (int i = 0; i < vkAccounts.size(); i++)
+            accountList[i] = vkAccounts.get(i).getFileName();
+        file.put("TGaccounts", accountList).commit();
+
+        if(accountToRemove.remove())
+            return "Аккаунт TG " + accountToRemove + " успешно удалён.";
+        else
+            return "Аккаунт TG " + accountToRemove + " удалён из списка, но его файл удалить не получается.";
     }
 
     //todo кажется логичным засунуть сюда функции которые нужны для разных соцсетей, чтобы он сам решал где достать аккаунт
@@ -638,7 +656,7 @@ public class Communicator extends CommandModule {
                     if(!containsVkAccount(id))
                         return "Ты пытаешься удалить аккаунт " + id + ", которого нет.\n" +
                                 "Правильный формат команды: botcmd acc rem <ID аккаунта>";
-                    return remAccount(id);
+                    return remVkAccount(id);
                 }
             }
             return super.processCommand(message);

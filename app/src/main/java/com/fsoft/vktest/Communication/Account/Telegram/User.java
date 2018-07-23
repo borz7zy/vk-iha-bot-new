@@ -56,17 +56,63 @@ public class User {
         return jsonObject;
     }
     private void fromJson(JSONObject jsonObject)throws JSONException, ParseException {
-        if(jsonObject.has("id"))
-            id = jsonObject.getLong("id");
+        id = jsonObject.getLong("id");
+        username = jsonObject.getString("username");
         if(jsonObject.has("is_bot"))
             is_bot = jsonObject.getBoolean("is_bot");
         if(jsonObject.has("first_name"))
             first_name = jsonObject.getString("first_name");
         if(jsonObject.has("last_name"))
             last_name = jsonObject.getString("last_name");
-        if(jsonObject.has("username"))
-            username = jsonObject.getString("username");
         if(jsonObject.has("language_code"))
             language_code = jsonObject.getString("language_code");
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public boolean isIs_bot() {
+        return is_bot;
+    }
+
+    public void setIs_bot(boolean is_bot) {
+        this.is_bot = is_bot;
+    }
+
+    public String getFirst_name() {
+        return first_name;
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public String getLast_name() {
+        return last_name;
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getLanguage_code() {
+        return language_code;
+    }
+
+    public void setLanguage_code(String language_code) {
+        this.language_code = language_code;
     }
 }

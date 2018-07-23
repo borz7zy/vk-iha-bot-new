@@ -76,19 +76,59 @@ public class TgAccountCore extends Account {
         super.stopAccount();
     }
 
+    @Override
+    public String toString() {
+        return screenName + "("+userName+", id="+getId()+")";
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+    public String getScreenName() {
+        return screenName;
+    }
+    public long getApiCounter() {
+        return apiCounter;
+    }
+    public long getErrorCounter() {
+        return errorCounter;
+    }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+    public void setScreenName(String screenName) {
+        this.screenName = screenName;
+    }
+
     public void getMe(final GetMeListener listener){
         final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/getMe";
+        apiCounter ++;
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try{
-                            User user = new User(new JSONObject(response));
+                            JSONObject jsonObject = new JSONObject(response);
+                            if(!jsonObject.has("ok")) {
+                                errorCounter ++;
+                                listener.error(new Exception("No OK in response!"));
+                                return;
+                            }
+                            if(!jsonObject.getBoolean("ok")){
+                                errorCounter ++;
+                                listener.error(new Exception(jsonObject.optString("description", "No description")));
+                                return;
+                            }
+                            JSONObject result = jsonObject.getJSONObject("result");
+                            User user = new User(result);
+                            screenName = user.getFirst_name() + " " + user.getLast_name();
+                            userName = user.getUsername();
                             listener.gotUser(user);
                         }
                         catch (Exception e){
                             listener.error(e);
+                            errorCounter ++;
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -96,6 +136,7 @@ public class TgAccountCore extends Account {
             public void onErrorResponse(VolleyError error) {
                 log(error.getClass().getName() + " while sending request: " + url);
                 listener.error(error);
+                errorCounter ++;
             }
         });
         // Add the request to the RequestQueue.

@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
 
 public class BotApplication extends Application {
-    private MainActivity mainActivity = null;
 
     // Called when the application is starting, before any other application objects have been created.
     // Overriding this method is totally optional!
@@ -29,13 +28,5 @@ public class BotApplication extends Application {
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-    }
-
-    public MainActivity getMainActivity() {
-        return mainActivity;
-    }
-
-    public void setMainActivity(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
     }
 }

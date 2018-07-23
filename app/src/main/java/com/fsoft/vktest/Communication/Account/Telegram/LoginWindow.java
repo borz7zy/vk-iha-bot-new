@@ -1,29 +1,18 @@
 package com.fsoft.vktest.Communication.Account.Telegram;
 
 import android.app.Dialog;
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Handler;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fsoft.vktest.ApplicationManager;
-import com.fsoft.vktest.Communication.Account.VK.VkAccount;
-import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.R;
-import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
-import com.perm.kate.api.Auth;
 
 /**
  * Это окно должно заниматься процедурой логина в аккаунт.
@@ -80,6 +69,7 @@ public class LoginWindow extends CommandModule {
                                 @Override
                                 public void onClick(View v) {
                                     closeLoginWindow();
+                                    Toast.makeText(context, applicationManager.getCommunicator().remTgAccount(tgAccount), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         loginDialog.show();

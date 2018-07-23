@@ -1,8 +1,6 @@
 package com.fsoft.vktest.ViewsLayer;
 
-import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,10 +12,9 @@ import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
 
-import com.fsoft.vktest.ApplicationManager;
-import com.fsoft.vktest.BotApplication;
 import com.fsoft.vktest.BotService;
 import com.fsoft.vktest.R;
+import com.fsoft.vktest.ViewsLayer.AccountsFragment.AccountsFragment;
 
 import me.tangke.slidemenu.SlideMenu;
 
@@ -58,8 +55,6 @@ public class MainActivity extends FragmentActivity {
         //проверить запущен ли сервис. если нет - запустить.
         Log.d(TAG, "Starting service...");
         Intent intent = new Intent(getApplicationContext(), BotService.class);
-        if(getApplication() instanceof BotApplication)
-            ((BotApplication)getApplication()).setMainActivity(this);
         startService(intent);
     }
 
