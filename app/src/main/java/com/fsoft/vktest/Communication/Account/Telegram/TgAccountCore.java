@@ -95,7 +95,7 @@ public class TgAccountCore extends Account {
 
             @Override
             public void error(Throwable error) {
-                log("Аккаунт " + this + " " + state("не прошёл проверку токена"));
+                log("Аккаунт " + this + " " + state("не прошёл проверку токена: " + error.getClass().getName() + " " + error.getMessage()));
                 listener.onTokenFail();
             }
         });
