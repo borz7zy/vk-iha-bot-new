@@ -32,28 +32,37 @@ public class Chat {
     public JSONObject toJson() throws JSONException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", id);
-        jsonObject.put("is_bot", is_bot);
+        jsonObject.put("all_members_are_administrators", all_members_are_administrators);
+        if(type != null)
+            jsonObject.put("type", type);
+        if(title != null)
+            jsonObject.put("title", title);
+        if(description != null)
+            jsonObject.put("description", description);
         if(first_name != null)
             jsonObject.put("first_name", first_name);
         if(last_name != null)
             jsonObject.put("last_name", last_name);
         if(username != null)
             jsonObject.put("username", username);
-        if(language_code != null)
-            jsonObject.put("language_code", language_code);
         return jsonObject;
     }
     private void fromJson(JSONObject jsonObject)throws JSONException, ParseException {
         id = jsonObject.getLong("id");
-        username = jsonObject.getString("username");
-        if(jsonObject.has("is_bot"))
-            is_bot = jsonObject.getBoolean("is_bot");
+        if(jsonObject.has("all_members_are_administrators"))
+            all_members_are_administrators = jsonObject.getBoolean("all_members_are_administrators");
         if(jsonObject.has("first_name"))
             first_name = jsonObject.getString("first_name");
         if(jsonObject.has("last_name"))
             last_name = jsonObject.getString("last_name");
-        if(jsonObject.has("language_code"))
-            language_code = jsonObject.getString("language_code");
+        if(jsonObject.has("username"))
+            username = jsonObject.getString("username");
+        if(jsonObject.has("description"))
+            description = jsonObject.getString("description");
+        if(jsonObject.has("title"))
+            title = jsonObject.getString("title");
+        if(jsonObject.has("type"))
+            type = jsonObject.getString("type");
     }
 
     public long getId() {
@@ -64,12 +73,28 @@ public class Chat {
         this.id = id;
     }
 
-    public boolean isIs_bot() {
-        return is_bot;
+    public String getType() {
+        return type;
     }
 
-    public void setIs_bot(boolean is_bot) {
-        this.is_bot = is_bot;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getFirst_name() {
@@ -88,19 +113,19 @@ public class Chat {
         this.last_name = last_name;
     }
 
-    public String getUsername() {
-        return username;
+    public String getDescription() {
+        return description;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getLanguage_code() {
-        return language_code;
+    public boolean isAll_members_are_administrators() {
+        return all_members_are_administrators;
     }
 
-    public void setLanguage_code(String language_code) {
-        this.language_code = language_code;
+    public void setAll_members_are_administrators(boolean all_members_are_administrators) {
+        this.all_members_are_administrators = all_members_are_administrators;
     }
 }

@@ -20,96 +20,80 @@ public class Message {
         fromJson(jsonObject);
     }
 
-    public Message(long id, String username) {
-        this.id = id;
-        this.username = username;
-    }
-
-    public Message(long id, boolean is_bot, String first_name, String last_name, String username, String language_code) {
-        this.id = id;
-        this.is_bot = is_bot;
-        this.first_name = first_name;
-        this.last_name = last_name;
-        this.username = username;
-        this.language_code = language_code;
+    public Message(long message_id, User from, Date date, Chat chat, String text) {
+        this.message_id = message_id;
+        this.from = from;
+        this.date = date;
+        this.chat = chat;
+        this.text = text;
     }
 
     @Override
     public String toString() {
-        return first_name + " " + last_name + " (" + username + ")";
+        return from + ": " + text;
     }
     public JSONObject toJson() throws JSONException {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", id);
-        jsonObject.put("is_bot", is_bot);
-        if(first_name != null)
-            jsonObject.put("first_name", first_name);
-        if(last_name != null)
-            jsonObject.put("last_name", last_name);
-        if(username != null)
-            jsonObject.put("username", username);
-        if(language_code != null)
-            jsonObject.put("language_code", language_code);
+        jsonObject.put("message_id", message_id);
+        if(from != null)
+            jsonObject.put("from", from.toJson());
+        if(date != null)
+            jsonObject.put("date", date.getTime()/1000L);
+        if(chat != null)
+            jsonObject.put("chat", chat.toJson());
+        if(text != null)
+            jsonObject.put("text", text);
         return jsonObject;
     }
     private void fromJson(JSONObject jsonObject)throws JSONException, ParseException {
-        id = jsonObject.getLong("id");
-        username = jsonObject.getString("username");
-        if(jsonObject.has("is_bot"))
-            is_bot = jsonObject.getBoolean("is_bot");
-        if(jsonObject.has("first_name"))
-            first_name = jsonObject.getString("first_name");
-        if(jsonObject.has("last_name"))
-            last_name = jsonObject.getString("last_name");
-        if(jsonObject.has("language_code"))
-            language_code = jsonObject.getString("language_code");
+        message_id = jsonObject.getLong("message_id");
+        if(jsonObject.has("from"))
+            from = new User(jsonObject.getJSONObject("from"));
+        if(jsonObject.has("date"))
+            date = new Date(jsonObject.getLong("date") * 1000L);
+        if(jsonObject.has("chat"))
+            chat = new Chat(jsonObject.getJSONObject("chat"));
+        if(jsonObject.has("text"))
+            text = jsonObject.getString("text");
     }
 
-    public long getId() {
-        return id;
+    public long getMessage_id() {
+        return message_id;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setMessage_id(long message_id) {
+        this.message_id = message_id;
     }
 
-    public boolean isIs_bot() {
-        return is_bot;
+    public User getFrom() {
+        return from;
     }
 
-    public void setIs_bot(boolean is_bot) {
-        this.is_bot = is_bot;
+    public void setFrom(User from) {
+        this.from = from;
     }
 
-    public String getFirst_name() {
-        return first_name;
+    public Date getDate() {
+        return date;
     }
 
-    public void setFirst_name(String first_name) {
-        this.first_name = first_name;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
-    public String getLast_name() {
-        return last_name;
+    public Chat getChat() {
+        return chat;
     }
 
-    public void setLast_name(String last_name) {
-        this.last_name = last_name;
+    public void setChat(Chat chat) {
+        this.chat = chat;
     }
 
-    public String getUsername() {
-        return username;
+    public String getText() {
+        return text;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getLanguage_code() {
-        return language_code;
-    }
-
-    public void setLanguage_code(String language_code) {
-        this.language_code = language_code;
+    public void setText(String text) {
+        this.text = text;
     }
 }
