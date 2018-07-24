@@ -107,7 +107,7 @@ public class VkAccountCore extends Account {
         super.login();
         new LoginWindow(applicationManager, this);
     }
-    @Override protected void startAccount() {
+    @Override public void startAccount() {
         super.startAccount();
         if(isToken_ok())
             loadUserName();

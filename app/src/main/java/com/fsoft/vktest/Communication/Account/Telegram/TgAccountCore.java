@@ -74,7 +74,35 @@ public class TgAccountCore extends Account {
     }
 
     @Override
-    protected void startAccount() {
+    protected void checkTokenValidity(final OnTokenValidityCheckedListener listener) {
+        super.checkTokenValidity(listener);
+        if(getId() == 0) {
+            listener.onTokenFail();
+            log("В аккаунте " + this + " " + state("некорректный ID"));
+            return;
+        }
+        if(getToken() == null || getToken().isEmpty()) {
+            listener.onTokenFail();
+            log("В аккаунте " + this + " " + state("некорректный токен"));
+            return;
+        }
+        getMe(new GetMeListener() {
+            @Override
+            public void gotUser(User user) {
+                log("Аккаунт " + this + " " + state("прошёл проверку"));
+                listener.onTokenPass();
+            }
+
+            @Override
+            public void error(Throwable error) {
+                log("Аккаунт " + this + " " + state("не прошёл проверку токена"));
+                listener.onTokenFail();
+            }
+        });
+    }
+
+    @Override
+    public void startAccount() {
         super.startAccount();
     }
 

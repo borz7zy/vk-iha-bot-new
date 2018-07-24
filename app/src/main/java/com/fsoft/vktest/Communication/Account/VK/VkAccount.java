@@ -24,7 +24,7 @@ public class VkAccount extends VkAccountCore {
     }
 
     @Override
-    protected void startAccount() {
+    public void startAccount() {
         super.startAccount();
         allowFriends.startModule();
         statusBroadcaster.startModule();

@@ -1,6 +1,7 @@
 package com.fsoft.vktest.Communication;
 
 import com.fsoft.vktest.AnswerInfrastructure.*;
+import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.Time;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
@@ -65,15 +66,26 @@ public class Communicator extends CommandModule {
         accountList = file.getStringArray("TGaccounts", new String[0]);
         for (String acc:accountList)
             tgAccounts.add(new TgAccount(applicationManager, acc));
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                startModule();
+            }
+        }, 3000);
+
     }
     public FileStorage getFile() {
         return file;
     }
     public void startModule(){
+        log("Запуск коммуникатора...");
         running = true;
         wallManager.startModule();
         for(VkAccount vkAccount:vkAccounts)
-            vkAccount.login();
+            vkAccount.startAccount();
+        for(TgAccount tgAccount:tgAccounts)
+            tgAccount.startAccount();
     }
     public void stopModule(){
         running = false;

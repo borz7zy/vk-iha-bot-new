@@ -57,22 +57,32 @@ public class Account extends CommandModule {
         return new File(fileStorage.getFilePath()).delete();
     }
     public void login(){
-        //Если есть токен, она его проверяет. Если нету, открывает процедуру логина.
-        // По итогу задает значение для token_ok
-        // Также если isEnabled, тогда включает аккаунт при помощи startAccount();
+        //открывает процедуру (пере)логина.
+        // По итогу задает значение для token
     }
-    protected void startAccount(){
-        //эта функция запускает работу во всех службах аккаунта.
-        // В этом месте у аккаунта должен быть уже проверенный и валидный токен.
+    public void startAccount(){
+        //если токен есть, эта функция его проверяет. Если токен валидный,
+        //эта функция запускает работу во всех службах аккаунта, если isEnabled.
         running = true;
-        log(". Аккаунт " + toString() + " активирован");
+        log(". Аккаунт " + toString() + " запускается...");
+        setState("Запускается...");
         //token_ok = true; //кажется, это не всегда связано
     }
     public void stopAccount(){
         //эта функция останавливает работу во всех службах аккаунта
         running = false;
-        log(". Аккаунт " + toString() + " деактивирован");
+        log(". Аккаунт " + toString() + " остановлен.");
+        setState("Остановлен.");
         // token_ok = false; ////кажется, это не всегда связано
+    }
+    protected interface OnTokenValidityCheckedListener{
+        void onTokenPass();
+        void onTokenFail();
+    }
+    protected void checkTokenValidity(OnTokenValidityCheckedListener listener){
+        //запускать проверку и вызывать лисенер...
+        log(". Аккаунт " + toString() + " проверяется...");
+        setState("Проверяется...");
     }
     public boolean isMine(String commandTreatment){
         //Эта функция должна отвечать за то, чтобы при обращении в команде
@@ -120,6 +130,11 @@ public class Account extends CommandModule {
             stopAccount();
         if(!isRunning() && isEnabled())
             startAccount();
+    }
+    public String state(String state) {
+        String time = new SimpleDateFormat("HH-mm").format(new Date());
+        this.state = time + " " + state;
+        return state;
     }
     public void setState(String state) {
         String time = new SimpleDateFormat("HH-mm").format(new Date());
