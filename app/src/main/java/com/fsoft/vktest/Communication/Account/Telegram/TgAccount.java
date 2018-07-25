@@ -31,4 +31,8 @@ public class TgAccount extends TgAccountCore {
         super.stopAccount();
         messageProcessor.stopModule();
     }
+
+    public MessageProcessor getMessageProcessor() {
+        return messageProcessor;
+    }
 }

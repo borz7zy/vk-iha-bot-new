@@ -1,6 +1,8 @@
 package com.fsoft.vktest.Communication.Account.Telegram;
 
 
+import android.util.Log;
+
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -17,6 +19,7 @@ import org.json.JSONObject;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 /**
@@ -173,6 +176,7 @@ public class TgAccountCore extends Account {
                         }
                         catch (Exception e){
                             listener.error(e);
+                            e.printStackTrace();
                             errorCounter ++;
                         }
                     }
@@ -181,12 +185,12 @@ public class TgAccountCore extends Account {
             public void onErrorResponse(VolleyError error) {
                 log(error.getClass().getName() + " while sending request: " + url);
                 listener.error(error);
+                error.printStackTrace();
                 errorCounter ++;
             }
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
-        queue.start();
     }
     public void getUpdates(final GetUpdatesListener listener, long offset, int timeout){
         final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/getUpdates?offset="+offset+"&timeout="+timeout;
@@ -219,6 +223,7 @@ public class TgAccountCore extends Account {
                         }
                         catch (Exception e){
                             listener.error(e);
+                            e.printStackTrace();
                             errorCounter ++;
                         }
                     }
@@ -227,15 +232,68 @@ public class TgAccountCore extends Account {
             public void onErrorResponse(VolleyError error) {
                 log(error.getClass().getName() + " while sending request: " + url);
                 listener.error(error);
+                error.printStackTrace();
                 errorCounter ++;
             }
         });
         stringRequest.setRetryPolicy(new DefaultRetryPolicy( 50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
-        queue.start();
+    }
+    public void sendMessage(final SendMessageListener listener, long chat_id, String text){
+        try {
+            text = URLEncoder.encode(text, "UTF-8");
+        }
+        catch (Exception e){
+            log("! Unsopported encoding for UEREncoder");
+            e.printStackTrace();
+        }
+        final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendMessage?chat_id="+chat_id+"&text="+text;
+        apiCounter ++;
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try{
+                            JSONObject jsonObject = new JSONObject(response);
+                            if(!jsonObject.has("ok")) {
+                                errorCounter ++;
+                                listener.error(new Exception("No OK in response!"));
+                                return;
+                            }
+                            if(!jsonObject.getBoolean("ok")){
+                                errorCounter ++;
+                                listener.error(new Exception(jsonObject.optString("description", "No description")));
+                                return;
+                            }
+                            JSONObject result = jsonObject.getJSONObject("result");
+                            Message message = new Message(result);
+                            listener.sentMessage(message);
+                        }
+                        catch (Exception e){
+                            listener.error(e);
+                            e.printStackTrace();
+                            errorCounter ++;
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                log(error.getClass().getName() + " while sending request: " + url);
+                error.printStackTrace();
+                listener.error(error);
+                errorCounter ++;
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
+    public interface SendMessageListener{
+        void sentMessage(Message message);
+        void error(Throwable error);
+    }
     public interface GetMeListener{
         void gotUser(User user);
         void error(Throwable error);
