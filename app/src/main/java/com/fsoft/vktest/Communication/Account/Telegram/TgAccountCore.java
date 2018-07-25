@@ -1,16 +1,23 @@
 package com.fsoft.vktest.Communication.Account.Telegram;
 
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.Account;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.util.ArrayList;
 
 /**
  *
@@ -61,6 +68,7 @@ public class TgAccountCore extends Account {
         userName = getFileStorage().getString("userName", userName);
         screenName = getFileStorage().getString("screenName", screenName);
         queue = Volley.newRequestQueue(applicationManager.getContext().getApplicationContext());
+        //Proxy proxy = new Proxy(Proxy.Type.SOCKS, InetSocketAddress.createUnresolved("192.168.1.11", 8118));
     }
 
     public void login(Runnable howToRefresh) {
@@ -180,9 +188,60 @@ public class TgAccountCore extends Account {
         queue.add(stringRequest);
         queue.start();
     }
+    public void getUpdates(final GetUpdatesListener listener, long offset, int timeout){
+        final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/getUpdates?offset="+offset+"&timeout="+timeout;
+        apiCounter ++;
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try{
+                            JSONObject jsonObject = new JSONObject(response);
+                            if(!jsonObject.has("ok")) {
+                                errorCounter ++;
+                                listener.error(new Exception("No OK in response!"));
+                                return;
+                            }
+                            if(!jsonObject.getBoolean("ok")){
+                                errorCounter ++;
+                                listener.error(new Exception(jsonObject.optString("description", "No description")));
+                                return;
+                            }
+                            JSONArray result = jsonObject.getJSONArray("result");
+                            ArrayList<Update> updates = new ArrayList<>();
+                            for (int i = 0; i < result.length(); i++) {
+                                JSONObject updateJson = result.getJSONObject(i);
+                                Update update = new Update(updateJson);
+                                updates.add(update);
+                            }
+                            listener.gotUpdates(updates);
+                        }
+                        catch (Exception e){
+                            listener.error(e);
+                            errorCounter ++;
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                log(error.getClass().getName() + " while sending request: " + url);
+                listener.error(error);
+                errorCounter ++;
+            }
+        });
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+        queue.start();
+    }
 
     public interface GetMeListener{
         void gotUser(User user);
+        void error(Throwable error);
+    }
+    public interface GetUpdatesListener{
+        void gotUpdates(ArrayList<Update> updates);
         void error(Throwable error);
     }
 }
