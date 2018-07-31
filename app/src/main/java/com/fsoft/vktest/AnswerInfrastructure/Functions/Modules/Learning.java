@@ -305,7 +305,7 @@ public class Learning extends Function {
 
     @Override
     public String getName() {
-        return "learning";
+        return "Learning";
     }
 
     @Override

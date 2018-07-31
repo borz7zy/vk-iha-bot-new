@@ -4,6 +4,7 @@ import android.os.Environment;
 
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
 import com.fsoft.vktest.Modules.Commands.Command;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
@@ -101,6 +102,9 @@ public class FileManager extends CommandModule {
             this.userId = userId;
         }
         @Override public String processCommand(Message message) {
+            if(!(message.getBotAccount() instanceof VkAccount))
+                return "Эта команда поддерживается только для VK аккаунта";
+
             CommandParser commandParser = new CommandParser(message.getText());
             switch(commandParser.getWord()){
                 case "list":{
@@ -113,7 +117,7 @@ public class FileManager extends CommandModule {
                     return cd(commandParser.getText());
                 }
                 case "get":{
-                    return get(message.getBotAccount(), commandParser.getText());
+                    return get(((VkAccount)message.getBotAccount()), commandParser.getText());
                 }
                 case "put":{
                     if(!message.hasAttachments())

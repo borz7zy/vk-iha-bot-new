@@ -1,6 +1,6 @@
 package com.fsoft.vktest.AnswerInfrastructure;
 
-import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
+import com.fsoft.vktest.Communication.Account.Account;
 import com.fsoft.vktest.Utils.User;
 import com.perm.kate.api.Attachment;
 
@@ -53,7 +53,7 @@ public class MessageBase {
     private String text = "";               //что в этой хуйне написано
     private User author = null;               //кто эту хуйню написал
     protected ArrayList<Attachment> attachments = null;//что он к этой хуйне приложил
-    protected VkAccountCore botAccount = null;     // кто из ботов эту хуйню обнаружил
+    protected Account botAccount = null;     // кто из ботов эту хуйню обнаружил
     protected Answer answer = null;            // когда ответ подобран, ложим его сюда
     // позволит нам отправить пользователю ответ в то же место откуда он нам написал сообщение
 
@@ -71,7 +71,7 @@ public class MessageBase {
     protected long comment_reply_comment_id = 0L;
     protected long comment_reply_user_id = 0L;
 
-    public MessageBase(String source, String text, User author, ArrayList<Attachment> attachments, VkAccountCore botAccount) {
+    public MessageBase(String source, String text, User author, ArrayList<Attachment> attachments, Account botAccount) {
         this.source = source;
         this.text = text;
         this.author = author;
@@ -127,7 +127,7 @@ public class MessageBase {
         this.attachments = attachments;
         return this;
     }
-    public MessageBase withBotAccount(VkAccountCore botAccount) {
+    public MessageBase withBotAccount(Account botAccount) {
         this.botAccount = botAccount;
         return this;
     }
@@ -184,10 +184,10 @@ public class MessageBase {
     public void setAttachments(ArrayList<Attachment> attachments) {
         this.attachments = attachments;
     }
-    public VkAccountCore getBotAccount() {
+    public Account getBotAccount() {
         return botAccount;
     }
-    public void setBotAccount(VkAccountCore botAccount) {
+    public void setBotAccount(Account botAccount) {
         this.botAccount = botAccount;
     }
     public ArrayList<Long> getChat_users() {
@@ -222,6 +222,9 @@ public class MessageBase {
     }
     public Answer getAnswer() {
         return answer;
+    }
+    public boolean hasAnswer() {
+        return answer != null;
     }
     public void setAnswer(Answer answer) {
         this.answer = answer;

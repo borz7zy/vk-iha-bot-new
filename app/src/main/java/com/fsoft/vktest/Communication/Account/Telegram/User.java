@@ -67,6 +67,12 @@ public class User {
         if(jsonObject.has("language_code"))
             language_code = jsonObject.getString("language_code");
     }
+    public String getName(){
+        if(last_name.isEmpty() || first_name.isEmpty())
+            return username;
+        else
+            return first_name + " " + last_name;
+    }
 
     public long getId() {
         return id;

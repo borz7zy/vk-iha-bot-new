@@ -7,6 +7,7 @@ import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.AnswerInfrastructure.MessageComparison.JaroWinkler;
 import com.fsoft.vktest.AnswerInfrastructure.MessageComparison.MessagePreparer;
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.R;
@@ -264,6 +265,10 @@ public class AnswerDatabase extends BotModule {
 
         load();
 
+    }
+    @Override
+    public String getName() {
+        return "AnswerDatabase";
     }
     @Override
     public Message processMessage(Message message) {
@@ -1545,8 +1550,11 @@ public class AnswerDatabase extends BotModule {
         public String processCommand(Message message) {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().toLowerCase().equals("dumpdatabase")){
+                if(!(message.getBotAccount() instanceof VkAccount))
+                    return "Эта команда поддерживается только для VK аккаунта";
+
                 message.sendAnswer("Загружаю документ...");
-                Document document = message.getBotAccount().uploadDocument(fileAnswers);
+                Document document = ((VkAccount)message.getBotAccount()).uploadDocument(fileAnswers);
                 if(document == null)
                     return "Не удалось выгрузить документ на сервер.\n";
                 else {
@@ -1864,6 +1872,9 @@ public class AnswerDatabase extends BotModule {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().toLowerCase().equals("replacedatabase")){
                 try {
+                    if(!(message.getBotAccount() instanceof VkAccount))
+                        return "Эта команда поддерживается только для VK аккаунта";
+
                     log(". Импорт базы данных...\n");
                     if (message.getAttachments().size() == 0)
                         return "Не получен файл базы данных для замены.";
@@ -1877,7 +1888,7 @@ public class AnswerDatabase extends BotModule {
                     if (document == null)
                         return "Документ по какой-то причине не был получен.";
                     int recordsBefore = answers.size();
-                    File newDatabase = message.getBotAccount().downloadDocument(document);
+                    File newDatabase = ((VkAccount)message.getBotAccount()).downloadDocument(document);
                     if (newDatabase == null)
                         return "Не удаётся загрузить документ.";
                     message.sendAnswer(new Answer("База данных была скачана, сейчас будет производиться замена файла..."));
@@ -1927,6 +1938,9 @@ public class AnswerDatabase extends BotModule {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().toLowerCase().equals("importdatabase")){
                 try {
+                    if(!(message.getBotAccount() instanceof VkAccount))
+                        return "Эта команда поддерживается только для VK аккаунта";
+
                     log(". Импорт базы данных...\n");
                     if (message.getAttachments().size() == 0)
                         return "Не получен файл базы данных для импорта.";
@@ -1940,7 +1954,7 @@ public class AnswerDatabase extends BotModule {
                     if (document == null)
                         return "Документ по какой-то причине не был получен.";
                     int recordsBefore = answers.size();
-                    File newDatabase = message.getBotAccount().downloadDocument(document);
+                    File newDatabase = ((VkAccount)message.getBotAccount()).downloadDocument(document);
                     if (newDatabase == null)
                         return "Не удаётся загрузить документ.";
                     message.sendAnswer(new Answer("База данных была скачана, сейчас будет производиться импорт файла..."));

@@ -1,9 +1,11 @@
 package com.fsoft.vktest.Communication.Account.Telegram;
 
+import com.fsoft.vktest.AnswerInfrastructure.MessageBase;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Utils.F;
+import com.fsoft.vktest.Utils.User;
 
 import java.util.ArrayList;
 
@@ -107,27 +109,55 @@ public class MessageProcessor extends CommandModule {
             }
         }
     }
-    public void processMessage(Message message){
+    public void processMessage(final Message message){
         log(". ПОЛУЧЕНО СООБЩЕНИЕ: " + message);
         messagesReceivedCounter ++;
-        String replyText = "Бот работает в тестовом режиме.";
-        replyText += "\nТы: " + message.getFrom();
-        replyText += "\nТы написал: " + message.getText();
-        replyText += "\nПринято сообщений: " + messagesReceivedCounter;
-        replyText += "\nОтправлено сообщений: " + messagesSentCounter;
-        replyText += "\nВыполнено запросов к API: " + tgAccount.getApiCounter();
-        replyText += "\nОшибок при доступе к API: " + tgAccount.getErrorCounter();
-        tgAccount.sendMessage(new TgAccountCore.SendMessageListener() {
-            @Override
-            public void sentMessage(Message message) {
-                log(". Отправлено сообщение: " + message);
-                messagesSentCounter ++;
-            }
 
+        //заполняем юзера
+        com.fsoft.vktest.Utils.User brainUser = new User();
+        brainUser.setName(message.getFrom().getName());
+        brainUser.setNetwork(User.NETWORK_TELEGRAM);
+        brainUser.setId(message.getFrom().getId());
+
+        //функция отправки ответа юзеру
+        com.fsoft.vktest.AnswerInfrastructure.Message.OnAnswerReady onAnswerReady;
+        onAnswerReady = new com.fsoft.vktest.AnswerInfrastructure.Message.OnAnswerReady() {
             @Override
-            public void error(Throwable error) {
-                log(error.getClass().getName() + " while sending message");
+            public void sendAnswer(com.fsoft.vktest.AnswerInfrastructure.Message answer) {
+                if(!answer.hasAnswer())
+                    return;
+                String replyText = answer.getAnswer().text;
+                replyText += "\nБот работает в тестовом режиме.";
+                replyText += "\nТы: " + message.getFrom();
+                replyText += "\nТы написал: " + message.getText();
+                replyText += "\nПринято сообщений: " + messagesReceivedCounter;
+                replyText += "\nОтправлено сообщений: " + messagesSentCounter;
+                replyText += "\nВыполнено запросов к API: " + tgAccount.getApiCounter();
+                replyText += "\nОшибок при доступе к API: " + tgAccount.getErrorCounter();
+                tgAccount.sendMessage(new TgAccountCore.SendMessageListener() {
+                    @Override
+                    public void sentMessage(Message message) {
+                        log(". Отправлено сообщение: " + message);
+                        messagesSentCounter ++;
+                    }
+
+                    @Override
+                    public void error(Throwable error) {
+                        log(error.getClass().getName() + " while sending message");
+                    }
+                }, message.getChat().getId(), replyText);
             }
-        }, message.getChat().getId(), replyText);
+        };
+
+        //формирует объект и вызываем систему
+        com.fsoft.vktest.AnswerInfrastructure.Message brainMessage;
+        brainMessage = new com.fsoft.vktest.AnswerInfrastructure.Message(
+                MessageBase.SOURCE_CHAT,
+                message.getText(),
+                brainUser,
+                tgAccount,
+                onAnswerReady
+        );
+        applicationManager.getBrain().processMessage(brainMessage);
     }
 }

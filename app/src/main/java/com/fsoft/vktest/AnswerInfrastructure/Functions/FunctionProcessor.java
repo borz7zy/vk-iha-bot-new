@@ -54,6 +54,10 @@ public class FunctionProcessor extends BotModule {
 
         childCommands.add(new GetModules(applicationManager));
     }
+    @Override
+    public String getName() {
+        return "Function Processor (Base for all)";
+    }
 
 
     private class GetModules extends CommandModule{

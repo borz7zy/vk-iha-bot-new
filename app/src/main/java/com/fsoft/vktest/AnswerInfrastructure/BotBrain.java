@@ -81,6 +81,7 @@ public class BotBrain extends CommandModule {
         super(applicationManager);
         fileStorage = new FileStorage("iHA_Brain", applicationManager);
         answerDatabase = new AnswerDatabase(applicationManager);
+        learning = new Learning(applicationManager);
         unknownMessages = new UnknownMessagesDatabase(applicationManager);
         patternProcessor = new PatternProcessor(applicationManager);
         functionAnswerer = new FunctionProcessor(applicationManager);
@@ -119,12 +120,16 @@ public class BotBrain extends CommandModule {
             //подготовить ответ
             if (message.getAnswer() == null && patternProcessor != null)
                 message = patternProcessor.processMessage(message);
+            log(patternProcessor.getName() + message + " = " + message.answer);
             if (message.getAnswer() == null && functionAnswerer != null)
                 message = functionAnswerer.processMessage(message);
+            log(functionAnswerer.getName() + message + " = " + message.answer);
             if (message.getAnswer() == null && learning != null)
                 message = learning.processMessage(message);
+            log(learning.getName() + message + " = " + message.answer);
             if (message.getAnswer() == null && answerDatabase != null)
                 message = answerDatabase.processMessage(message);
+            log(answerDatabase.getName() + message + " = " + message.answer);
 
             //профильтровать
             if (message.getAnswer() == null && filter != null)

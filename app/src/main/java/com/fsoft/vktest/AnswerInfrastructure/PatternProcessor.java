@@ -46,6 +46,10 @@ public class PatternProcessor extends BotModule {
         childCommands.add(new TestPatternizator(applicationManager));
         childCommands.add(new WhatIsPatternizator(applicationManager));
     }
+    @Override
+    public String getName() {
+        return "Pattern Processor (Patternizator)";
+    }
 
     @Override
     public Message processMessage(Message message) {

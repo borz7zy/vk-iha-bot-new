@@ -67,7 +67,7 @@ public class ApplicationManager {
     //-------------- НЕ МЕНЯТЬ!!! Иначе надо будет переписывать хэш-суммы!!!!---------------------------------------
     static public String getVisibleName(){
         //обязательно должно содержать "Dr.Failov iHA bot"
-        return "Dr.Failov iHA bot™ v5.0 beta 0";
+        return "Dr.Failov iHA bot™ v5.0 alpha 000002";
     }
     static public String getShortName(){
         return "FP iHA bot";

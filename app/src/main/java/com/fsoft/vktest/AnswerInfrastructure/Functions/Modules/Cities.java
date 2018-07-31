@@ -424,6 +424,10 @@ public class Cities extends Function {
         }
 
         @Override
+        public String getName() {
+            return "Cities.Game";
+        }
+        @Override
         public Message processMessage(Message messageOriginal) {
             if(!hasTreatment(messageOriginal))
                 return super.processMessage(messageOriginal);
@@ -523,11 +527,15 @@ public class Cities extends Function {
         }
 
         @Override
-        public Message processMessage(Message message)
+        public String getName() {
+            return "Cities.CityOnLetter";
+        }
+        @Override
+        public Message processMessage(Message originalMessage)
         {
-            if(!hasTreatment(message))
-                return super.processMessage(message);
-            message = remTreatment(message);
+            if(!hasTreatment(originalMessage))
+                return super.processMessage(originalMessage);
+            Message message = remTreatment(originalMessage);
 
             if(message.getText().toLowerCase().startsWith("города на букву ")
                     || message.getText().toLowerCase().startsWith("город на букву ")){
@@ -571,19 +579,23 @@ public class Cities extends Function {
                     return message;
                 }
             }
-            return super.processMessage(message);
+            return super.processMessage(originalMessage);
         }
     }
     private class IsCityExist extends BotModule{
         IsCityExist(ApplicationManager applicationManager) {
             super(applicationManager);
         }
+        @Override
+        public String getName() {
+            return "Cities.IsCityExist";
+        }
 
         @Override
-        public Message processMessage(Message message) {
-            if(!hasTreatment(message))
-                return super.processMessage(message);
-            message = remTreatment(message);
+        public Message processMessage(Message originalMessage) {
+            if(!hasTreatment(originalMessage))
+                return super.processMessage(originalMessage);
+            Message message = remTreatment(originalMessage);
 
             if(message.getText().toLowerCase().startsWith("существует ли город ")){
                 String cityString =  message.getText().toLowerCase()
@@ -642,7 +654,7 @@ public class Cities extends Function {
                     return message;
                 }
             }
-            return super.processMessage(message);
+            return super.processMessage(originalMessage);
         }
     }
 

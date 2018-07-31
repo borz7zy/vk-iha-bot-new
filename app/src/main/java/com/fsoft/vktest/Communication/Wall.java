@@ -356,6 +356,9 @@ public class Wall extends CommandModule {
     private void replyMessage(Message message){
         if(message == null)
             return;
+        //Это по идее должно было бы быть невозможно
+        if(!(message.getBotAccount() instanceof VkAccount))
+            return;
         try {
             if (message.getAnswer() != null && !message.getAnswer().text.equals("")) {
                 log(". REPL (" + getWallName() + "): " + message.getAnswer().text);
@@ -363,9 +366,9 @@ public class Wall extends CommandModule {
                 setMessagesReplied(getMessagesReplied() + 1);
                 requestsCounter ++;
                 if (message.getSource().equals(Message.SOURCE_COMMENT))
-                    message.getBotAccount().createWallCommentUnsafe(getId(), message.getComment_post_id(), message.getAnswer(), message.getMessage_id());
+                    ((VkAccount)message.getBotAccount()).createWallCommentUnsafe(getId(), message.getComment_post_id(), message.getAnswer(), message.getMessage_id());
                 else if (message.getSource().equals(Message.SOURCE_WALL))
-                    message.getBotAccount().createWallCommentUnsafe(getId(), message.getMessage_id(), message.getAnswer(), null);
+                    ((VkAccount)message.getBotAccount()).createWallCommentUnsafe(getId(), message.getMessage_id(), message.getAnswer(), null);
             } else {
 
             }

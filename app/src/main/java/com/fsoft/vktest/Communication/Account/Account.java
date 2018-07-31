@@ -18,6 +18,7 @@ import java.util.Date;
  * ищу что можно было бы вынести нахуй
  *
  * constructor() -> login() -> startAccount()
+ * constructor() -> startAccount()
  * Created by Dr. Failov on 22.02.2017.
  */
 public class Account extends CommandModule {

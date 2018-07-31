@@ -5,6 +5,7 @@ import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.AnswerInfrastructure.MessageComparison.JaroWinkler;
 import com.fsoft.vktest.AnswerInfrastructure.MessageComparison.MessagePreparer;
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.CommandParser;
@@ -301,7 +302,10 @@ public class UnknownMessagesDatabase extends CommandModule {
         public String processCommand(Message message) {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().toLowerCase().equals("dumpunknown")) {
-                Document document = message.getBotAccount().uploadDocument(file);
+
+                if(!(message.getBotAccount() instanceof VkAccount))
+                    return "Эта команда поддерживается только для VK аккаунта";
+                Document document = ((VkAccount)message.getBotAccount()).uploadDocument(file);
                 if (document == null)
                     return "Не удалось выгрузить документ на сервер.\n";
                 else {
