@@ -136,6 +136,7 @@ public class BotBrain extends CommandModule {
                 message = filter.processMessage(message);
         }
         catch (Exception e){
+            e.printStackTrace();
             message.setAnswer(new Answer("Произошла ошибка при обработке сообщения: " + e.getMessage()));
         }
 
@@ -158,10 +159,13 @@ public class BotBrain extends CommandModule {
                 return true;
         return false;
     }
+    //убирает из сообщения пользователя обращение к боту
     public Message remTreatment(Message message){
         for(String treatment:botTreatments) {
             if (message.getText().toLowerCase().startsWith(treatment.toLowerCase())) {
-                String newText = message.getText().substring(treatment.length() + 1);
+                String newText = "";
+                if(message.getText().length() > treatment.length())
+                    newText = message.getText().substring(treatment.length() + 1);
                 Message copyMessage =  new Message(message);
                 copyMessage.setText(newText);
                 return copyMessage;

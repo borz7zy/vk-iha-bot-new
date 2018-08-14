@@ -45,27 +45,28 @@ public class UnknownMessage {
     public UnknownMessage(String text, ArrayList<Attachment> attachments, Date date, User author, float familiarity) {
         this.text = text;
         this.attachments = "";
-        for (Attachment attachment:attachments)
-        {
-            switch (attachment.type){
-                case "photo":
-                    this.attachments += "P";
-                    break;
-                case "video":
-                    this.attachments += "V";
-                    break;
-                case "audio":
-                    this.attachments += "M";
-                    break;
-                case "doc":
-                    this.attachments += "D";
-                    break;
-                case "record":
-                    this.attachments += "R";
-                    break;
-                case "sticker":
-                    this.attachments += "S";
-                    break;
+        if(attachments != null) {
+            for (Attachment attachment : attachments) {
+                switch (attachment.type) {
+                    case "photo":
+                        this.attachments += "P";
+                        break;
+                    case "video":
+                        this.attachments += "V";
+                        break;
+                    case "audio":
+                        this.attachments += "M";
+                        break;
+                    case "doc":
+                        this.attachments += "D";
+                        break;
+                    case "record":
+                        this.attachments += "R";
+                        break;
+                    case "sticker":
+                        this.attachments += "S";
+                        break;
+                }
             }
         }
         this.date = date;

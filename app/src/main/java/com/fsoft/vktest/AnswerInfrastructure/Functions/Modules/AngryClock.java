@@ -15,6 +15,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Random;
+import java.util.TimeZone;
 
 /**
  * Этот модуль генерирует ответы по типу
@@ -65,14 +66,15 @@ public class AngryClock extends Function{
             Random random = new Random();
             int index = random.nextInt(patterns.length);
             String pattern = patterns[index];
-            Calendar calendar = new GregorianCalendar();
-            calendar.setTime(new Date());
-            int hours = calendar.get(Calendar.HOUR_OF_DAY);
-            int minutes = calendar.get(Calendar.MINUTE);
-            String hoursString = NumberToText.digits2Text((double)hours);
-            String minutesString = NumberToText.digits2Text((double)minutes);
-            pattern = F.replaceCaseInsensitive(pattern, "%HOUR%", hoursString);
-            pattern = F.replaceCaseInsensitive(pattern, "%MINUTE%", minutesString);
+            Calendar cal = Calendar.getInstance();
+            //todo исправить время, он показывает по гринвичу
+            //TimeZone.getDefault().getDisplayName()
+            int hours= cal.get(Calendar.HOUR_OF_DAY);
+            int minutes=cal.get(Calendar.MINUTE);
+            String hoursString = NumberToText.digits2Text((double)hours).trim();
+            String minutesString = NumberToText.digits2Text((double)minutes).trim();
+            pattern = pattern.replace("%HOUR%", hoursString);
+            pattern = pattern.replace("%MINUTE%", minutesString);
             message.setAnswer(new Answer(pattern));
             message = prepare(message);
             return message;

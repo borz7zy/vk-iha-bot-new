@@ -113,19 +113,7 @@ public class ApplicationManager {
         parameters = new Parameters(this);
         CommandParser.applicationManager = this;
         communicator = new Communicator(this);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    brain = new BotBrain(ApplicationManager.this);
-                    commands.add(brain);
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                    log("Error loading brain: " + e.getMessage());
-                }
-            }
-        }, "Loading brain").start();
+        brain = new BotBrain(ApplicationManager.this);
         databaseBackuper = new DatabaseBackuper(this);
         securityProvider = new SecurityProvider(this);
         httpServer = new HttpServer(this);
@@ -137,6 +125,7 @@ public class ApplicationManager {
         commands.add(new ClearCache(this));
         commands.add(new FileManager(this));
         commands.add(new Autoreboot(this));
+        commands.add(brain);
         commands.add(communicator);
         commands.add(parameters);
         commands.add(databaseBackuper);

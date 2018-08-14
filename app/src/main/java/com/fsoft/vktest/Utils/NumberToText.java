@@ -94,27 +94,27 @@ public class NumberToText {
                     else result.append("тысяча");
                     break;
                 default:
-                    if(thch.d == '1' || thch.u == '0' || thch.u > '4')result.append("рублей");
-                    else if(thch.u > '1')result.append("рубля");
-                    else result.append("рубль");
+                    if(thch.d == '1' || thch.u == '0' || thch.u > '4')result.append("");//рублей
+                    else if(thch.u > '1')result.append("");//рубля
+                    else result.append("");//рубль
             }
             result.append(' ');
         }
-        result.append(sa[1] + ' ');
-        switch(sa[1].charAt(1)){
-            case '1':
-                result.append(sa[1].charAt(0) != '1' ? "копейка" : "копеек");
-                break;
-            case '2':
-            case '3':
-            case '4':
-                result.append(sa[1].charAt(0) != '1' ? "копейки" : "копеек");
-                break;
-            default:
-                result.append("копеек");
-        }
-        char first = Character.toUpperCase(result.charAt(0));
-        result.setCharAt(0, first);
+//        result.append(sa[1] + ' ');
+//        switch(sa[1].charAt(1)){
+//            case '1':
+//                result.append(sa[1].charAt(0) != '1' ? "" : "");//  копейка   копеек
+//                break;
+//            case '2':
+//            case '3':
+//            case '4':
+//                result.append(sa[1].charAt(0) != '1' ? "" : "");//  копейки    копеек
+//                break;
+//            default:
+//                result.append("");  //  копеек
+//        }
+//        char first = Character.toUpperCase(result.charAt(0));
+//        result.setCharAt(0, first);
         return result.toString();
     }
 

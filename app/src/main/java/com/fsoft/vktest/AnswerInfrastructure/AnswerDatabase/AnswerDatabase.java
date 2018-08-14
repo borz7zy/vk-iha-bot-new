@@ -263,7 +263,18 @@ public class AnswerDatabase extends BotModule {
         childCommands.add(new ImportDatabase(applicationManager));
         childCommands.add(new ClearDuplicates(applicationManager));
 
-        load();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    load();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                    log("! Error loading database: " + e.getMessage());
+                }
+            }
+        }, "Loading database").start();
 
     }
     @Override
