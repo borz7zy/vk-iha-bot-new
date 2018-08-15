@@ -28,6 +28,10 @@ public class AngryClock extends Function{
             "Уже %HOUR% блядских часов и %MINUTE% ёбаных минут длится этот хуёвый день!",
             "%HOUR% блядских часов и %MINUTE% ёбаных минут. Самое время убивать!",
             "На часах %HOUR% часов. Обычно в это время случается какая-то хуйня.",
+            "%HOUR% сраных часов и %MINUTE% ебучих минут.",
+            "%HOUR% %MINUTE%, блять!",
+            "%HOUR% %MINUTE%, нах!",
+            "В %HOUR% часов %MINUTE% минут пора пожрать.",
             "На часах %HOUR% часов, %MINUTE% минут. Но какой в этом толк, если ты тратишь свою жизнь впустую?"
     };
     public AngryClock(ApplicationManager applicationManager) {
@@ -67,8 +71,6 @@ public class AngryClock extends Function{
             int index = random.nextInt(patterns.length);
             String pattern = patterns[index];
             Calendar cal = Calendar.getInstance();
-            //todo исправить время, он показывает по гринвичу
-            //TimeZone.getDefault().getDisplayName()
             int hours= cal.get(Calendar.HOUR_OF_DAY);
             int minutes=cal.get(Calendar.MINUTE);
             String hoursString = NumberToText.digits2Text((double)hours).trim();

@@ -9,206 +9,85 @@ package com.fsoft.vktest.Utils;
 import java.util.Stack;
 
 public class NumberToText {
-    private static enum Ranges {UNITS, DECADES, HUNDREDS, THOUSANDS, MILLIONS, BILLIONS};
-    private static Stack <ThreeChar> threeChars;
+    private static final String dig1[][] = {{"одна", "две", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять"},
+            {"один", "два"}}; //dig[0] - female, dig[1] - male
+    private static final String dig10[]  = {"десять","одиннадцать", "двенадцать", "тринадцать", "четырнадцать",
+            "пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать"};
+    private static final String dig20[]  = {"двадцать", "тридцать", "сорок", "пятьдесят",
+            "шестьдесят", "семьдесят", "восемьдесят", "девяносто"};
+    private static final String dig100[] = {"сто","двести", "триста", "четыреста", "пятьсот",
+            "шестьсот", "семьсот", "восемьсот", "девятьсот"};
+    private static final String leword[][] = { {"", "", "", "0"},  //{"копейка", "копейки", "копеек", "0"}
+            {"", "", "", "1"}, //{"рубль", "рубля", "рублей", "1"}
+            {"тысяча", "тысячи", "тысяч", "0"},
+            {"миллион", "миллиона", "миллионов", "1"},
+            {"миллиард", "миллиарда", "миллиардов", "1"},
+            {"триллион", "триллиона", "триллионов", "1"}};
 
-    private static class ThreeChar {
-        char h, d, u;
-        Ranges range;
-    }
-
-    public static String digits2Text(Double d){
-        if(d == null || d < 0.0) return null;
-        String s = d.toString();
-        int n = s.length() - s.lastIndexOf('.');
-        if(n > 3) return null;
-        if(n == 2) s += "0";
-        String[] sa = s.split("\\.");
-        threeChars = new Stack <ThreeChar> ();
-        threeChars.push(new ThreeChar());
-        threeChars.peek().range = Ranges.UNITS;
-        StringBuilder sb = new StringBuilder(sa[0]).reverse();
-        for(int i = 0; i < sb.length(); i++){
-            if(i > 0 && i % 3 == 0){
-                threeChars.push(new ThreeChar());
-            }
-            ThreeChar threeChar = threeChars.peek();
-            switch(i){
-                case 0:
-                    threeChar.u = sb.charAt(i);
-                    break;
-                case 3:
-                    threeChar.range = Ranges.THOUSANDS;
-                    threeChar.u = sb.charAt(i);
-                    break;
-                case 6:
-                    threeChar.range = Ranges.MILLIONS;
-                    threeChar.u = sb.charAt(i);
-                    break;
-                case 9:
-                    threeChar.range = Ranges.BILLIONS;
-                    threeChar.u = sb.charAt(i);
-                    break;
-                case 2:
-                case 5:
-                case 8:
-                    threeChar.h = sb.charAt(i);
-                    break;
-                default:
-                    threeChar.d = sb.charAt(i);
-            }
+    //рекурсивная функция преобразования целого числа num в рубли
+    private static String num2words(long num, int level) {
+        StringBuilder words = new StringBuilder(50);
+        if (num==0) words.append("ноль ");         //исключительный случай
+        int sex = leword[level][3].indexOf("1")+1; //не красиво конечно, но работает
+        int h = (int)(num%1000);    //текущий трехзначный сегмент
+        int d = h/100;              //цифра сотен
+        if (d>0) words.append(dig100[d-1]).append(" ");
+        int n = h%100;
+        d = n/10;                   //цифра десятков
+        n = n%10;                   //цифра единиц
+        switch(d) {
+            case 0: break;
+            case 1: words.append(dig10[n]).append(" ");
+                break;
+            default: words.append(dig20[d-2]).append(" ");
         }
-        StringBuilder result = new StringBuilder();
-        while(!threeChars.isEmpty()){
-            ThreeChar thch = threeChars.pop();
-            if(thch.h > 0  ){
-                result.append(getHundreds(thch.h));
-                result.append(' ');
-            }
-            if(thch.d > '0'){
-                if(thch.d > '1' || (thch.d == '1' && thch.u == '0')) result.append(getDecades(thch.d));
-                else if(thch.d > '0') result.append(getTeens(thch.d));
-                result.append(' ');
-            }
-            if(thch.u > '0' && thch.d != '1'){
-                result.append(getUnits(thch.u, thch.range == Ranges.THOUSANDS));
-                result.append(' ');
-            }
-            switch(thch.range){
-                case BILLIONS:
-                    if(thch.d == '1' || thch.u == '0') result.append("миллиардов");
-                    else if(thch.u > '4')result.append("миллиардов");
-                    else if(thch.u > '1')result.append("миллиарда");
-                    else result.append("миллиард");
-                    break;
-                case MILLIONS:
-                    if(thch.d == '1' || thch.u == '0') result.append("миллионов");
-                    else if(thch.u > '4')result.append("миллионов");
-                    else if(thch.u > '1')result.append("миллиона");
-                    else result.append("миллион");
-                    break;
-                case THOUSANDS:
-                    if(thch.d == '1' || thch.u == '0') result.append("тысяч");
-                    else if(thch.u > '4')result.append("тысяч");
-                    else if(thch.u > '1')result.append("тысячи");
-                    else result.append("тысяча");
-                    break;
-                default:
-                    if(thch.d == '1' || thch.u == '0' || thch.u > '4')result.append("");//рублей
-                    else if(thch.u > '1')result.append("");//рубля
-                    else result.append("");//рубль
-            }
-            result.append(' ');
+        if (d==1) n=0;              //при двузначном остатке от 10 до 19, цифра едициц не должна учитываться
+        switch(n) {
+            case 0: break;
+            case 1:
+            case 2: words.append(dig1[sex][n-1]).append(" ");
+                break;
+            default: words.append(dig1[0][n-1]).append(" ");
         }
-//        result.append(sa[1] + ' ');
-//        switch(sa[1].charAt(1)){
-//            case '1':
-//                result.append(sa[1].charAt(0) != '1' ? "" : "");//  копейка   копеек
-//                break;
-//            case '2':
-//            case '3':
-//            case '4':
-//                result.append(sa[1].charAt(0) != '1' ? "" : "");//  копейки    копеек
-//                break;
-//            default:
-//                result.append("");  //  копеек
-//        }
-//        char first = Character.toUpperCase(result.charAt(0));
-//        result.setCharAt(0, first);
-        return result.toString();
+        switch(n) {
+            case 1: words.append(leword[level][0]);
+                break;
+            case 2:
+            case 3:
+            case 4: words.append(leword[level][1]);
+                break;
+            default: if((h!=0)||((h==0)&&(level==1)))  //если трехзначный сегмент = 0, то добавлять нужно только "рублей"
+                words.append(leword[level][2]);
+        }
+        long nextnum = num/1000;
+        if(nextnum>0) {
+            return (num2words(nextnum, level+1) + " " + words.toString()).trim();
+        } else {
+            return words.toString().trim();
+        }
     }
 
-    private static String getHundreds(char dig){
-        switch(dig){
-            case '1':
-                return "сто";
-            case '2':
-                return "двести";
-            case '3':
-                return "триста";
-            case '4':
-                return "четыреста";
-            case '5':
-                return "пятьсот";
-            case '6':
-                return "шестсот";
-            case '7':
-                return "семсот";
-            case '8':
-                return "восемсот";
-            case '9':
-                return "девятьсот";
-            default: return null;
+    //функция преобразования вещественного числа в рубли-копейки
+    //при значении money более 50-70 триллионов рублей начинает искажать копейки, осторожней при работе такими суммами
+    public static String digits2Text(double money) {
+        if (money<0.0) return "error: отрицательное значение";
+        String sm = String.format("%.2f", money);
+        String skop = sm.substring(sm.length()-2, sm.length());    //значение копеек в строке
+        int iw;
+        switch(skop.substring(1)) {
+            case "1": iw = 0;
+                break;
+            case "2":
+            case "3":
+            case "4": iw = 1;
+                break;
+            default:  iw = 2;
         }
-    }
-    private static String getDecades(char dig){
-        switch(dig){
-            case '1':
-                return "десять";
-            case '2':
-                return "двадцать";
-            case '3':
-                return "тридцать";
-            case '4':
-                return "сорок";
-            case '5':
-                return "пятьдесят";
-            case '6':
-                return "шестьдесят";
-            case '7':
-                return "семьдесят";
-            case '8':
-                return "восемьдесят";
-            case '9':
-                return "девяносто";
-            default: return null;
-        }
-    }
-    private static String getUnits(char dig, boolean female){
-        switch(dig){
-            case '1':
-                return female ? "одна" : "один";
-            case '2':
-                return female ? "две"  : "два";
-            case '3':
-                return "три";
-            case '4':
-                return "четыре";
-            case '5':
-                return "пять";
-            case '6':
-                return "шесть";
-            case '7':
-                return "семь";
-            case '8':
-                return "восемь";
-            case '9':
-                return "девять";
-            default: return null;
-        }
-    }
-    private static String getTeens(char dig){
-        String s = "";
-        switch(dig){
-            case '1':
-                s = "один"; break;
-            case '2':
-                s = "две"; break;
-            case '3':
-                s = "три"; break;
-            case '4':
-                s = "четыр"; break;
-            case '5':
-                s = "пят"; break;
-            case '6':
-                s = "шест"; break;
-            case '7':
-                s = "сем"; break;
-            case '8':
-                s = "восем"; break;
-            case '9':
-                s = "девят"; break;
-        }
-        return s + "надцать";
+        long num = (long)Math.floor(money);
+        if (num<1000000000000000l) {
+            return num2words(num, 1);
+            //return num2words(num, 1) + " " + skop + " " + leword[0][iw];
+        } else
+            return "слишком много " + skop + " " + leword[0][iw];
     }
 }

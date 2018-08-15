@@ -9,6 +9,7 @@ import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.Cities;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.IliIli;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.Infa;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.Learning;
+import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.PseudoGraphic;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.Rendom;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.SmileAnswerer;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.Time;
@@ -50,6 +51,7 @@ public class FunctionProcessor extends BotModule {
         addChildModule(new WhichDayOfMonth(applicationManager));
         addChildModule(new SmileAnswerer(applicationManager));
         addChildModule(new Translit(applicationManager));
+        addChildModule(new PseudoGraphic(applicationManager));
 
 
         childCommands.add(new GetModules(applicationManager));
