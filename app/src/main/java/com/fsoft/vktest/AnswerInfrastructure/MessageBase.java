@@ -1,8 +1,8 @@
 package com.fsoft.vktest.AnswerInfrastructure;
 
+import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 import com.fsoft.vktest.Communication.Account.Account;
 import com.fsoft.vktest.Utils.User;
-import com.perm.kate.api.Attachment;
 
 import java.util.ArrayList;
 

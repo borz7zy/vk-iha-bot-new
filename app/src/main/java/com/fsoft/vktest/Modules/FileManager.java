@@ -2,6 +2,8 @@ package com.fsoft.vktest.Modules;
 
 import android.os.Environment;
 
+import com.fsoft.vktest.AnswerInfrastructure.Answer;
+import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.VK.VkAccount;
@@ -11,8 +13,6 @@ import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.User;
-import com.perm.kate.api.Attachment;
-import com.perm.kate.api.Document;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -117,7 +117,7 @@ public class FileManager extends CommandModule {
                     return cd(commandParser.getText());
                 }
                 case "get":{
-                    return get(((VkAccount)message.getBotAccount()), commandParser.getText());
+                    return get(message, commandParser.getText());
                 }
                 case "put":{
                     if(!message.hasAttachments())
@@ -128,8 +128,8 @@ public class FileManager extends CommandModule {
                     String result = "";
                     for (Attachment attachment:attachments) {
                         try {
-                            if(attachment.document != null)
-                                result += put(commandParser.getWord(), attachment.document);
+                            if(attachment.isDoc())
+                                result += put(commandParser.getWord(), attachment);
                             else
                                 result += "Я умею загружать только документы.";
                         } catch (Exception e) {
@@ -182,12 +182,12 @@ public class FileManager extends CommandModule {
             else
                 return "Файла  "+file+" нет";
         }
-        private String put(String dest, Document document) throws Exception {
-            File dloaded = applicationManager.getCommunicator().getActiveVkAccount().downloadDocument(document);
+        private String put(String dest, Attachment document) throws Exception {
+            File dloaded = document.getFile();
             if(dloaded != null && dloaded.isFile()){
                 File destination = new File(currentFile + File.separator + dest);
                 boolean copied = F.copyFile(dloaded.getPath(), destination.getPath());
-                return "Загрузка файла из " + document.title + " в " + destination + " результат: " + copied;
+                return "Загрузка файла из " + dloaded.getName() + " в " + destination + " результат: " + copied;
             }
             else
                 return "Файла "+dloaded+" нет в загрузках";
@@ -201,11 +201,13 @@ public class FileManager extends CommandModule {
             else
                 return "Файла или папки "+file+" нет";
         }
-        private String get(VkAccountCore account, String file){
+        private String get(Message message, String file){
             File next = new File(currentFile + File.separator + file);
             if(next.isFile()){
-                Document result = account.uploadDocument(next);
-                return "Документ загружен: " + result.toString();
+                ArrayList<Attachment> attachments = new ArrayList<>();
+                attachments.add(new Attachment(Attachment.TYPE_DOC, next));
+                message.sendAnswer(new Answer("Документ загружен", attachments));
+                return "Команда выполнена";
             }
             else
                 return "Файла "+file+" нет";

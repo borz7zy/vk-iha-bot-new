@@ -10,8 +10,6 @@ import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.Parameters;
-import com.perm.kate.api.Attachment;
-import com.perm.kate.api.Document;
 
 import org.json.JSONObject;
 
@@ -305,13 +303,9 @@ public class UnknownMessagesDatabase extends CommandModule {
 
                 if(!(message.getBotAccount() instanceof VkAccount))
                     return "Эта команда поддерживается только для VK аккаунта";
-                Document document = ((VkAccount)message.getBotAccount()).uploadDocument(file);
-                if (document == null)
-                    return "Не удалось выгрузить документ на сервер.\n";
-                else {
-                    message.sendAnswer(new Answer("База неизвестных фраз: ", new Attachment(document)));
-                    return "База неизвестных отправлена.\n";
-                }
+
+                message.sendAnswer(new Answer("База неизвестных фраз: ", new Attachment(Attachment.TYPE_DOC, file)));
+                return "База неизвестных отправлена.\n";
             }
             return "";
         }

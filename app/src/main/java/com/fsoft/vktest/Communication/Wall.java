@@ -1,5 +1,6 @@
 package com.fsoft.vktest.Communication;
 
+import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.VK.VkAccount;
@@ -212,11 +213,12 @@ public class Wall extends CommandModule {
                                 setCommentsDetected(getCommentsDetected()+1);
                                 User author = new User().vk(comment.from_id);
                                 author.setName(communicator.getActiveVkAccount().getUserFullName(comment.from_id));
+                                ArrayList<Attachment> attachments = Attachment.convertAttachments(comment.attachments);
                                 Message message = new Message(
                                         Message.SOURCE_COMMENT,
                                         comment.message,
                                         author,
-                                        comment.attachments,
+                                        attachments,
                                         accountToReadComments,
                                         new Message.OnAnswerReady() {
                                             @Override
@@ -244,11 +246,12 @@ public class Wall extends CommandModule {
                         setPostsDetected(getPostsDetected()+1);
                         User author = new User().vk(wallMessage.from_id);
                         author.setName(communicator.getActiveVkAccount().getUserFullName(wallMessage.from_id));
+                        ArrayList<Attachment> attachments = Attachment.convertAttachments(wallMessage.attachments);
                         Message message = new Message(
                                 Message.SOURCE_WALL,
                                 wallMessage.text,
                                 author,
-                                wallMessage.attachments,
+                                attachments,
                                 accountToReadWall,
                                 new Message.OnAnswerReady() {
                                     @Override

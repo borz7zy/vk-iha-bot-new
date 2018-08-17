@@ -1,5 +1,8 @@
 package com.fsoft.vktest.Communication.Account.Telegram;
 
+import android.util.Log;
+
+import com.fsoft.vktest.ApplicationManager;
 import com.perm.kate.api.Attachment;
 
 import org.json.JSONArray;
@@ -56,16 +59,23 @@ public class User {
         return jsonObject;
     }
     private void fromJson(JSONObject jsonObject)throws JSONException, ParseException {
-        id = jsonObject.getLong("id");
-        username = jsonObject.getString("username");
-        if(jsonObject.has("is_bot"))
-            is_bot = jsonObject.getBoolean("is_bot");
-        if(jsonObject.has("first_name"))
-            first_name = jsonObject.getString("first_name");
-        if(jsonObject.has("last_name"))
-            last_name = jsonObject.getString("last_name");
-        if(jsonObject.has("language_code"))
-            language_code = jsonObject.getString("language_code");
+        try {
+            id = jsonObject.getLong("id");
+            if (jsonObject.has("username"))
+                username = jsonObject.getString("username");
+            if (jsonObject.has("is_bot"))
+                is_bot = jsonObject.getBoolean("is_bot");
+            if (jsonObject.has("first_name"))
+                first_name = jsonObject.getString("first_name");
+            if (jsonObject.has("last_name"))
+                last_name = jsonObject.getString("last_name");
+            if (jsonObject.has("language_code"))
+                language_code = jsonObject.getString("language_code");
+        }
+        catch (Exception e){
+            Log.d("USER ERROR " + e.getMessage(), jsonObject.toString());
+            throw e;
+        }
     }
     public String getName(){
         if(last_name.isEmpty() || first_name.isEmpty())

@@ -190,7 +190,16 @@ public class Communicator extends CommandModule {
     }
 
     //todo кажется логичным засунуть сюда функции которые нужны для разных соцсетей, чтобы он сам решал где достать аккаунт
-
+    public File downloadVkAttachment(com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment attachment) throws Exception{
+        VkAccount vkAccount = applicationManager.getCommunicator().getActiveVkAccount();
+        if(vkAccount == null)
+            throw new Exception("Нету ВК аккаунта чтобы скачать файл");
+        File file = vkAccount.downloadAttachment(attachment);
+        return file;
+    }
+    public File downloadTgAttachment(com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment attachment) throws Exception{
+        throw new Exception("Я ещё не умею качать файлы с телеграма.");
+    }
 
 
     private class Status extends CommandModule{

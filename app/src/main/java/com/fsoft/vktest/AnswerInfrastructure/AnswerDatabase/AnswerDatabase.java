@@ -13,9 +13,8 @@ import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.*;
 import com.fsoft.vktest.Utils.CommandParser;
-
-import com.perm.kate.api.Attachment;
 import com.perm.kate.api.Document;
+
 
 import org.json.JSONObject;
 
@@ -457,7 +456,8 @@ public class AnswerDatabase extends BotModule {
         int records1 = message.getRecordsCount();
         double maxSimilarity = 0;
         ArrayList<AnswerMicroElement> maxAnswers = new ArrayList<>();
-        for (AnswerMicroElement answer:answers){
+        for (int a=0; a< answers.size(); a++){
+            AnswerMicroElement answer = answers.get(a);
             String s2 = answer.getQuestionTextPrepared();
             int photo2 = answer.getQuestionPhotos();
             int music2 = answer.getQuestionMusic();
@@ -1561,19 +1561,22 @@ public class AnswerDatabase extends BotModule {
         public String processCommand(Message message) {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().toLowerCase().equals("dumpdatabase")){
-                if(!(message.getBotAccount() instanceof VkAccount))
-                    return "Эта команда поддерживается только для VK аккаунта";
-
-                message.sendAnswer("Загружаю документ...");
-                Document document = ((VkAccount)message.getBotAccount()).uploadDocument(fileAnswers);
-                if(document == null)
-                    return "Не удалось выгрузить документ на сервер.\n";
-                else {
-                    Attachment attachment = new Attachment(document);
-                    Answer answer = new Answer("База ответов:", attachment);
-                    message.sendAnswer(answer);
-                    return "Команда выполнена.";
-                }
+                Answer answer = new Answer("База ответов:", new Attachment(Attachment.TYPE_DOC, fileAnswers));
+                message.sendAnswer(answer);
+                return "Команда выполнена.";
+//                if(!(message.getBotAccount() instanceof VkAccount))
+//                    return "Эта команда поддерживается только для VK аккаунта";
+//
+//                message.sendAnswer("Загружаю документ...");
+//                Document document = ((VkAccount)message.getBotAccount()).uploadDocument(fileAnswers);
+//                if(document == null)
+//                    return "Не удалось выгрузить документ на сервер.\n";
+//                else {
+//                    Attachment attachment = new Attachment(document);
+//                    Answer answer = new Answer("База ответов:", attachment);
+//                    message.sendAnswer(answer);
+//                    return "Команда выполнена.";
+//                }
             }
             return "";
         }
@@ -1763,8 +1766,7 @@ public class AnswerDatabase extends BotModule {
                                 JSONObject jsonObject = new JSONObject(line);
                                 AnswerElement currentAnswerElement = new AnswerElement(jsonObject);
                                 //если вложения этого ответа не прошли проверку, а какой-то из них недоступен
-                                if (!applicationManager.getCommunicator().getActiveVkAccount()
-                                        .checkAttachments(currentAnswerElement.getAnswerAttachments())) {
+                                if (currentAnswerElement.checkAnswerAttachments()) {
                                     //просто нихуя с ним не делать
                                     removedAnswers ++;
                                     answersToRemoveId.add(currentAnswerElement.getId());
@@ -1883,8 +1885,7 @@ public class AnswerDatabase extends BotModule {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().toLowerCase().equals("replacedatabase")){
                 try {
-                    if(!(message.getBotAccount() instanceof VkAccount))
-                        return "Эта команда поддерживается только для VK аккаунта";
+                    int recordsBefore = answers.size();
 
                     log(". Импорт базы данных...\n");
                     if (message.getAttachments().size() == 0)
@@ -1893,13 +1894,9 @@ public class AnswerDatabase extends BotModule {
                         return "Для нормальной работы команды нужно, " +
                                 "чтобы в сообщении было только одно вложение. (только один документ, который база данных)";
                     Attachment attachment = message.getAttachments().get(0);
-                    if (!attachment.type.equals("doc"))
+                    if (!attachment.getType().equals(Attachment.TYPE_DOC))
                         return "Вместе с командой нужно присылать документ с базой данных, именно в виде документа.";
-                    Document document = attachment.document;
-                    if (document == null)
-                        return "Документ по какой-то причине не был получен.";
-                    int recordsBefore = answers.size();
-                    File newDatabase = ((VkAccount)message.getBotAccount()).downloadDocument(document);
+                    File newDatabase = attachment.getFile();//скачать документ
                     if (newDatabase == null)
                         return "Не удаётся загрузить документ.";
                     message.sendAnswer(new Answer("База данных была скачана, сейчас будет производиться замена файла..."));
@@ -1949,9 +1946,6 @@ public class AnswerDatabase extends BotModule {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().toLowerCase().equals("importdatabase")){
                 try {
-                    if(!(message.getBotAccount() instanceof VkAccount))
-                        return "Эта команда поддерживается только для VK аккаунта";
-
                     log(". Импорт базы данных...\n");
                     if (message.getAttachments().size() == 0)
                         return "Не получен файл базы данных для импорта.";
@@ -1959,13 +1953,10 @@ public class AnswerDatabase extends BotModule {
                         return "Для нормальной работы команды нужно, " +
                                 "чтобы в сообщении было только одно вложение. (только один документ, который база данных)";
                     Attachment attachment = message.getAttachments().get(0);
-                    if (!attachment.type.equals("doc"))
+                    if (!attachment.isDoc())
                         return "Вместе с командой нужно присылать документ с базой данных, именно в виде документа.";
-                    Document document = attachment.document;
-                    if (document == null)
-                        return "Документ по какой-то причине не был получен.";
                     int recordsBefore = answers.size();
-                    File newDatabase = ((VkAccount)message.getBotAccount()).downloadDocument(document);
+                    File newDatabase = attachment.getFile();//скачать документ
                     if (newDatabase == null)
                         return "Не удаётся загрузить документ.";
                     message.sendAnswer(new Answer("База данных была скачана, сейчас будет производиться импорт файла..."));

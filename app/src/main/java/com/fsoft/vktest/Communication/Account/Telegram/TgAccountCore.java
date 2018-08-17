@@ -150,6 +150,7 @@ public class TgAccountCore extends Account {
 
     public void getMe(final GetMeListener listener){
         final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/getMe";
+        log(". Sending request: " + url);
         apiCounter ++;
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -157,6 +158,7 @@ public class TgAccountCore extends Account {
                     @Override
                     public void onResponse(String response) {
                         try{
+                            log(". Got response: " + response);
                             JSONObject jsonObject = new JSONObject(response);
                             if(!jsonObject.has("ok")) {
                                 errorCounter ++;
@@ -194,6 +196,7 @@ public class TgAccountCore extends Account {
     }
     public void getUpdates(final GetUpdatesListener listener, long offset, int timeout){
         final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/getUpdates?offset="+offset+"&timeout="+timeout;
+        log(". Sending request: " + url);
         apiCounter ++;
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -201,6 +204,7 @@ public class TgAccountCore extends Account {
                     @Override
                     public void onResponse(String response) {
                         try{
+                            log(". Got response: " + response);
                             JSONObject jsonObject = new JSONObject(response);
                             if(!jsonObject.has("ok")) {
                                 errorCounter ++;
@@ -249,6 +253,7 @@ public class TgAccountCore extends Account {
             e.printStackTrace();
         }
         final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendMessage?chat_id="+chat_id+"&text="+text;
+        log(". Sending request: " + url);
         apiCounter ++;
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -256,6 +261,7 @@ public class TgAccountCore extends Account {
                     @Override
                     public void onResponse(String response) {
                         try{
+                            log(". Got response: " + response);
                             JSONObject jsonObject = new JSONObject(response);
                             if(!jsonObject.has("ok")) {
                                 errorCounter ++;

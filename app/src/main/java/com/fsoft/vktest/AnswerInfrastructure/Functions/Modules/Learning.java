@@ -2,6 +2,7 @@ package com.fsoft.vktest.AnswerInfrastructure.Functions.Modules;
 
 import com.fsoft.vktest.AnswerInfrastructure.Answer;
 import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.AnswerElement;
+import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.UnknownMessage;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Function;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
@@ -9,7 +10,6 @@ import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.Utils.User;
-import com.perm.kate.api.Attachment;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -1466,10 +1466,10 @@ public class Learning extends Function {
                         Attachment attachment = answerElement.getAnswerAttachments().get(j);
                         if(attachments.size() < 10) {
                             attachments.add(attachment);
-                            text += attachment.type + "[" + attachments.size() + "] ";
+                            text += attachment.getType() + "[" + attachments.size() + "] ";
                         }
                         else
-                            text += attachment.type + "[не поместилось] ";
+                            text += attachment.getType() + "[не поместилось] ";
                     }
                     text += "\n";
                 }

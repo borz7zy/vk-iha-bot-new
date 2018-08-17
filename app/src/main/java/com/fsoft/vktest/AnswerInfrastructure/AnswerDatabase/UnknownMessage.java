@@ -1,7 +1,6 @@
 package com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase;
 
 import com.fsoft.vktest.Utils.User;
-import com.perm.kate.api.Attachment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,7 +46,7 @@ public class UnknownMessage {
         this.attachments = "";
         if(attachments != null) {
             for (Attachment attachment : attachments) {
-                switch (attachment.type) {
+                switch (attachment.getType()) {
                     case "photo":
                         this.attachments += "P";
                         break;

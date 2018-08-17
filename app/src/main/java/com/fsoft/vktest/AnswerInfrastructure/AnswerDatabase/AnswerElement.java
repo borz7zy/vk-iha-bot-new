@@ -4,7 +4,6 @@ import android.app.Activity;
 
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.Utils.User;
-import com.perm.kate.api.Attachment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +35,7 @@ import java.util.Locale;
  "botGender":45,
  "userGender":45,
  "timesUsed":0,
- "answerAttachments"[]
+ "answerAttachments"[{"type":"photo","file":"qqqqqq.jpg"}]
  }
 
  * Created by Dr. Failov on 21.04.2017.
@@ -178,7 +177,10 @@ public class AnswerElement{
             timesUsed = jsonObject.getInt("timesUsed");
         if(jsonObject.has("answerAttachments")) {
             JSONArray jsonArray = jsonObject.getJSONArray("answerAttachments");
-            answerAttachments.addAll(Attachment.parseAttachments(jsonArray, 0, 0, null));
+            for (int i = 0; i < jsonArray.length(); i++) {
+                answerAttachments.add(new Attachment(jsonArray.getJSONObject(i)));
+            }
+            //answerAttachments.addAll(Attachment.parseAttachments(jsonArray, 0, 0, null));
         }
     }
     @Override
@@ -261,7 +263,7 @@ public class AnswerElement{
         if(answerAttachments.size() > 0)
             result += " (+";
         for (int i = 0; i < answerAttachments.size(); i++) {
-            result += answerAttachments.get(i).type;
+            result += answerAttachments.get(i).getType();
             if(i < answerAttachments.size() - 1)
                 result += ", ";
         }
@@ -354,6 +356,13 @@ public class AnswerElement{
     }
     public ArrayList<Attachment> getAnswerAttachments() {
         return answerAttachments;
+    }
+    public boolean checkAnswerAttachments() {
+        //check if all files valid
+        for (Attachment attachment:answerAttachments)
+            if(!attachment.fileExists())
+                return false;
+        return true;
     }
     public void setAnswerAttachments(ArrayList<Attachment> answerAttachments) {
         this.answerAttachments = answerAttachments;

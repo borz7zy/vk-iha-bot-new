@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
 
+import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.AnswerInfrastructure.MessageBase;
 import com.fsoft.vktest.ApplicationManager;
@@ -14,7 +15,6 @@ import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.Utils.TimeCounter;
 import com.fsoft.vktest.Utils.User;
-import com.perm.kate.api.Attachment;
 
 import java.io.*;
 import java.net.ServerSocket;

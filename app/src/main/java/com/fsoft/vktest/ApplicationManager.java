@@ -89,6 +89,9 @@ public class ApplicationManager {
     }
     //-------------- НЕ МЕНЯТЬ!!! Иначе надо будет переписывать хэш-суммы!!!!---------------------------------------
     private static ApplicationManager applicationManager = null;
+    public static ApplicationManager getInstance(){
+        return applicationManager;
+    }
 
     private BotService service = null;//это в общем то наш сервис. Он должен быть по любому
     private Communicator communicator;
@@ -131,8 +134,11 @@ public class ApplicationManager {
         commands.add(databaseBackuper);
         commands.add(httpServer);
     }
-    public String getHomeFolder(){
+    public static String getHomeFolder(){
         return Environment.getExternalStorageDirectory() + File.separator + programName;
+    }
+    public static String getDownloadsFolder(){
+        return getHomeFolder() + File.separator + "downloads";
     }
     public Context getContext(){
         return service;

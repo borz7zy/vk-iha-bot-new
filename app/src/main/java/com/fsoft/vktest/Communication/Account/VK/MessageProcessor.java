@@ -208,9 +208,11 @@ public class MessageProcessor extends CommandModule {
                         MessageProcessor.this.sendAnswer(answer);
                     }
                 };
+                ArrayList<com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment> attachmentArrayList =
+                        com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment.convertAttachments(attachments);
                 com.fsoft.vktest.AnswerInfrastructure.Message message =
                         new com.fsoft.vktest.AnswerInfrastructure.Message(
-                                source, text, author, attachments, vkAccount, onAnswerReady);
+                                source, text, author, attachmentArrayList, vkAccount, onAnswerReady);
                 message.setMessage_id(kateMessage.mid);
                 if(kateMessage.chat_id != null) {
                     message.setSource(com.fsoft.vktest.AnswerInfrastructure.Message.SOURCE_CHAT);

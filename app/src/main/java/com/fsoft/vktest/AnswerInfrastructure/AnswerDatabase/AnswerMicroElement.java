@@ -1,7 +1,6 @@
 package com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase;
 
 import com.fsoft.vktest.AnswerInfrastructure.MessageComparison.MessagePreparer;
-import com.perm.kate.api.Attachment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,7 +77,10 @@ public class AnswerMicroElement {
             validated = jsonObject.getBoolean("validated");
         if(jsonObject.has("answerAttachments")) {
             JSONArray jsonArray = jsonObject.getJSONArray("answerAttachments");
-            answerAttachments.addAll(Attachment.parseAttachments(jsonArray, 0, 0, null));
+            for (int i = 0; i < jsonArray.length(); i++) {
+                answerAttachments.add(new Attachment(jsonArray.getJSONObject(i)));
+            }
+            //answerAttachments.addAll(Attachment.parseAttachments(jsonArray, 0, 0, null));
         }
     }
 
@@ -130,7 +132,7 @@ public class AnswerMicroElement {
         if(answerAttachments.size() > 0)
             result += " (+";
         for (int i = 0; i < answerAttachments.size(); i++) {
-            result += answerAttachments.get(i).type;
+            result += answerAttachments.get(i).getType();
             if(i < answerAttachments.size() - 1)
                 result += ", ";
         }

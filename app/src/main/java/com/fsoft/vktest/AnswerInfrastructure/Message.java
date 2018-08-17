@@ -1,10 +1,10 @@
 package com.fsoft.vktest.AnswerInfrastructure;
 
+import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.Account;
 import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
 import com.fsoft.vktest.Utils.User;
-import com.perm.kate.api.Attachment;
 
 import java.util.ArrayList;
 
@@ -48,7 +48,7 @@ public class Message extends MessageBase{
             return 0;
         int cnt = 0;
         for (Attachment attachment:attachments)
-            if(attachment.type.equals("photo"))
+            if(attachment.getType().equals("photo"))
                 cnt ++;
         return cnt;
     }
@@ -57,7 +57,7 @@ public class Message extends MessageBase{
             return 0;
         int cnt = 0;
         for (Attachment attachment:attachments)
-            if(attachment.type.equals("audio"))
+            if(attachment.getType().equals("audio"))
                 cnt ++;
         return cnt;
     }
@@ -66,7 +66,7 @@ public class Message extends MessageBase{
             return 0;
         int cnt = 0;
         for (Attachment attachment:attachments)
-            if(attachment.type.equals("video"))
+            if(attachment.getType().equals("video"))
                 cnt ++;
         return cnt;
     }
@@ -75,7 +75,7 @@ public class Message extends MessageBase{
             return 0;
         int cnt = 0;
         for (Attachment attachment:attachments)
-            if(attachment.type.equals("doc"))
+            if(attachment.getType().equals("doc"))
                 cnt ++;
         return cnt;
     }

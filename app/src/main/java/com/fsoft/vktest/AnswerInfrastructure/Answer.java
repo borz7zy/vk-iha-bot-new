@@ -1,6 +1,7 @@
 package com.fsoft.vktest.AnswerInfrastructure;
 
-import com.perm.kate.api.Attachment;
+
+import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 
 import java.util.ArrayList;
 
