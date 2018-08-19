@@ -19,6 +19,9 @@ public class CommandModule implements Command {
 
 
 
+    protected CommandModule() {
+        //вызывая этот конструктор обязательно задать applicationManager
+    }
     public CommandModule(ApplicationManager applicationManager) {
         this.applicationManager = applicationManager;
     }

@@ -16,6 +16,6 @@ import java.util.ArrayList;
  * Created by Dr. Failov on 28.11.2014.
  */
 public interface Command {
-    String processCommand(Message message);
+    String processCommand(Message message); //На вход принимается текст без botcmd
     ArrayList<CommandDesc> getHelp();
 }

@@ -6,6 +6,13 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.util.Date;
 
+
+/*
+* https://core.telegram.org/bots/api#message
+*
+* drfailov 2018-07-01
+*
+* */
 public class Message {
     private long message_id = 0;
     private User from = null;

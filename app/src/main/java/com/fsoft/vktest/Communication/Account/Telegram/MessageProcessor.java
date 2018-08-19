@@ -66,11 +66,17 @@ public class MessageProcessor extends CommandModule {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        log(". Received " + updates.size() + " "+tgAccount+" updates.");
-                        errors = 0;
-                        if(isRunning) {
-                            processUpdates(updates);
-                            update();
+                        try {
+                            log(". Received " + updates.size() + " " + tgAccount + " updates.");
+                            errors = 0;
+                            if (isRunning) {
+                                processUpdates(updates);
+                                update();
+                            }
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                            log("! Ошибка "+e.getMessage()+" обработки апдейтов аккаунта " + tgAccount);
                         }
                     }
                 }).start();
@@ -127,13 +133,13 @@ public class MessageProcessor extends CommandModule {
                 if(!answer.hasAnswer())
                     return;
                 String replyText = answer.getAnswer().text;
-                replyText += "\nБот работает в тестовом режиме.";
-                replyText += "\nТы: " + message.getFrom();
-                replyText += "\nТы написал: " + message.getText();
-                replyText += "\nПринято сообщений: " + messagesReceivedCounter;
-                replyText += "\nОтправлено сообщений: " + messagesSentCounter;
-                replyText += "\nВыполнено запросов к API: " + tgAccount.getApiCounter();
-                replyText += "\nОшибок при доступе к API: " + tgAccount.getErrorCounter();
+                log("\n.");
+                log("\nТы: " + message.getFrom());
+                log("\nТы написал: " + message.getText());
+                log("\nПринято сообщений: " + messagesReceivedCounter);
+                log("\nОтправлено сообщений: " + messagesSentCounter);
+                log("\nВыполнено запросов к API: " + tgAccount.getApiCounter());
+                log("\nОшибок при доступе к API: " + tgAccount.getErrorCounter());
                 tgAccount.sendMessage(new TgAccountCore.SendMessageListener() {
                     @Override
                     public void sentMessage(Message message) {
@@ -158,6 +164,9 @@ public class MessageProcessor extends CommandModule {
                 tgAccount,
                 onAnswerReady
         );
+        brainMessage.setChat_id(message.getChat().getId());
+        brainMessage.setChat_title(message.getChat().getTitle());
+
         applicationManager.getBrain().processMessage(brainMessage);
     }
 }

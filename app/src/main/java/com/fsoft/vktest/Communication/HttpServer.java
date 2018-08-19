@@ -8,6 +8,7 @@ import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.AnswerInfrastructure.MessageBase;
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.Communication.Account.AccountBase;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.Command;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
@@ -30,7 +31,7 @@ import java.util.regex.Pattern;
  *
  * Created by Dr. Failov on 15.03.2015.
  */
-public class HttpServer extends CommandModule {
+public class HttpServer extends CommandModule implements AccountBase {
     //порт на котором сервер слушает
     private int port = 14228;
     //ID пользователя которым притворяется сервер (ЭТО КОСТЫЛЬ!)
@@ -59,6 +60,72 @@ public class HttpServer extends CommandModule {
             startServer();
         }
     }
+    @Override
+    public boolean remove() {
+        return false;
+    }
+    @Override
+    public void login() {
+        log("Была вызвана функция login() для HTTP сервера. HTTP серверу не требуется логин.");
+    }
+    @Override
+    public void startAccount() {
+        setEnabled(true);
+    }
+    @Override
+    public void stopAccount() {
+        setEnabled(false);
+    }
+    @Override
+    public boolean isMine(String commandTreatment) {
+        return false;
+    }
+    @Override
+    public boolean isToken_ok() {
+        return false;
+    }
+    @Override
+    public String getState() {
+        return "HTTP сервер " + (serverThread == null?"работает":"остановлен");
+    }
+    @Override
+    public FileStorage getFileStorage() {
+        return null;
+    }
+    @Override
+    public long getId() {
+        return 0;
+    }
+    @Override
+    public String getToken() {
+        return null;
+    }
+    @Override
+    public String getFileName() {
+        return null;
+    }
+    @Override
+    public String state(String state) {
+        return null;
+    }
+    @Override
+    public void setState(String state) {
+
+    }
+    @Override
+    public void setId(long id) {
+
+    }
+    @Override
+    public void setToken(String token) {
+
+    }
+    @Override
+    public void setToken_ok(boolean token_ok) {
+
+    }
+
+
     public int getPort() {
         return port;
     }
@@ -239,7 +306,7 @@ public class HttpServer extends CommandModule {
                             inputText,
                             user,
                             new ArrayList<Attachment>(),
-                            null,
+                            HttpServer.this,
                             null
                     ));
                     String answer = "";

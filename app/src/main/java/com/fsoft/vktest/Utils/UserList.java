@@ -225,7 +225,7 @@ public class UserList extends CommandModule {
         public String processCommand(Message message) {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().toLowerCase().equals(name.toLowerCase())) {
-                if(commandParser.getWord().toLowerCase().equals("add")) {
+                if(commandParser.getWord().toLowerCase().equals("rem")) {
                     String userToDelete = commandParser.getWord();
 
                     if(userToDelete.equals(""))

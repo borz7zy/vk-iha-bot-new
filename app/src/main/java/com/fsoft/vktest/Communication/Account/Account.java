@@ -21,7 +21,7 @@ import java.util.Date;
  * constructor() -> startAccount()
  * Created by Dr. Failov on 22.02.2017.
  */
-public class Account extends CommandModule {
+public class Account extends CommandModule implements AccountBase {
     private long id = 0L;
     private String token = null;
     //место для хранения данных этого аккаунта и любого наследованного аккаунта

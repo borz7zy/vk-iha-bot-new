@@ -1188,7 +1188,7 @@ public class AnswerDatabase extends BotModule {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().equals("status"))
                 return "Размер базы ответов: " + answers.size() + "\n" +
-                        "Файл базы ответов: " + fileAnswers.getPath();
+                        "Файл базы ответов: " + fileAnswers.getPath() + "\n";
             return "";
         }
     }

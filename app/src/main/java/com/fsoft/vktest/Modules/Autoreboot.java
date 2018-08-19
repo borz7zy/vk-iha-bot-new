@@ -96,7 +96,7 @@ public class Autoreboot extends CommandModule {
             if(word.equals("getinterval"))
                 return "Интервал автоперезагрузки: " + interval + " мс\n"
                         + "Автоперезагрузка включена: " + enabled + "\n"
-                        + "Автоперезагрузка запланирована: " + (timer != null);
+                        + "Автоперезагрузка запланирована: " + (timer != null) + "\n";
             if(word.equals("active")) {
                 boolean value = commandParser.getBoolean();
                 setEnabled(value);

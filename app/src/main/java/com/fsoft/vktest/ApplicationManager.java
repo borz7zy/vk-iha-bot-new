@@ -7,8 +7,11 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.fsoft.vktest.AnswerInfrastructure.BotBrain;
+import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.Communication.Communicator;
 import com.fsoft.vktest.Modules.Commands.ClearCache;
+import com.fsoft.vktest.Modules.Commands.Command;
+import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Modules.Commands.CpuTemp;
 import com.fsoft.vktest.Modules.Commands.Decode;
 import com.fsoft.vktest.Modules.Commands.Encode;
@@ -62,12 +65,12 @@ import java.util.*;
  *
  * Created by Dr. Failov on 14.08.2018.
  */
-public class ApplicationManager {
+public class ApplicationManager extends CommandModule {
     static public String programName = "DrFailov_iHA_bot";
     //-------------- НЕ МЕНЯТЬ!!! Иначе надо будет переписывать хэш-суммы!!!!---------------------------------------
     static public String getVisibleName(){
         //обязательно должно содержать "Dr.Failov iHA bot"
-        return "Dr.Failov iHA bot™ v5.0 alpha 000002";
+        return "Dr.Failov iHA bot™ v5.0 alpha 00003";
     }
     static public String getShortName(){
         return "FP iHA bot";
@@ -88,9 +91,9 @@ public class ApplicationManager {
                 "И еще несколько:)";
     }
     //-------------- НЕ МЕНЯТЬ!!! Иначе надо будет переписывать хэш-суммы!!!!---------------------------------------
-    private static ApplicationManager applicationManager = null;
+    private static ApplicationManager applicationManagerInstance = null;
     public static ApplicationManager getInstance(){
-        return applicationManager;
+        return applicationManagerInstance;
     }
 
     private BotService service = null;//это в общем то наш сервис. Он должен быть по любому
@@ -98,7 +101,6 @@ public class ApplicationManager {
     private BotBrain brain;
     private Parameters parameters;
 
-    private ArrayList<CommandModule> commands;
     private SecurityProvider securityProvider = null;
     private WifiManager.WifiLock wifiLock = null;
     private PowerManager.WakeLock wakeLock = null;
@@ -110,7 +112,9 @@ public class ApplicationManager {
     private boolean standby = false;
 
     public ApplicationManager(BotService service) throws Exception{
+        super();
         applicationManager = this;
+        applicationManagerInstance = this;
         this.service = service;
         startedTime = System.currentTimeMillis();
         parameters = new Parameters(this);
@@ -120,20 +124,21 @@ public class ApplicationManager {
         databaseBackuper = new DatabaseBackuper(this);
         securityProvider = new SecurityProvider(this);
         httpServer = new HttpServer(this);
-        commands = new ArrayList<>();
-        commands.add(new Version(this));
-        commands.add(new Encode(this));
-        commands.add(new Decode(this));
-        commands.add(new CpuTemp(this));
-        commands.add(new ClearCache(this));
-        commands.add(new FileManager(this));
-        commands.add(new Autoreboot(this));
-        commands.add(brain);
-        commands.add(communicator);
-        commands.add(parameters);
-        commands.add(databaseBackuper);
-        commands.add(httpServer);
+        childCommands.add(new Version(this));
+        childCommands.add(new Encode(this));
+        childCommands.add(new Decode(this));
+        childCommands.add(new CpuTemp(this));
+        childCommands.add(new ClearCache(this));
+        childCommands.add(new FileManager(this));
+        childCommands.add(new Autoreboot(this));
+        childCommands.add(brain);
+        childCommands.add(communicator);
+        childCommands.add(parameters);
+        childCommands.add(databaseBackuper);
+        childCommands.add(securityProvider);
+        childCommands.add(httpServer);
     }
+
     public static String getHomeFolder(){
         return Environment.getExternalStorageDirectory() + File.separator + programName;
     }
@@ -166,12 +171,14 @@ public class ApplicationManager {
         //если какой-то из модулей работает по таймеру, то эта проверка позволит ему понять что программа закрыта
         return service != null;
     }
+
+    @Override
     public void stop(){
+        super.stop();
+        applicationManagerInstance = null;
         applicationManager = null;
         service = null;
         stopWiFiLock();
-        for(CommandModule commandModule:commands)
-            commandModule.stop();
     }
 
 

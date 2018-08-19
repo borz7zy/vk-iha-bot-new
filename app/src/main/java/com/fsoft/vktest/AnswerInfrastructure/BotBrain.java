@@ -104,9 +104,16 @@ public class BotBrain extends CommandModule {
                         "Для всех остальных пользователей (не доверенных) при попытке отправить боту команду будет выдана ошибка.",
                 applicationManager);
         allow.addHardcodeDefined(new User().vk(10299185L));
+        allow.addHardcodeDefined(new User().tg(248067313L));
 
         childCommands.add(answerDatabase);
+        childCommands.add(learning);
         childCommands.add(unknownMessages);
+        childCommands.add(patternProcessor);
+        childCommands.add(functionAnswerer);
+        childCommands.add(filter);
+        childCommands.add(ignor);
+        childCommands.add(allow);
     }
     public Message processMessage(Message message){
         //ВСЕ ССЫЛКИ ВЕДУТ СЮДА. ВСЕ ЗАЩИТЫ РЕАЛИЗОВЫВАТЬ ЗДЕСЬ.
@@ -117,6 +124,11 @@ public class BotBrain extends CommandModule {
         //сделовательно, отправлять сообщение надо здесь же
 
         try {
+            //команда?
+            if(hasCommandMark(message) && allow.has(message.getAuthor())){
+                String reply = applicationManager.processCommand(remCommandMark(message));
+                message.setAnswer(reply);
+            }
             //подготовить ответ
             if (message.getAnswer() == null && patternProcessor != null)
                 message = patternProcessor.processMessage(message);
@@ -137,7 +149,7 @@ public class BotBrain extends CommandModule {
         }
         catch (Exception e){
             e.printStackTrace();
-            message.setAnswer(new Answer("Произошла ошибка при обработке сообщения: " + e.getMessage()));
+            message.setAnswer("Произошла ошибка при обработке сообщения: " + e.getMessage());
         }
 
         //отправить

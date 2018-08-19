@@ -3,6 +3,7 @@ package com.fsoft.vktest.AnswerInfrastructure;
 import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.Account;
+import com.fsoft.vktest.Communication.Account.AccountBase;
 import com.fsoft.vktest.Communication.Account.VK.VkAccountCore;
 import com.fsoft.vktest.Utils.User;
 
@@ -18,11 +19,11 @@ public class Message extends MessageBase{
     protected OnAnswerReady onAnswerReady = null;
 
 
-    public Message(String source, String text, User author, ArrayList<Attachment> attachments, Account botAccount, OnAnswerReady onAnswerReady) {
+    public Message(String source, String text, User author, ArrayList<Attachment> attachments, AccountBase botAccount, OnAnswerReady onAnswerReady) {
         super(source, text, author, attachments, botAccount);
         this.onAnswerReady = onAnswerReady;
     }
-    public Message(String source, String text, User author, Account botAccount, OnAnswerReady onAnswerReady) {
+    public Message(String source, String text, User author, AccountBase botAccount, OnAnswerReady onAnswerReady) {
         super(source, text, author, null, botAccount);
         this.onAnswerReady = onAnswerReady;
     }
