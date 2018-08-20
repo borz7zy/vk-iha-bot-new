@@ -3,12 +3,14 @@ package com.fsoft.vktest.Communication.Account.Telegram;
 
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.fsoft.vktest.ApplicationManager;
@@ -21,6 +23,8 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -61,6 +65,7 @@ public class TgAccountCore extends Account {
     // Когда оно нам нужно, обращаемся к геттеру. если нужно получить имя аккаунта, обращаемся к toString()
     private String userName = null;
     private String screenName = null;
+    private String telegraphToken = "";//бот использует телеграф для отправки лонгридов
 
     private long apiCounter = 0; //счётчик доступа к АПИ
     private long errorCounter = 0; //счётчик ошибок при доступе к АПИ
@@ -70,6 +75,7 @@ public class TgAccountCore extends Account {
         super(applicationManager, fileName);
         userName = getFileStorage().getString("userName", userName);
         screenName = getFileStorage().getString("screenName", screenName);
+        telegraphToken = getFileStorage().getString("telegraphToken", telegraphToken);
         queue = Volley.newRequestQueue(applicationManager.getContext().getApplicationContext());
         //Proxy proxy = new Proxy(Proxy.Type.SOCKS, InetSocketAddress.createUnresolved("192.168.1.11", 8118));
     }
@@ -146,6 +152,37 @@ public class TgAccountCore extends Account {
     public void setScreenName(String screenName) {
         this.screenName = screenName;
         getFileStorage().put("screenName", screenName).commit();
+    }
+    public void setTelegraphToken(String telegraphToken) {
+        this.telegraphToken = telegraphToken;
+        getFileStorage().put("telegraphToken", telegraphToken).commit();
+    }
+    public String getTelegraphToken(){
+        return telegraphToken;
+    }
+
+
+    public void publishOnTelegraph(final CreateTelegraphPageListener listener, final String text){
+        log(". Publishing text on Telegra.ph...");
+        if(getTelegraphToken().isEmpty()){
+            log(". Creating Telegra.ph account...");
+            createTelegraphAccount(new CreateTelegraphAccountListener() {
+                @Override
+                public void accountCreated(String token) {
+                    log(". Telegra.ph account created!");
+                    setTelegraphToken(token);
+                    publishOnTelegraph(listener, text);
+                }
+
+                @Override
+                public void error(Throwable error) {
+                    error.printStackTrace();
+                    log(". Creating Telegra.ph account error: " + error.toString());
+                }
+            }, "iHA bot");
+            return;
+        }
+        createTelegraphPage(listener, "iHA bot message", text);
     }
 
     public void getMe(final GetMeListener listener){
@@ -244,25 +281,43 @@ public class TgAccountCore extends Account {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
-    public void sendMessage(final SendMessageListener listener, long chat_id, String text){
+    public void sendMessage(final SendMessageListener listener, final long chat_id, String text){
+        if(text.length() > 1000){
+            publishOnTelegraph(new CreateTelegraphPageListener() {
+                @Override
+                public void pageCreated(String link) {
+                    sendMessage(listener, chat_id, link);
+                }
+
+                @Override
+                public void error(Throwable error) {
+
+                }
+            }, text);
+            return;
+        }
+
+        JSONObject jsonObject = new JSONObject();
         try {
-            text = URLEncoder.encode(text, "UTF-8");
+            //text = URLEncoder.encode(text, "UTF-8");
+            jsonObject.put("chat_id", chat_id);
+            jsonObject.put("text", text);
         }
         catch (Exception e){
-            log("! Unsopported encoding for UEREncoder");
+            log("! Error building JSON: " + e.toString());
             e.printStackTrace();
         }
-        final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendMessage?chat_id="+chat_id+"&text="+text;
+        final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendMessage";//?chat_id="+chat_id+"&text="+text;
         log(". Sending request: " + url);
         apiCounter ++;
         // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(String response) {
+                    public void onResponse(JSONObject jsonObject) {
                         try{
-                            log(". Got response: " + response);
-                            JSONObject jsonObject = new JSONObject(response);
+                            log(". Got response: " + jsonObject.toString());
+                            //JSONObject jsonObject = new JSONObject(response);
                             if(!jsonObject.has("ok")) {
                                 errorCounter ++;
                                 listener.error(new Exception("No OK in response!"));
@@ -292,6 +347,131 @@ public class TgAccountCore extends Account {
                 errorCounter ++;
             }
         });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+    public void createTelegraphAccount(final CreateTelegraphAccountListener listener, String name){
+        try {
+            name = URLEncoder.encode(name, "UTF-8");
+        }
+        catch (Exception e){
+            log("! Unsopported encoding for UEREncoder");
+            e.printStackTrace();
+        }
+        final String url =   "https://api.telegra.ph/createAccount?short_name="+name+"&author_name="+name;
+        log(". Sending request: " + url);
+        apiCounter ++;
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try{
+                            log(". Got response: " + response);
+                            JSONObject jsonObject = new JSONObject(response);
+                            if(!jsonObject.has("ok")) {
+                                errorCounter ++;
+                                listener.error(new Exception("No OK in response!"));
+                                return;
+                            }
+                            if(!jsonObject.getBoolean("ok")){
+                                errorCounter ++;
+                                listener.error(new Exception(jsonObject.optString("description", "No description")));
+                                return;
+                            }
+                            JSONObject result = jsonObject.getJSONObject("result");
+                            String token = result.getString("access_token");
+                            listener.accountCreated(token);
+                        }
+                        catch (Exception e){
+                            listener.error(e);
+                            e.printStackTrace();
+                            errorCounter ++;
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                log(error.getClass().getName() + " while sending request: " + url);
+                error.printStackTrace();
+                listener.error(error);
+                errorCounter ++;
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+    public void createTelegraphPage(final CreateTelegraphPageListener listener, final String name, final String text){
+        //Example: https://api.telegra.ph/createPage?access_token=430d287a4199d7e31a530bae39ecf1dd841a87317091370758a4aabf01f6&title=iHA%20bot%20test&content=[{%22tag%22:%22p%22,%22children%22:[%22LOLKA%22]}]
+        //Example: https://api.telegra.ph/createPage?access_token=430d287a4199d7e31a530bae39ecf1dd841a87317091370758a4aabf01f6&title=iHA%20bot%20test&content=[%22wwewewewe%22]
+        final String url = "https://api.telegra.ph/createPage";//?access_token="+telegraphToken;//+"&title="+name;//+"&content=[%22"+text+"%22]";
+        final Map<String,String> params = new HashMap<String, String>();
+        params.put("access_token", telegraphToken);
+        params.put("title", name);
+        if(text.length() > 31000)
+            params.put("content", "[\""+text.substring(0, 31000).replace("\"", " ")+"\"]");
+        else
+            params.put("content", "[\""+text+"\"]");
+        log(". Sending request: " + url);
+        log(". # access_token=" + telegraphToken);
+        log(". # title=" + name);
+        log(". # content=text[" + text.length() + "]");
+        log(text);
+        apiCounter ++;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try{
+                            JSONObject jsonObject = new JSONObject(response);
+                            log(". Got response: " + response);
+                            if(!jsonObject.has("ok")) {
+                                errorCounter ++;
+                                listener.error(new Exception("No OK in response!"));
+                                return;
+                            }
+                            if(!jsonObject.getBoolean("ok")){
+                                errorCounter ++;
+                                listener.error(new Exception(jsonObject.optString("description", "No description")));
+                                return;
+                            }
+                            JSONObject result = jsonObject.getJSONObject("result");
+                            String url = result.getString("url");
+                            listener.pageCreated(url);
+                        }
+                        catch (Exception e){
+                            listener.error(e);
+                            e.printStackTrace();
+                            errorCounter ++;
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                log(error.getClass().getName() + " while sending request: " + url);
+                error.printStackTrace();
+                listener.error(error);
+                errorCounter ++;
+            }
+        })
+        {
+            @Override
+            protected Map<String,String> getParams(){
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String, String>();
+                params.put("Content-Type","application/x-www-form-urlencoded");
+                return params;
+            }
+        };
+
+
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
@@ -306,6 +486,14 @@ public class TgAccountCore extends Account {
     }
     public interface GetUpdatesListener{
         void gotUpdates(ArrayList<Update> updates);
+        void error(Throwable error);
+    }
+    public interface CreateTelegraphAccountListener{
+        void accountCreated(String token);
+        void error(Throwable error);
+    }
+    public interface CreateTelegraphPageListener{
+        void pageCreated(String link);
         void error(Throwable error);
     }
 }

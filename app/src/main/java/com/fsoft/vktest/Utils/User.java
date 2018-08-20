@@ -22,17 +22,24 @@ package com.fsoft.vktest.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.security.cert.Extension;
 import java.text.ParseException;
 import java.util.Objects;
 
 
 public class User {
-    public static final String NETWORK_TELEGRAM = "telegram";
+    public static final String NETWORK_TELEGRAM = "tg";
     public static final String NETWORK_VK = "vk";
+    public static boolean isValidNetwork(String network){
+        return network.equals(NETWORK_TELEGRAM)
+                || network.equals(NETWORK_VK);
+    }
 
 
     private String network = ""; //имя соцсети
     private long id = 0L;        //однозначное имя пользователя без всяких там собачек, решеток
+    private String username = "";//текстовое обращение. Может быть не всегда.
     private String name = "";    //Удобочитаемое имя
 
     public User() {
@@ -43,12 +50,8 @@ public class User {
         this.id = id;
         this.name = name;
     }
-    public User(String networkAndId)throws ParseException{
-        if(!networkAndId.contains(":"))
-            throw new ParseException("Строка для разбора пользователя должна иметь следующий формат: \"имяСети:айдиПользователя\". А было получено: " + networkAndId, 0);
-        String[] parts = networkAndId.split(":");
-        network = parts[0];
-        id = Long.parseLong(parts[1]);
+    public User(String networkAndId)throws Exception{
+        parseGlobalId(networkAndId);
     }
     public User(JSONObject jsonObject) throws JSONException, ParseException {
         fromJson(jsonObject);
@@ -56,8 +59,14 @@ public class User {
 
     @Override
     public String toString() {
-        return getGlobalId();
-        //return name + "("+network+", "+id+")";
+        String result = network+":";
+        if(username.isEmpty())
+            result += id;
+        else
+            result += username;
+        if(!name.isEmpty())
+            result += " (" + name+")";
+        return result;
     }
 
     @Override
@@ -69,7 +78,10 @@ public class User {
         }
         User user = (User) o;
         return Objects.equals(network, user.network) &&
-                Objects.equals(id, user.id);
+                ((Objects.equals(id, user.id) && id != 0L && user.id != 0L) ||
+                        (username != null && user.username != null
+                                && Objects.equals(username.toLowerCase(), user.username.toLowerCase())
+                                && !username.isEmpty() && !user.username.isEmpty()));
     }
 
     @Override
@@ -104,6 +116,7 @@ public class User {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("network", network);
         jsonObject.put("id", id);
+        jsonObject.put("username", username);
         jsonObject.put("name", name);
         return jsonObject;
     }
@@ -111,6 +124,7 @@ public class User {
         network = jsonObject.optString("network", network);
         id = jsonObject.optLong("id", id);
         name = jsonObject.optString("name", name);
+        username = jsonObject.optString("username", username);
     }
 
     public String getNetwork() {
@@ -124,19 +138,43 @@ public class User {
     public long getId() {
         return id;
     }
+    public User parseGlobalId(String globalId) throws Exception {
+        String[] parts = globalId.split(":");
+        if(parts.length < 2)
+            throw new Exception("Текст не соответствует формату. Формат ID аккаунта должен быть \"network:id\" или \"network:username\".");
+        if(!isValidNetwork(parts[0]))
+            throw new Exception("Такой network мне неизвестен. Формат ID аккаунта должен быть \"network:id\" или \"network:username\".");
+        network = parts[0];
+        try{
+            id = Long.parseLong(parts[1]);
+            if(id == 0)
+                throw new Exception("ID=0 невалидный. Формат ID аккаунта должен быть \"network:id\" или \"network:username\".");
+        }
+        catch (NumberFormatException e){
+            username = parts[1].replace("@", "");
+        }
+        return this;
+    }
     public String getGlobalId() {
-        return network+":"+id;
+        if(id == 0)
+            return network+":"+username;
+        else
+            return network+":"+id;
     }
 
     public void setId(long id) {
         this.id = id;
     }
-
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
+    }
+    public String getUsername() {
+        return username;
+    }
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

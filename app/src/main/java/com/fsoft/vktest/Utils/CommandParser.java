@@ -31,6 +31,11 @@ public class CommandParser {
         out = out.trim();
         return out;
     }
+    public String tryWord(){
+        //получить СЛЕДУЮЩЕЕ ПО ПОРЯДКУ НО НЕ МЕНЯТЬ СЧЁТЧИК. Т.е. вызов tryWord не повлияет на результат вызова getWord
+        int index = currentWordCounter;
+        return getWord(index);
+    }
     public String getWord(){
         //получить СЛЕДУЮЩЕЕ ПО ПОРЯДКУ
         int index = currentWordCounter;

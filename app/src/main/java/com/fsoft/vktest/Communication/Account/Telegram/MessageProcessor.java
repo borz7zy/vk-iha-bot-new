@@ -166,6 +166,12 @@ public class MessageProcessor extends CommandModule {
         );
         brainMessage.setChat_id(message.getChat().getId());
         brainMessage.setChat_title(message.getChat().getTitle());
+        if(message.getReply_to_message() != null && message.getReply_to_message().getFrom() != null) {
+            User mentioned = new User().tg(message.getReply_to_message().getFrom().getId());
+            mentioned.setUsername(message.getReply_to_message().getFrom().getUsername());
+            mentioned.setName(message.getReply_to_message().getFrom().getName());
+            brainMessage.getMentions().add(mentioned);
+        }
 
         applicationManager.getBrain().processMessage(brainMessage);
     }

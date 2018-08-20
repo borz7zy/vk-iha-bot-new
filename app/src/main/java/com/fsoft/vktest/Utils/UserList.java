@@ -91,9 +91,7 @@ public class UserList extends CommandModule {
         for(String s:array){
             try {
                 JSONObject jsonObject = new JSONObject(s);
-                User user = new User(jsonObject.getJSONObject("user"));
-                String comment = jsonObject.getString("comment");
-                UserListElement entry = new UserListElement(user, comment);
+                UserListElement entry = new UserListElement(jsonObject);
                 list.add(entry);
             }
             catch (Exception e){
@@ -180,23 +178,52 @@ public class UserList extends CommandModule {
 
         @Override
         public String processCommand(Message message) {
-            CommandParser commandParser = new CommandParser(message.getText());
+            CommandParser commandParser = new CommandParser(message.getText().replace(",", " "));
             if(commandParser.getWord().toLowerCase().equals(name.toLowerCase())) {
                 if(commandParser.getWord().toLowerCase().equals("add")) {
-                    String newUser = commandParser.getWord();
-                    String comment = commandParser.getText();
+                    ArrayList<User> users = message.getMentions();
 
-                    if(newUser.equals(""))
-                        return "Введи ID или screen name пользователя, которого надо добавить в " + getShortDescription();
-                    try {
-                        add(newUser, comment);
-                        return "Пользователь " + newUser + " добавлен в " + getShortDescription() + ".\n" +
-                                "Сейчас здесь " + getList().size() + " пользователей.";
+                    if(users.isEmpty() && commandParser.wordsRemaining() > 0){
+                        boolean cont = true;
+                        while(cont && commandParser.wordsRemaining() > 0) {
+                            try {
+                                User user = new User().parseGlobalId(commandParser.tryWord());
+                                users.add(user);
+                                commandParser.getWord();
+                            } catch (Exception e) {
+                                cont = false;
+                                if(users.isEmpty())
+                                    return e.getMessage();
+                            }
+                        }
                     }
-                    catch (Exception e){
-                        e.printStackTrace();
-                        return e.getMessage();
+
+                    if(users.isEmpty())
+                        return "Вызывая эту команду надо обязательно указывать пользователя, которого надо добавить в " + getShortDescription().toLowerCase() + ".\n" +
+                            "Чтобы определить пользователя, есть несколько вариантов:\n" +
+                                "1) Перешли вместе с командой сообщение написанное пользователем, которого ты хочешь добавить;\n" +
+                                "2) Впиши его ник через \"собачку\" после команды \"" + name.toLowerCase() + " add\";\n" +
+                                "3) Впиши его по формату \"network:id\" после команды \"" + name.toLowerCase() + " add\";\n";
+
+                    String comment = commandParser.getText();
+                    String result = "";
+                    for(int i=0; i<users.size(); i++) {
+                        try {
+                            add(users.get(i), comment);
+                            result += "- Пользователь " + users.get(i) + " добавлен в " + getShortDescription().toLowerCase();
+                            if(!comment.isEmpty())
+                                result += " с комментарием \""+comment + "\"";
+                            result += ".\n\n";
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            result += "- " + e.getMessage()+".\n\n";
+                        }
                     }
+                    result += "Сейчас здесь " + getList().size() + " пользователей.";
+                    if(comment.isEmpty())
+                        result += "\nКстати, после команды \"" + name.toLowerCase() + " add\" можно написать комментарий к пользователю, чтобы потом не путаться в списке.";
+                    return result;
+
                 }
             }
             return super.processCommand(message);
@@ -211,9 +238,8 @@ public class UserList extends CommandModule {
             return result;
         }
 
-        private void add(String userId, String comment) throws Exception{//resolve screen name here
-            //Long longId = applicationManager.getCommunicator().getActiveVkAccount().resolveScreenName(userId);
-            UserList.this.add(new User(userId), comment);
+        private void add(User user, String comment) throws Exception{
+            UserList.this.add(user, comment);
         }
     }
     private class Rem extends CommandModule{
@@ -226,19 +252,43 @@ public class UserList extends CommandModule {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().toLowerCase().equals(name.toLowerCase())) {
                 if(commandParser.getWord().toLowerCase().equals("rem")) {
-                    String userToDelete = commandParser.getWord();
+                    ArrayList<User> users = message.getMentions();
 
-                    if(userToDelete.equals(""))
-                        return "Введи ID или screen name пользователя, которого надо удалить из " + getShortDescription();
-                    try {
-                        rem(userToDelete);
-                        return "Пользователь " + userToDelete + " удалён из " + getShortDescription() + ".\n" +
-                                "Сейчас здесь " + getList().size() + " пользователей.";
+                    if(users.isEmpty() && commandParser.wordsRemaining() > 0){
+                        boolean cont = true;
+                        while(cont && commandParser.wordsRemaining() > 0) {
+                            try {
+                                User user = new User().parseGlobalId(commandParser.tryWord());
+                                users.add(user);
+                                commandParser.getWord();
+                            } catch (Exception e) {
+                                cont = false;
+                                if(users.isEmpty())
+                                    return e.getMessage();
+                            }
+                        }
                     }
-                    catch (Exception e){
-                        e.printStackTrace();
-                        return e.getMessage();
+
+                    if(users.isEmpty())
+                        return "Вызывая эту команду надо обязательно указывать пользователя, которого надо удалить из " + getShortDescription().toLowerCase() + ".\n" +
+                                "Чтобы определить пользователя, есть несколько вариантов:\n" +
+                                "1) Перешли вместе с командой сообщение написанное пользователем, которого ты хочешь добавить;\n" +
+                                "2) Впиши его ник через \"собачку\" после команды \"" + name.toLowerCase() + " rem\";\n" +
+                                "3) Впиши его по формату \"network:id\" после команды \"" + name.toLowerCase() + " rem\";\n";
+
+                    String result = "";
+                    for(int i=0; i<users.size(); i++) {
+                        try {
+                            rem(users.get(i));
+                            result += "- Пользователь " + users.get(i) + " удален из " + getShortDescription().toLowerCase();
+                            result += ".\n\n";
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            result += "- " + e.getMessage()+".\n\n";
+                        }
                     }
+                    result += "Сейчас здесь " + getList().size() + " пользователей.";
+                    return result;
                 }
             }
             return super.processCommand(message);
@@ -253,9 +303,9 @@ public class UserList extends CommandModule {
             return result;
         }
 
-        private void rem(String userId) throws Exception{
+        private void rem(User user) throws Exception{
             //Long longId = applicationManager.getCommunicator().getActiveVkAccount().resolveScreenName(userId);
-            UserList.this.rem(new User(userId));
+            UserList.this.rem(user);
         }
 
     }
@@ -376,17 +426,19 @@ public class UserList extends CommandModule {
 
             if(comment != null)
                 jsonObject.put("comment", comment);
+
             return jsonObject;
         }
-        private void fromJson(JSONObject jsonObject)throws JSONException, ParseException{
-            if(jsonObject.has("id"))
-                user = new User(jsonObject.getJSONObject("User"));
+        private void fromJson(JSONObject jsonObject) throws JSONException, ParseException{
+            if(jsonObject.has("user"))
+                user = new User(jsonObject.getJSONObject("user"));
 
             if(jsonObject.has("comment"))
                 comment = jsonObject.getString("comment");
 
             if(jsonObject.has("date") && !jsonObject.isNull("date") && !jsonObject.getString("date").equals(""))
                 date = sdf.parse(jsonObject.getString("date"));
+
 
         }
 
@@ -405,7 +457,17 @@ public class UserList extends CommandModule {
 
         @Override
         public String toString() {
-            return  user.getName() + ", " + user.getGlobalId()+ ", " + comment + ", добавлен "+sdf.format(date)+")";
+            String result = "";
+            if(!user.getName().isEmpty())
+                result += user.getName() + ", ";
+
+            result += user.getGlobalId() + ", ";
+
+            if(!comment.isEmpty())
+                result += comment + ", ";
+
+            result += "добавлен "+sdf.format(date)+"";
+            return result;
         }
 
         public User getUser() {

@@ -53,8 +53,8 @@ public class MessageBase {
     private long message_id = 0L;           //Если это сообщение, то ID сообщения, или же ID коммента на стене, или же...
     private String text = "";               //что в этой хуйне написано
     private User author = null;               //кто эту хуйню написал
-    protected ArrayList<Attachment> attachments = null;//что он к этой хуйне приложил
-    protected ArrayList<User> mentions = null;//Кого он в этой хуйне упомянул
+    protected ArrayList<Attachment> attachments = new ArrayList<>();//что он к этой хуйне приложил
+    protected ArrayList<User> mentions = new ArrayList<>();//Кого он в этой хуйне упомянул
     protected AccountBase botAccount = null;     // кто из ботов эту хуйню обнаружил
     protected Answer answer = null;            // когда ответ подобран, ложим его сюда
     // позволит нам отправить пользователю ответ в то же место откуда он нам написал сообщение

@@ -9,6 +9,7 @@ import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.Command;
 import com.fsoft.vktest.Communication.HttpServer;
+import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.F;
@@ -114,6 +115,7 @@ public class BotBrain extends CommandModule {
         childCommands.add(filter);
         childCommands.add(ignor);
         childCommands.add(allow);
+        childCommands.add(new Help(applicationManager));
     }
     public Message processMessage(Message message){
         //ВСЕ ССЫЛКИ ВЕДУТ СЮДА. ВСЕ ЗАЩИТЫ РЕАЛИЗОВЫВАТЬ ЗДЕСЬ.
@@ -126,8 +128,13 @@ public class BotBrain extends CommandModule {
         try {
             //команда?
             if(hasCommandMark(message) && allow.has(message.getAuthor())){
+                log(". В сообщении обнаружена команда: " + message.getText());
                 String reply = applicationManager.processCommand(remCommandMark(message));
                 message.setAnswer(reply);
+            }
+            if(ignor.has(message.getAuthor())){
+                log(". Пользователь " + message.getAuthor() + " находится в игноре. Пропуск сообщения...");
+                return message;
             }
             //подготовить ответ
             if (message.getAnswer() == null && patternProcessor != null)
@@ -151,11 +158,11 @@ public class BotBrain extends CommandModule {
             e.printStackTrace();
             message.setAnswer("Произошла ошибка при обработке сообщения: " + e.getMessage());
         }
-
-        //отправить
-        if(message.getOnAnswerReady() != null && message.getAnswer() != null)
-            message.getOnAnswerReady().sendAnswer(message);
-
+        finally {
+            //отправить
+            if(message.getOnAnswerReady() != null && message.getAnswer() != null)
+                message.getOnAnswerReady().sendAnswer(message);
+        }
         return message;
     }
     /*ОБРАЩЕНИЯ
@@ -357,5 +364,36 @@ public class BotBrain extends CommandModule {
     }
     public Filter getFilter() {
         return filter;
+    }
+
+    private class Help extends CommandModule{
+        public Help(ApplicationManager applicationManager) {
+            super(applicationManager);
+        }
+
+        @Override
+        public String processCommand(Message message) {
+            CommandParser commandParser = new CommandParser(message.getText());
+            if(commandParser.getWord().toLowerCase().equals("help")) {
+                ArrayList<CommandDesc> commandDescs = applicationManager.getHelp();
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append("Список команд " + ApplicationManager.getVisibleName()+"\n");
+                stringBuilder.append("Всего команд:"+commandDescs.size()+"\n");
+                stringBuilder.append("================================\n");
+                for (CommandDesc commandDesc:commandDescs){
+                    stringBuilder.append(commandDesc.getName()+"\n");
+                    stringBuilder.append(commandDesc.getHelpText()+"\n");
+                    stringBuilder.append("-----| " + commandDesc.getExample()+"\n");
+                    stringBuilder.append(".\n");
+                }
+                return stringBuilder.toString();
+            }
+            return "";
+        }
+
+        @Override
+        public ArrayList<CommandDesc> getHelp() {
+            return new ArrayList<>();
+        }
     }
 }
