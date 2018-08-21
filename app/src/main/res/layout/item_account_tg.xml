@@ -75,7 +75,8 @@
             android:layout_weight="0"
             android:alpha="0.5"
             android:padding="10dp"
-            android:src="@drawable/ic_dots_v" />
+            android:src="@drawable/ic_dots_v"
+            android:visibility="gone"/>
     </LinearLayout>
 
     <LinearLayout
