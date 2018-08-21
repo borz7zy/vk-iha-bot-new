@@ -18,6 +18,8 @@ import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 public class AccountsListRefresher {
@@ -44,13 +46,27 @@ public class AccountsListRefresher {
         for(final TgAccount tgAccount:tgAccounts){
             View view = layoutInflater.inflate(R.layout.item_account_tg, null, false);
             view.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
             TextView nameLabel = view.findViewById(R.id.item_account_textView_name);
             TextView statusLabel = view.findViewById(R.id.item_account_textView_status);
+            TextView messagesReceivedLabel = view.findViewById(R.id.item_account_textView_messages_received);
+            TextView messagesSentLabel = view.findViewById(R.id.item_account_textView_messages_sent);
             TextView apiLabel = view.findViewById(R.id.item_account_textView_api_counter);
+            TextView apiErrorsLabel = view.findViewById(R.id.item_account_textView_api_errors);
+            TextView replyInstructionLabel = view.findViewById(R.id.item_account_textView_active_instruction);
+            TextView chatsEnabledLabel = view.findViewById(R.id.item_account_textView_active_chats);
+            TextView statusEnabledLabel = view.findViewById(R.id.item_account_textView_status);
             View menuButton = view.findViewById(R.id.item_account_button_menu);
+
             nameLabel.setText(tgAccount.toString());
             statusLabel.setText(tgAccount.getState());
+            messagesReceivedLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesReceivedCounter()));
+            messagesSentLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesSentCounter()));
             apiLabel.setText(String.valueOf(tgAccount.getApiCounter()));
+            apiErrorsLabel.setText(String.valueOf(tgAccount.getErrorCounter()));
+            replyInstructionLabel.setText("Выключено");
+            chatsEnabledLabel.setText("Включено");
+            statusEnabledLabel.setText("Выключено");
             menuButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

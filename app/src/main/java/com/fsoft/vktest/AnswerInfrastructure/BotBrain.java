@@ -375,16 +375,29 @@ public class BotBrain extends CommandModule {
         public String processCommand(Message message) {
             CommandParser commandParser = new CommandParser(message.getText());
             if(commandParser.getWord().toLowerCase().equals("help")) {
+                String query = commandParser.getText().toLowerCase();
                 ArrayList<CommandDesc> commandDescs = applicationManager.getHelp();
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("Список команд " + ApplicationManager.getVisibleName()+"\n");
                 stringBuilder.append("Всего команд:"+commandDescs.size()+"\n");
                 stringBuilder.append("================================\n");
                 for (CommandDesc commandDesc:commandDescs){
-                    stringBuilder.append(commandDesc.getName()+"\n");
-                    stringBuilder.append(commandDesc.getHelpText()+"\n");
-                    stringBuilder.append("-----| " + commandDesc.getExample()+"\n");
-                    stringBuilder.append(".\n");
+                    if(query.isEmpty()) {
+                        stringBuilder.append(commandDesc.getName() + "\n");
+                        //stringBuilder.append(commandDesc.getHelpText()+"\n");
+                        stringBuilder.append("" + commandDesc.getExample() + "\n");
+                        stringBuilder.append(".\n");
+                        //stringBuilder.append(".\n");
+                    }
+                    else {
+                        if(commandDesc.getName().toLowerCase().contains(query) || commandDesc.getHelpText().toLowerCase().contains(query)){
+                            stringBuilder.append("--=== " + commandDesc.getName() + " ===-- \n");
+                            stringBuilder.append(commandDesc.getHelpText()+"\n");
+                            stringBuilder.append("" + commandDesc.getExample() + "\n");
+                            stringBuilder.append(".\n");
+                            stringBuilder.append(".\n");
+                        }
+                    }
                 }
                 return stringBuilder.toString();
             }

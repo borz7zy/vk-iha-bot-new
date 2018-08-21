@@ -96,6 +96,14 @@ public class MainActivity extends FragmentActivity {
                     openMessagesTab();
                 }
             });
+            findViewById(R.id.side_menu_button_close).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(BotService.applicationManager != null)
+                        BotService.applicationManager.stop();
+                    finish();
+                }
+            });
         }
         catch (Exception e){
             e.printStackTrace();

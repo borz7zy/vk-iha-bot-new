@@ -79,14 +79,15 @@
 
             <LinearLayout
                 android:id="@+id/side_menu_button_walls"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center_vertical|left"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:paddingLeft="10dp"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -106,18 +107,20 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/bubble_background" />
+                android:background="@color/bubble_background"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:id="@+id/side_menu_button_log"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center_vertical|left"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:paddingLeft="10dp"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -137,18 +140,20 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/bubble_background" />
+                android:background="@color/bubble_background"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:id="@+id/side_menu_button_database"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center_vertical|left"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:paddingLeft="10dp"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -168,18 +173,20 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/bubble_background" />
+                android:background="@color/bubble_background"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/side_menu_button_ignor"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center_vertical|left"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:paddingLeft="10dp"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -199,18 +206,20 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/bubble_background" />
+                android:background="@color/bubble_background"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/side_menu_button_trusted"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center_vertical|left"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:paddingLeft="10dp"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -230,18 +239,20 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/bubble_background" />
+                android:background="@color/bubble_background"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:id="@+id/side_menu_button_learning"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center_vertical|left"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:paddingLeft="10dp"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -261,18 +272,20 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/bubble_background" />
+                android:background="@color/bubble_background"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:id="@+id/side_menu_button_chat_with_bot"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center_vertical|left"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:paddingLeft="10dp"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -292,18 +305,20 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/bubble_background" />
+                android:background="@color/bubble_background"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/side_menu_button_commands"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center_vertical|left"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:paddingLeft="10dp"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -323,18 +338,20 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/bubble_background" />
+                android:background="@color/bubble_background"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/side_menu_button_about"
-                android:background="?android:attr/selectableItemBackground"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
                 android:gravity="center_vertical|left"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:paddingLeft="10dp"
-                android:paddingTop="8dp">
+                android:paddingTop="8dp"
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="30dp"
@@ -354,7 +371,8 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/bubble_background" />
+                android:background="@color/bubble_background"
+                android:visibility="gone"/>
 
             <LinearLayout
                 android:id="@+id/side_menu_button_close"

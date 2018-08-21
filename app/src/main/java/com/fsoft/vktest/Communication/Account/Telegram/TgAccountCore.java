@@ -164,6 +164,7 @@ public class TgAccountCore extends Account {
 
     public void publishOnTelegraph(final CreateTelegraphPageListener listener, final String text){
         log(". Publishing text on Telegra.ph...");
+
         if(getTelegraphToken().isEmpty()){
             log(". Creating Telegra.ph account...");
             createTelegraphAccount(new CreateTelegraphAccountListener() {
@@ -282,7 +283,7 @@ public class TgAccountCore extends Account {
         queue.add(stringRequest);
     }
     public void sendMessage(final SendMessageListener listener, final long chat_id, String text){
-        if(text.length() > 1000){
+        if(text.length() > 4000){
             publishOnTelegraph(new CreateTelegraphPageListener() {
                 @Override
                 public void pageCreated(String link) {
