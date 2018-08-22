@@ -1,6 +1,11 @@
 package com.fsoft.vktest.ViewsLayer.AccountsFragment;
 
+import android.app.Fragment;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.support.annotation.Dimension;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +21,10 @@ import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
 import com.fsoft.vktest.Communication.Account.VK.VkAccount;
 import com.fsoft.vktest.R;
+import com.fsoft.vktest.Utils.F;
+import com.fsoft.vktest.ViewsLayer.AccountTgFragment.AccountTgFragment;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
+import com.perm.utils.Utils;
 
 import org.w3c.dom.Text;
 
@@ -41,8 +49,14 @@ public class AccountsListRefresher {
         if(applicationManager == null || activity == null || linearLayout == null)
             return;
         linearLayout.removeAllViews();
-        //telegram
+        //получить список
         ArrayList<TgAccount> tgAccounts = applicationManager.getCommunicator().getTgAccounts();
+
+        if(tgAccounts.isEmpty()){
+            linearLayout.addView(getEmptyView());
+            return;
+        }
+        //заполнить
         for(final TgAccount tgAccount:tgAccounts){
             View view = layoutInflater.inflate(R.layout.item_account_tg, null, false);
             view.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -73,9 +87,30 @@ public class AccountsListRefresher {
                     showAccountMenu(tgAccount, v);
                 }
             });
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    activity.openAccountTab(tgAccount);
+                }
+            });
 
             linearLayout.addView(view);
         }
+
+        linearLayout.addView(getTextView("Нажми на аккаунт, чтобы изменить его настройки"));
+    }
+    private TextView getTextView(String text){
+        TextView endText = new TextView(activity);
+        endText.setText(text);
+        endText.setTextColor(activity.getResources().getColor(R.color.hint_text_color, activity.getTheme()));
+        endText.setTextSize(Dimension.SP, 12);
+        endText.setGravity(Gravity.CENTER);
+        endText.setPadding(F.dp(10), F.dp(10), F.dp(10), F.dp(10));
+        endText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        return endText;
+    }
+    private View getEmptyView(){
+        return getTextView("Не добавлено ни одного аккаунта. Чтобы добавить аккаунт, нажми на \"+\" вверху.");
     }
     void showAccountMenu(final TgAccount tgAccount, View v){
         PopupMenu popupMenu = new PopupMenu(activity, v);

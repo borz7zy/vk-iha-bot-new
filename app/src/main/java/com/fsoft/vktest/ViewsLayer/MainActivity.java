@@ -13,7 +13,9 @@ import android.view.Window;
 import android.widget.FrameLayout;
 
 import com.fsoft.vktest.BotService;
+import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
 import com.fsoft.vktest.R;
+import com.fsoft.vktest.ViewsLayer.AccountTgFragment.AccountTgFragment;
 import com.fsoft.vktest.ViewsLayer.AccountsFragment.AccountsFragment;
 
 import me.tangke.slidemenu.SlideMenu;
@@ -117,7 +119,8 @@ public class MainActivity extends FragmentActivity {
             fragmentTransaction.remove(activeFragment);
             activeFragment = null;
         }
-        fragmentTransaction.add(R.id.main_frame, new MessagesFragment());
+        activeFragment = new MessagesFragment();
+        fragmentTransaction.add(R.id.main_frame, activeFragment);
         fragmentTransaction.commit();
         slideMenu.close(true);
     }
@@ -128,7 +131,19 @@ public class MainActivity extends FragmentActivity {
             fragmentTransaction.remove(activeFragment);
             activeFragment = null;
         }
-        fragmentTransaction.add(R.id.main_frame, new AccountsFragment());
+        activeFragment = new AccountsFragment();
+        fragmentTransaction.add(R.id.main_frame, activeFragment);
+        fragmentTransaction.commit();
+        slideMenu.close(true);
+    }
+    public void openAccountTab(TgAccount tgAccount){
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        if(activeFragment != null) {
+            fragmentTransaction.remove(activeFragment);
+            activeFragment = null;
+        }
+        activeFragment = new AccountTgFragment(tgAccount);
+        fragmentTransaction.add(R.id.main_frame, activeFragment);
         fragmentTransaction.commit();
         slideMenu.close(true);
     }
