@@ -121,10 +121,46 @@ public class AccountTgFragment extends Fragment {
                 });
             }
         });
+        tgAccount.getMessageProcessor().setOnMessagesReceivedCounterChangedListener(new Runnable() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(tgAccount == null)
+                            return;
+                        if(messagesReceivedLabel == null)
+                            return;
+                        long counter = tgAccount.getMessageProcessor().getMessagesReceivedCounter();
+                        messagesReceivedLabel.setText(String.valueOf(counter));
+                    }
+                });
+            }
+        });
+        tgAccount.getMessageProcessor().setOnMessagesSentCounterChangedListener(new Runnable() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(tgAccount == null)
+                            return;
+                        if(messagesSentLabel == null)
+                            return;
+                        long counter = tgAccount.getMessageProcessor().getMessagesSentCounter();
+                        messagesSentLabel.setText(String.valueOf(counter));
+                    }
+                });
+            }
+        });
     }
 
     @Override
     public void onPause() {
+        tgAccount.setApiErrorsChangedListener(null);
+        tgAccount.setApiCounterChangedListener(null);
+        tgAccount.getMessageProcessor().setOnMessagesSentCounterChangedListener(null);
+        tgAccount.getMessageProcessor().setOnMessagesReceivedCounterChangedListener(null);
         super.onPause();
     }
 

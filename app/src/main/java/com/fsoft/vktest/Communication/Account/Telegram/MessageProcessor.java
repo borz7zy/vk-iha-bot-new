@@ -14,7 +14,9 @@ public class MessageProcessor extends CommandModule {
     private long lastUpdateId = 0;
     private boolean isRunning = false;
     private int errors = 0;
+    private Runnable onMessagesReceivedCounterChangedListener = null;
     private int messagesReceivedCounter = 0;
+    private Runnable onMessagesSentCounterChangedListener = null;
     private int messagesSentCounter = 0;
 
 
@@ -46,8 +48,25 @@ public class MessageProcessor extends CommandModule {
     public int getMessagesReceivedCounter() {
         return messagesReceivedCounter;
     }
+    public void inctementMessagesReceivedCounter(){
+        messagesReceivedCounter++;
+        if(onMessagesReceivedCounterChangedListener != null)
+            onMessagesReceivedCounterChangedListener.run();
+    }
     public int getMessagesSentCounter() {
         return messagesSentCounter;
+    }
+    public void inctementMessagesSentCounter(){
+        messagesSentCounter++;
+        if(onMessagesSentCounterChangedListener != null)
+            onMessagesSentCounterChangedListener.run();
+    }
+
+    public void setOnMessagesReceivedCounterChangedListener(Runnable onMessagesReceivedCounterChangedListener) {
+        this.onMessagesReceivedCounterChangedListener = onMessagesReceivedCounterChangedListener;
+    }
+    public void setOnMessagesSentCounterChangedListener(Runnable onMessagesSentCounterChangedListener) {
+        this.onMessagesSentCounterChangedListener = onMessagesSentCounterChangedListener;
     }
 
     public void update(){
