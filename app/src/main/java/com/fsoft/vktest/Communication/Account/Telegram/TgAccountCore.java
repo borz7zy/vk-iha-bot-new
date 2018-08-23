@@ -15,6 +15,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.Account;
+import com.fsoft.vktest.ViewsLayer.MainActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -67,7 +68,9 @@ public class TgAccountCore extends Account {
     private String screenName = null;
     private String telegraphToken = "";//бот использует телеграф для отправки лонгридов
 
+    private Runnable apiCounterChangedListener = null;
     private long apiCounter = 0; //счётчик доступа к АПИ
+    private Runnable apiErrorsChangedListener = null;
     private long errorCounter = 0; //счётчик ошибок при доступе к АПИ
     private RequestQueue queue = null;
 
@@ -142,6 +145,18 @@ public class TgAccountCore extends Account {
     public long getApiCounter() {
         return apiCounter;
     }
+    public void incrementApiCounter(){
+        apiCounter++;
+        //вызывается в фоновом потоке!
+        if(apiCounterChangedListener != null)
+            apiCounterChangedListener.run();
+    }
+    public void incrementErrorCounter(){
+        errorCounter++;
+        //вызывается в фоновом потоке!
+        if(apiErrorsChangedListener != null)
+            apiErrorsChangedListener.run();
+    }
     public long getErrorCounter() {
         return errorCounter;
     }
@@ -160,7 +175,12 @@ public class TgAccountCore extends Account {
     public String getTelegraphToken(){
         return telegraphToken;
     }
-
+    public void setApiCounterChangedListener(Runnable apiCounterChangedListener) {
+        this.apiCounterChangedListener = apiCounterChangedListener;
+    }
+    public void setApiErrorsChangedListener(Runnable apiErrorsChangedListener) {
+        this.apiErrorsChangedListener = apiErrorsChangedListener;
+    }
 
     public void publishOnTelegraph(final CreateTelegraphPageListener listener, final String text){
         log(". Publishing text on Telegra.ph...");
@@ -189,7 +209,7 @@ public class TgAccountCore extends Account {
     public void getMe(final GetMeListener listener){
         final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/getMe";
         log(". Sending request: " + url);
-        apiCounter ++;
+        incrementApiCounter();
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -199,12 +219,12 @@ public class TgAccountCore extends Account {
                             log(". Got response: " + response);
                             JSONObject jsonObject = new JSONObject(response);
                             if(!jsonObject.has("ok")) {
-                                errorCounter ++;
+                                incrementErrorCounter();
                                 listener.error(new Exception("No OK in response!"));
                                 return;
                             }
                             if(!jsonObject.getBoolean("ok")){
-                                errorCounter ++;
+                                incrementErrorCounter();
                                 listener.error(new Exception(jsonObject.optString("description", "No description")));
                                 return;
                             }
@@ -217,7 +237,7 @@ public class TgAccountCore extends Account {
                         catch (Exception e){
                             listener.error(e);
                             e.printStackTrace();
-                            errorCounter ++;
+                            incrementErrorCounter();
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -226,7 +246,7 @@ public class TgAccountCore extends Account {
                 log(error.getClass().getName() + " while sending request: " + url);
                 listener.error(error);
                 error.printStackTrace();
-                errorCounter ++;
+                incrementErrorCounter();
             }
         });
         // Add the request to the RequestQueue.
@@ -235,7 +255,7 @@ public class TgAccountCore extends Account {
     public void getUpdates(final GetUpdatesListener listener, long offset, int timeout){
         final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/getUpdates?offset="+offset+"&timeout="+timeout;
         log(". Sending request: " + url);
-        apiCounter ++;
+        incrementApiCounter();
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -245,12 +265,12 @@ public class TgAccountCore extends Account {
                             log(". Got response: " + response);
                             JSONObject jsonObject = new JSONObject(response);
                             if(!jsonObject.has("ok")) {
-                                errorCounter ++;
+                                incrementErrorCounter();
                                 listener.error(new Exception("No OK in response!"));
                                 return;
                             }
                             if(!jsonObject.getBoolean("ok")){
-                                errorCounter ++;
+                                incrementErrorCounter();
                                 listener.error(new Exception(jsonObject.optString("description", "No description")));
                                 return;
                             }
@@ -266,7 +286,7 @@ public class TgAccountCore extends Account {
                         catch (Exception e){
                             listener.error(e);
                             e.printStackTrace();
-                            errorCounter ++;
+                            incrementErrorCounter();
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -275,7 +295,7 @@ public class TgAccountCore extends Account {
                 log(error.getClass().getName() + " while sending request: " + url);
                 listener.error(error);
                 error.printStackTrace();
-                errorCounter ++;
+                incrementErrorCounter();
             }
         });
         stringRequest.setRetryPolicy(new DefaultRetryPolicy( 50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
@@ -310,7 +330,7 @@ public class TgAccountCore extends Account {
         }
         final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendMessage";//?chat_id="+chat_id+"&text="+text;
         log(". Sending request: " + url);
-        apiCounter ++;
+        incrementApiCounter();
         // Request a string response from the provided URL.
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
                 new Response.Listener<JSONObject>() {
@@ -320,12 +340,12 @@ public class TgAccountCore extends Account {
                             log(". Got response: " + jsonObject.toString());
                             //JSONObject jsonObject = new JSONObject(response);
                             if(!jsonObject.has("ok")) {
-                                errorCounter ++;
+                                incrementErrorCounter();
                                 listener.error(new Exception("No OK in response!"));
                                 return;
                             }
                             if(!jsonObject.getBoolean("ok")){
-                                errorCounter ++;
+                                incrementErrorCounter();
                                 listener.error(new Exception(jsonObject.optString("description", "No description")));
                                 return;
                             }
@@ -336,7 +356,7 @@ public class TgAccountCore extends Account {
                         catch (Exception e){
                             listener.error(e);
                             e.printStackTrace();
-                            errorCounter ++;
+                            incrementErrorCounter();
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -345,7 +365,7 @@ public class TgAccountCore extends Account {
                 log(error.getClass().getName() + " while sending request: " + url);
                 error.printStackTrace();
                 listener.error(error);
-                errorCounter ++;
+                incrementErrorCounter();
             }
         });
 
@@ -362,7 +382,7 @@ public class TgAccountCore extends Account {
         }
         final String url =   "https://api.telegra.ph/createAccount?short_name="+name+"&author_name="+name;
         log(". Sending request: " + url);
-        apiCounter ++;
+        incrementApiCounter();
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -372,12 +392,12 @@ public class TgAccountCore extends Account {
                             log(". Got response: " + response);
                             JSONObject jsonObject = new JSONObject(response);
                             if(!jsonObject.has("ok")) {
-                                errorCounter ++;
+                                incrementErrorCounter();
                                 listener.error(new Exception("No OK in response!"));
                                 return;
                             }
                             if(!jsonObject.getBoolean("ok")){
-                                errorCounter ++;
+                                incrementErrorCounter();
                                 listener.error(new Exception(jsonObject.optString("description", "No description")));
                                 return;
                             }
@@ -388,7 +408,7 @@ public class TgAccountCore extends Account {
                         catch (Exception e){
                             listener.error(e);
                             e.printStackTrace();
-                            errorCounter ++;
+                            incrementErrorCounter();
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -397,7 +417,7 @@ public class TgAccountCore extends Account {
                 log(error.getClass().getName() + " while sending request: " + url);
                 error.printStackTrace();
                 listener.error(error);
-                errorCounter ++;
+                incrementErrorCounter();
             }
         });
         // Add the request to the RequestQueue.
@@ -419,7 +439,7 @@ public class TgAccountCore extends Account {
         log(". # title=" + name);
         log(". # content=text[" + text.length() + "]");
         log(text);
-        apiCounter ++;
+        incrementApiCounter();
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -430,12 +450,12 @@ public class TgAccountCore extends Account {
                             JSONObject jsonObject = new JSONObject(response);
                             log(". Got response: " + response);
                             if(!jsonObject.has("ok")) {
-                                errorCounter ++;
+                                incrementErrorCounter();
                                 listener.error(new Exception("No OK in response!"));
                                 return;
                             }
                             if(!jsonObject.getBoolean("ok")){
-                                errorCounter ++;
+                                incrementErrorCounter();
                                 listener.error(new Exception(jsonObject.optString("description", "No description")));
                                 return;
                             }
@@ -446,7 +466,7 @@ public class TgAccountCore extends Account {
                         catch (Exception e){
                             listener.error(e);
                             e.printStackTrace();
-                            errorCounter ++;
+                            incrementErrorCounter();
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -455,7 +475,7 @@ public class TgAccountCore extends Account {
                 log(error.getClass().getName() + " while sending request: " + url);
                 error.printStackTrace();
                 listener.error(error);
-                errorCounter ++;
+                incrementErrorCounter();
             }
         })
         {
