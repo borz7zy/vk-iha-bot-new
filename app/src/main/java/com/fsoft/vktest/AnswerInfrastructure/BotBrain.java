@@ -66,6 +66,20 @@ import java.util.*;
  * Изменено by Dr. Failov on 05.08.2014.
  */
 public class BotBrain extends CommandModule {
+    private interface OnMessageStatusChangedListener{
+        //Это механизм "подписки" на обновления сообщений в реальном времени
+        //Порядок такой:
+        //                   received
+        //           /          ||             \
+        //   ignored          answered          error
+        void messageReceived(Message message);
+        void messageAnswerSent(Message message);
+        void messageAnswered(Message message); //ответ лежит в getAnswer()
+        void messageError(Message message, Exception e);
+        void messageIgnored(Message message);
+    }
+
+
     private AnswerDatabase answerDatabase;
     private UnknownMessagesDatabase unknownMessages;
     private PatternProcessor patternProcessor;
@@ -77,6 +91,8 @@ public class BotBrain extends CommandModule {
     private UserList ignor = null;
     private Learning learning = null;
     private Filter filter = null;
+    private ArrayList<OnMessageStatusChangedListener> messageListeners = new ArrayList<>();
+
 
     public BotBrain(ApplicationManager applicationManager) throws Exception {
         super(applicationManager);
@@ -126,6 +142,9 @@ public class BotBrain extends CommandModule {
         //сделовательно, отправлять сообщение надо здесь же
 
         try {
+            for(OnMessageStatusChangedListener messageListener : messageListeners)
+                messageListener.messageReceived(message);
+
             //команда?
             if(hasCommandMark(message) && allow.has(message.getAuthor())){
                 log(". В сообщении обнаружена команда: " + message.getText());
@@ -134,6 +153,8 @@ public class BotBrain extends CommandModule {
             }
             if(ignor.has(message.getAuthor())){
                 log(". Пользователь " + message.getAuthor() + " находится в игноре. Пропуск сообщения...");
+                for(OnMessageStatusChangedListener messageListener : messageListeners)
+                    messageListener.messageIgnored(message);
                 return message;
             }
             //подготовить ответ
@@ -157,8 +178,12 @@ public class BotBrain extends CommandModule {
         catch (Exception e){
             e.printStackTrace();
             message.setAnswer("Произошла ошибка при обработке сообщения: " + e.getMessage());
+            for(OnMessageStatusChangedListener messageListener : messageListeners)
+                messageListener.messageError(message, e);
         }
         finally {
+            for(OnMessageStatusChangedListener messageListener : messageListeners)
+                messageListener.messageAnswered(message);
             //отправить
             if(message.getOnAnswerReady() != null && message.getAnswer() != null)
                 message.getOnAnswerReady().sendAnswer(message);

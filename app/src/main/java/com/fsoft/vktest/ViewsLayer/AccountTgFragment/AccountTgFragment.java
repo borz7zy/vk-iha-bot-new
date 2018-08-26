@@ -6,20 +6,16 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.BotService;
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
 import com.fsoft.vktest.R;
-import com.fsoft.vktest.ViewsLayer.AccountsFragment.AccountsListRefresher;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
 
 public class AccountTgFragment extends Fragment {
@@ -173,6 +169,9 @@ public class AccountTgFragment extends Fragment {
     }
 
     private void refresh(){
-
+        messagesReceivedLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesReceivedCounter()));
+        messagesSentLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesSentCounter()));
+        apiCounterLabel.setText(String.valueOf(tgAccount.getApiCounter()));
+        apiErrorsLabel.setText(String.valueOf(tgAccount.getErrorCounter()));
     }
 }

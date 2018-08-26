@@ -136,7 +136,7 @@ public class MessageProcessor extends CommandModule {
     }
     public void processMessage(final Message message){
         log(". ПОЛУЧЕНО СООБЩЕНИЕ: " + message);
-        messagesReceivedCounter ++;
+        inctementMessagesReceivedCounter();
 
         //заполняем юзера
         com.fsoft.vktest.Utils.User brainUser = new User();
@@ -163,7 +163,7 @@ public class MessageProcessor extends CommandModule {
                     @Override
                     public void sentMessage(Message message) {
                         log(". Отправлено сообщение: " + message);
-                        messagesSentCounter ++;
+                        inctementMessagesSentCounter();
                     }
 
                     @Override
