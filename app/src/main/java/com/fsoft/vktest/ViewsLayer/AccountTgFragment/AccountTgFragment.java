@@ -164,6 +164,8 @@ public class AccountTgFragment extends Fragment {
         super.onPause();
     }
 
+
+
     @Override
     public void onAttach(Context context) {
         Log.d(TAG, "Attached Accounts Tab...");

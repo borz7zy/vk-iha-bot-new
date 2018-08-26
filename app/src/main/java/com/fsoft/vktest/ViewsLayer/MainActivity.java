@@ -18,6 +18,8 @@ import com.fsoft.vktest.R;
 import com.fsoft.vktest.ViewsLayer.AccountTgFragment.AccountTgFragment;
 import com.fsoft.vktest.ViewsLayer.AccountsFragment.AccountsFragment;
 
+import java.util.ArrayList;
+
 import me.tangke.slidemenu.SlideMenu;
 
 /**
@@ -40,7 +42,8 @@ public class MainActivity extends FragmentActivity {
     private Handler handler = new Handler();
     private FrameLayout mainFrame = null;
     private SlideMenu slideMenu = null;
-    private Fragment activeFragment = null;
+
+    private ArrayList<Fragment> fragmentQueue = new ArrayList<>(); //zero activity = active,    first = last,     second = prelast
 
 
     @Override
@@ -74,6 +77,19 @@ public class MainActivity extends FragmentActivity {
         //сообщить сервису что активити больше не
     }
 
+    @Override
+    public void onBackPressed() {
+        if(fragmentQueue.size() <= 1) {
+            finish();
+            return;
+        }
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.remove(fragmentQueue.get(0));
+        fragmentQueue.remove(0);
+        fragmentTransaction.add(R.id.main_frame, fragmentQueue.get(0));
+        fragmentTransaction.commit();
+        //super.onBackPressed();
+    }
 
     public void showMessage(final String text){
         Log.d(TAG, "Message: " + text);
@@ -115,35 +131,31 @@ public class MainActivity extends FragmentActivity {
 
     public void openMessagesTab(){
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        if(activeFragment != null) {
-            fragmentTransaction.remove(activeFragment);
-            activeFragment = null;
-        }
-        activeFragment = new MessagesFragment();
-        fragmentTransaction.add(R.id.main_frame, activeFragment);
+        if(!fragmentQueue.isEmpty())
+            fragmentTransaction.remove(fragmentQueue.get(0));
+        fragmentQueue.clear();
+        fragmentQueue.add(0, new MessagesFragment());
+        fragmentTransaction.add(R.id.main_frame, fragmentQueue.get(0));
         fragmentTransaction.commit();
         slideMenu.close(true);
     }
-
     public void openAccountsTab(){
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        if(activeFragment != null) {
-            fragmentTransaction.remove(activeFragment);
-            activeFragment = null;
-        }
-        activeFragment = new AccountsFragment();
-        fragmentTransaction.add(R.id.main_frame, activeFragment);
+        if(!fragmentQueue.isEmpty())
+            fragmentTransaction.remove(fragmentQueue.get(0));
+        fragmentQueue.clear();
+        fragmentQueue.add(0, new AccountsFragment());
+        fragmentTransaction.add(R.id.main_frame, fragmentQueue.get(0));
         fragmentTransaction.commit();
         slideMenu.close(true);
     }
     public void openAccountTab(TgAccount tgAccount){
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        if(activeFragment != null) {
-            fragmentTransaction.remove(activeFragment);
-            activeFragment = null;
-        }
-        activeFragment = new AccountTgFragment(tgAccount);
-        fragmentTransaction.add(R.id.main_frame, activeFragment);
+        if(!fragmentQueue.isEmpty())
+            fragmentTransaction.remove(fragmentQueue.get(0));
+        //fragmentQueue.clear();
+        fragmentQueue.add(0, new AccountTgFragment(tgAccount));
+        fragmentTransaction.add(R.id.main_frame, fragmentQueue.get(0));
         fragmentTransaction.commit();
         slideMenu.close(true);
     }
