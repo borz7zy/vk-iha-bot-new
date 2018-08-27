@@ -75,6 +75,13 @@ public class Communicator extends CommandModule {
         }, 3000);
 
     }
+
+    @Override
+    public void stop() {
+        super.stop();
+        stopModule();
+    }
+
     public FileStorage getFile() {
         return file;
     }
@@ -92,6 +99,8 @@ public class Communicator extends CommandModule {
         wallManager.stopModule();
         for(VkAccount vkAccount:vkAccounts)
             vkAccount.stopAccount();
+        for(TgAccount tgAccount:tgAccounts)
+            tgAccount.stopAccount();
     }
     public boolean containsVkAccount(long id){
         return getVkAccount(id) != null;

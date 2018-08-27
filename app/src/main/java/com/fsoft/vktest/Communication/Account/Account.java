@@ -138,7 +138,7 @@ public class Account extends CommandModule implements AccountBase {
         return state;
     }
     public void setState(String state) {
-        String time = new SimpleDateFormat("HH-mm").format(new Date());
+        String time = new SimpleDateFormat("HH:mm").format(new Date());
         this.state = time + " " + state;
         if(onStateChangedListener != null)
             onStateChangedListener.run();

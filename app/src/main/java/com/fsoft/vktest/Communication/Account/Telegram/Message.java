@@ -59,7 +59,7 @@ public class Message {
         if(entities != null && !entities.isEmpty()) {
             JSONArray jsonArray = new JSONArray();
             for (int i = 0; i < entities.size(); i++)
-                jsonArray.put(entities.get(i));
+                jsonArray.put(entities.get(i).toJson());
             jsonObject.put("entities", jsonArray);
         }
         return jsonObject;

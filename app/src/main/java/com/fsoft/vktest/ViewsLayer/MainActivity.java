@@ -119,6 +119,7 @@ public class MainActivity extends FragmentActivity {
                 public void onClick(View v) {
                     if(BotService.applicationManager != null)
                         BotService.applicationManager.stop();
+                    stopService(new Intent(MainActivity.this, BotService.class));
                     finish();
                 }
             });

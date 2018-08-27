@@ -374,6 +374,136 @@ public class TgAccountCore extends Account {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
+    public void getUserPhoto(final GetUserPhotoListener listener, final long user_id){
+        log(". Получение фотографии пользователя " + user_id + "...");
+        getUserProfilePhotos(new GetUserProfilePhotosListener() {
+            @Override
+            public void gotPhotos(UserProfilePhotos photos) {
+                log(". Запрос на архив фотографий " + user_id + " выполнен.");
+                if(photos.getArrayPhotos().isEmpty())
+                    listener.error(new Exception(log("! У юзера нет фотографий!")));
+                if(photos.getArrayPhotos().get(0).isEmpty())
+                    listener.error(new Exception(log("! У фото нет размера!")));
+                PhotoSize photoSize = photos.getArrayPhotos().get(0).get(1);
+                final String file_id = photoSize.getFile_id();
+                getFile(new GetFileListener() {
+                    @Override
+                    public void gotFile(File file) {
+                        log(". Запрос на файл фотографии " + user_id + " выполнен.");
+                        if(file.getFile_path().isEmpty())
+                            listener.error(new Exception(log("! Почему-то не получен адрес файла")));
+                        String url = file.getUrl(TgAccountCore.this);
+                        log(". Ссылка на фотографию:   " + url);
+                        listener.gotPhoto(url);
+                    }
+
+                    @Override
+                    public void error(Throwable error) {
+                        log("! Ошибка выполнения запроса на файл фотографи " + user_id + ": "+error.getMessage()+".");
+                        listener.error(error);
+                    }
+                }, file_id);
+            }
+
+            @Override
+            public void error(Throwable error) {
+                log("! Ошибка выполнения запроса на архив фотографий " + user_id + ": "+error.getMessage()+".");
+                listener.error(error);
+            }
+        }, user_id, 0, 1);
+    }
+    public void getUserProfilePhotos(final GetUserProfilePhotosListener listener, final long user_id, int offset, int limit){
+        final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/getUserProfilePhotos?user_id="+user_id+"&offset="+offset+"&limit="+limit;
+        log(". Sending request: " + url);
+        incrementApiCounter();
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try{
+                            log(". Got response: " + response);
+                            JSONObject jsonObject = new JSONObject(response);
+                            if(!jsonObject.has("ok")) {
+                                incrementErrorCounter();
+                                listener.error(new Exception("No OK in response!"));
+                                return;
+                            }
+                            if(!jsonObject.getBoolean("ok")){
+                                incrementErrorCounter();
+                                listener.error(new Exception(jsonObject.optString("description", "No description")));
+                                return;
+                            }
+                            JSONObject result = jsonObject.getJSONObject("result");
+                            UserProfilePhotos userProfilePhotos = new UserProfilePhotos(result);
+                            listener.gotPhotos(userProfilePhotos);
+                            state("Аккаунт работает");
+                        }
+                        catch (Exception e){
+                            listener.error(e);
+                            e.printStackTrace();
+                            incrementErrorCounter();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                log(error.getClass().getName() + " while sending request: " + url);
+                listener.error(error);
+                error.printStackTrace();
+                incrementErrorCounter();
+            }
+        });
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+    public void getFile(final GetFileListener listener, String file_id){
+        final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/getFile?file_id="+file_id;
+        log(". Sending request: " + url);
+        incrementApiCounter();
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try{
+                            log(". Got response: " + response);
+                            JSONObject jsonObject = new JSONObject(response);
+                            if(!jsonObject.has("ok")) {
+                                incrementErrorCounter();
+                                listener.error(new Exception("No OK in response!"));
+                                return;
+                            }
+                            if(!jsonObject.getBoolean("ok")){
+                                incrementErrorCounter();
+                                listener.error(new Exception(jsonObject.optString("description", "No description")));
+                                return;
+                            }
+                            JSONObject result = jsonObject.getJSONObject("result");
+                            File file = new File(result);
+                            listener.gotFile(file);
+                            state("Аккаунт работает");
+                        }
+                        catch (Exception e){
+                            listener.error(e);
+                            e.printStackTrace();
+                            incrementErrorCounter();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                log(error.getClass().getName() + " while sending request: " + url);
+                listener.error(error);
+                error.printStackTrace();
+                incrementErrorCounter();
+            }
+        });
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
 
     //TELEGRAPH
     public void createTelegraphAccount(final CreateTelegraphAccountListener listener, String name){
@@ -511,6 +641,18 @@ public class TgAccountCore extends Account {
     }
     public interface GetUpdatesListener{
         void gotUpdates(ArrayList<Update> updates);
+        void error(Throwable error);
+    }
+    public interface GetUserPhotoListener{
+        void gotPhoto(String url);
+        void error(Throwable error);
+    }
+    public interface GetUserProfilePhotosListener{
+        void gotPhotos(UserProfilePhotos photos);
+        void error(Throwable error);
+    }
+    public interface GetFileListener{
+        void gotFile(File file);
         void error(Throwable error);
     }
     public interface CreateTelegraphAccountListener{

@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -21,9 +22,11 @@ import android.widget.TextView;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.BotService;
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
+import com.fsoft.vktest.Communication.Account.Telegram.TgAccountCore;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -133,6 +136,7 @@ public class AccountsFragment extends Fragment {
         View view = layoutInflater.inflate(R.layout.item_account_tg, null, false);
         view.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
+        final ImageView avatar = view.findViewById(R.id.item_account_imageview_avatar);
         TextView nameLabel = view.findViewById(R.id.item_account_textView_name);
         final TextView statusLabel = view.findViewById(R.id.item_account_textView_status);
         final TextView messagesReceivedLabel = view.findViewById(R.id.item_account_textView_messages_received);
@@ -153,6 +157,17 @@ public class AccountsFragment extends Fragment {
         replyInstructionLabel.setText("Выключено");
         chatsEnabledLabel.setText("Включено");
         statusEnabledLabel.setText("Выключено");
+        tgAccount.getUserPhoto(new TgAccountCore.GetUserPhotoListener() {
+            @Override
+            public void gotPhoto(String url) {
+                Picasso.get().load(url).into(avatar);
+            }
+
+            @Override
+            public void error(Throwable error) {
+                Picasso.get().load(R.drawable.ic_ban).into(avatar);
+            }
+        }, tgAccount.getId());
         tgAccount.setApiErrorsChangedListener(new Runnable() {
             @Override
             public void run() {

@@ -20,8 +20,10 @@ import android.widget.TextView;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.BotService;
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
+import com.fsoft.vktest.Communication.Account.Telegram.TgAccountCore;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -230,6 +232,17 @@ public class AccountTgFragment extends Fragment {
     private void refresh(){
         nameLabel.setText(tgAccount.getScreenName());
         statusLabel.setText(tgAccount.getState());
+        tgAccount.getUserPhoto(new TgAccountCore.GetUserPhotoListener() {
+            @Override
+            public void gotPhoto(String url) {
+                Picasso.get().load(url).into(avatarView);
+            }
+
+            @Override
+            public void error(Throwable error) {
+                Picasso.get().load(R.drawable.ic_ban).into(avatarView);
+            }
+        }, tgAccount.getId());
 
         messagesReceivedLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesReceivedCounter()));
         messagesSentLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesSentCounter()));
