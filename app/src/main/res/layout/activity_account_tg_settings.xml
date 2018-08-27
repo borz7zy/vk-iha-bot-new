@@ -253,53 +253,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:id="@+id/tg_account_messagesenabled_button"
-                android:padding="10dp">
-                <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:padding="10dp"
-                    android:src="@drawable/ic_message"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Отвечать на сообщения"
-                        android:textSize="16sp"
-                        android:textColor="@color/main_text_color"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Определяет, должен ли бот отвечать на сообщения. Если отключить, то бот не будет отвечать даже на команды."
-                        android:textSize="14sp"
-                        android:textColor="@color/hint_text_color"/>
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Вкл"
-                    android:textSize="18sp"
-                    android:textColor="@color/green_enabled"
-                    android:id="@+id/tg_account_messagesenabled_label"
-                    android:layout_marginStart="5dp"
-                    android:layout_weight="0"/>
-            </LinearLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="1px"
-                android:background="@color/hint_text_color"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
                 android:id="@+id/tg_account_chatenabled_button"
                 android:padding="10dp">
                 <ImageView

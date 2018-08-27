@@ -9,10 +9,12 @@ import com.fsoft.vktest.Utils.User;
 
 import java.util.ArrayList;
 
+//todo определять чаты и игнорить их, заполнять поля message
 public class MessageProcessor extends CommandModule {
     private TgAccount tgAccount = null;
     private long lastUpdateId = 0;
     private boolean isRunning = false;
+    private boolean isChatsEnabled = true;
     private int errors = 0;
     private Runnable onMessagesReceivedCounterChangedListener = null;
     private int messagesReceivedCounter = 0;
@@ -23,6 +25,7 @@ public class MessageProcessor extends CommandModule {
     public MessageProcessor(ApplicationManager applicationManager, TgAccount tgAccount) {
         super(applicationManager);
         this.tgAccount = tgAccount;
+        isChatsEnabled = tgAccount.getFileStorage().getBoolean("chatsEnabled", isChatsEnabled);
     }
 
     @Override public void stop() {
@@ -60,6 +63,13 @@ public class MessageProcessor extends CommandModule {
         messagesSentCounter++;
         if(onMessagesSentCounterChangedListener != null)
             onMessagesSentCounterChangedListener.run();
+    }
+    public boolean isChatsEnabled() {
+        return isChatsEnabled;
+    }
+    public void setChatsEnabled(boolean chatsEnabled) {
+        isChatsEnabled = chatsEnabled;
+        tgAccount.getFileStorage().put("chatsEnabled", isChatsEnabled).commit();
     }
 
     public void setOnMessagesReceivedCounterChangedListener(Runnable onMessagesReceivedCounterChangedListener) {

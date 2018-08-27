@@ -3,6 +3,8 @@ package com.fsoft.vktest.ViewsLayer.AccountTgFragment;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -32,8 +34,6 @@ public class AccountTgFragment extends Fragment {
     private TextView apiErrorsLabel = null;
     private View enabledButton = null;
     private TextView enabledLabel = null;
-    private View messagesEnabledButton = null;
-    private TextView messagesEnabledLabel = null;
     private View chatEnabledButton = null;
     private TextView chatEnabledLabel = null;
     private View statusBroadcastingButton = null;
@@ -58,8 +58,6 @@ public class AccountTgFragment extends Fragment {
         apiErrorsLabel = view.findViewById(R.id.activityAccountSettingsTextViewApiErrors);
         enabledLabel = view.findViewById(R.id.tg_account_enabled_label);
         enabledButton = view.findViewById(R.id.tg_account_enabled_button);
-        messagesEnabledLabel = view.findViewById(R.id.tg_account_messagesenabled_label);
-        messagesEnabledButton = view.findViewById(R.id.tg_account_messagesenabled_button);
         chatEnabledLabel = view.findViewById(R.id.tg_account_chatenabled_label);
         chatEnabledButton = view.findViewById(R.id.tg_account_chatenabled_button);
         statusBroadcastingLabel = view.findViewById(R.id.tg_account_broadcaststatus_label);
@@ -149,6 +147,33 @@ public class AccountTgFragment extends Fragment {
                 });
             }
         });
+
+        Resources resources = getResources();
+        int green = resources.getColor(R.color.green_enabled);
+        int red = resources.getColor(R.color.red_disabled);
+        if(enabledLabel != null) {
+            boolean value = tgAccount.isEnabled();
+            String text = value?"Вкл":"Выкл";
+            int color = value?green:red;
+            enabledLabel.setTextColor(color);
+            enabledLabel.setText(text);
+        }
+
+        if(chatEnabledLabel != null) {
+            boolean value = tgAccount.getMessageProcessor().isChatsEnabled();
+            String text = value?"Вкл":"Выкл";
+            int color = value?green:red;
+            chatEnabledLabel.setTextColor(color);
+            chatEnabledLabel.setText(text);
+        }
+
+        if(statusBroadcastingLabel != null) {
+            boolean value = false;
+            String text = value?"Вкл":"Выкл";
+            int color = value?green:red;
+            statusBroadcastingLabel.setTextColor(color);
+            statusBroadcastingLabel.setText(text);
+        }
     }
 
     @Override
