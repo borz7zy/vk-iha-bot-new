@@ -118,14 +118,17 @@ public class MessageProcessor extends CommandModule {
                     public void run() {
                         log(". Error getting "+tgAccount+" updates: " + error.getClass().getName() + " " +error.getMessage()+". Retry...");
                         errors ++;
-                        if(errors > 20){
-                            tgAccount.stopAccount();
-                            tgAccount.state("Слишком много ошибок " + error.getClass().getName() + " " +error.getMessage());
-                        }
+//                        if(errors > 20){
+//                            tgAccount.stopAccount();
+//                            tgAccount.state("Слишком много ошибок " + error.getClass().getName() + " " +error.getMessage());
+//                        }
                         if(isRunning) {
                             if(errors != 0) {
-                                log("Waiting " + errors + " seconds between errors...");
-                                F.sleep(errors * 1000);
+                                int wait = errors;
+                                if(wait > 60)
+                                    wait = 60;
+                                log(tgAccount.state("Ожидание " + wait + " секунд после ошибки..."));
+                                F.sleep(wait * 1000);
                             }
                             update();
                         }

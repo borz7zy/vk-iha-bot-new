@@ -282,6 +282,7 @@ public class TgAccountCore extends Account {
                                 updates.add(update);
                             }
                             listener.gotUpdates(updates);
+                            state("Аккаунт работает");
                         }
                         catch (Exception e){
                             listener.error(e);
@@ -352,6 +353,7 @@ public class TgAccountCore extends Account {
                             JSONObject result = jsonObject.getJSONObject("result");
                             Message message = new Message(result);
                             listener.sentMessage(message);
+                            state("Аккаунт работает");
                         }
                         catch (Exception e){
                             listener.error(e);
@@ -372,6 +374,8 @@ public class TgAccountCore extends Account {
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
+
+    //TELEGRAPH
     public void createTelegraphAccount(final CreateTelegraphAccountListener listener, String name){
         try {
             name = URLEncoder.encode(name, "UTF-8");

@@ -79,6 +79,7 @@ public class AccountsFragment extends Fragment {
         for(TgAccount tgAccount:tgAccounts){
             tgAccount.setApiCounterChangedListener(null);
             tgAccount.setApiErrorsChangedListener(null);
+            tgAccount.setOnStateChangedListener(null);
             tgAccount.getMessageProcessor().setOnMessagesSentCounterChangedListener(null);
             tgAccount.getMessageProcessor().setOnMessagesReceivedCounterChangedListener(null);
         }
@@ -133,14 +134,14 @@ public class AccountsFragment extends Fragment {
         view.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         TextView nameLabel = view.findViewById(R.id.item_account_textView_name);
-        TextView statusLabel = view.findViewById(R.id.item_account_textView_status);
+        final TextView statusLabel = view.findViewById(R.id.item_account_textView_status);
         final TextView messagesReceivedLabel = view.findViewById(R.id.item_account_textView_messages_received);
         final TextView messagesSentLabel = view.findViewById(R.id.item_account_textView_messages_sent);
         final TextView apiLabel = view.findViewById(R.id.item_account_textView_api_counter);
         final TextView apiErrorsLabel = view.findViewById(R.id.item_account_textView_api_errors);
         TextView replyInstructionLabel = view.findViewById(R.id.item_account_textView_active_instruction);
         TextView chatsEnabledLabel = view.findViewById(R.id.item_account_textView_active_chats);
-        TextView statusEnabledLabel = view.findViewById(R.id.item_account_textView_status);
+        TextView statusEnabledLabel = view.findViewById(R.id.item_account_textView_broadcast_status);
         View menuButton = view.findViewById(R.id.item_account_button_menu);
 
         nameLabel.setText(tgAccount.toString());
@@ -192,6 +193,17 @@ public class AccountsFragment extends Fragment {
                     @Override
                     public void run() {
                         messagesSentLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesSentCounter()));
+                    }
+                });
+            }
+        });
+        tgAccount.setOnStateChangedListener(new Runnable() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        statusLabel.setText(tgAccount.getState());
                     }
                 });
             }

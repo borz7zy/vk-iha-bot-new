@@ -36,6 +36,7 @@ public class Account extends CommandModule implements AccountBase {
     private boolean running = false;
     //это - что-то наподобие временного комментария описывающего, что с этим аккаунтом происходит.
     private String state = "";
+    private Runnable onStateChangedListener = null;
 
 
     public Account(ApplicationManager applicationManager, String fileName) {
@@ -133,13 +134,14 @@ public class Account extends CommandModule implements AccountBase {
             startAccount();
     }
     public String state(String state) {
-        String time = new SimpleDateFormat("HH-mm").format(new Date());
-        this.state = time + " " + state;
+        setState(state);
         return state;
     }
     public void setState(String state) {
         String time = new SimpleDateFormat("HH-mm").format(new Date());
         this.state = time + " " + state;
+        if(onStateChangedListener != null)
+            onStateChangedListener.run();
     }
     public void setId(long id) {
         this.id = id;
@@ -151,6 +153,9 @@ public class Account extends CommandModule implements AccountBase {
     }
     public void setToken_ok(boolean token_ok) {
         this.token_ok = token_ok;
+    }
+    public void setOnStateChangedListener(Runnable onStateChangedListener) {
+        this.onStateChangedListener = onStateChangedListener;
     }
 
     @Override public String toString() {

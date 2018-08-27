@@ -3,6 +3,7 @@ package com.fsoft.vktest.ViewsLayer.AccountTgFragment;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fsoft.vktest.ApplicationManager;
@@ -19,6 +22,8 @@ import com.fsoft.vktest.BotService;
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
+
+import java.util.ArrayList;
 
 public class AccountTgFragment extends Fragment {
     private String TAG = "AccountTgFragment";
@@ -28,10 +33,14 @@ public class AccountTgFragment extends Fragment {
     private Handler handler = null;
 
 
+    private ImageView avatarView = null;
+    private TextView nameLabel = null;
+    private TextView statusLabel = null;
     private TextView messagesReceivedLabel = null;
     private TextView messagesSentLabel = null;
     private TextView apiCounterLabel = null;
     private TextView apiErrorsLabel = null;
+    private View backButton = null;
     private View enabledButton = null;
     private TextView enabledLabel = null;
     private View chatEnabledButton = null;
@@ -52,11 +61,15 @@ public class AccountTgFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_account_tg_settings, container, false);
 
+        avatarView = view.findViewById(R.id.activityAccountSettingsImageViewAvatar);
+        nameLabel = view.findViewById(R.id.activityAccountSettingsTextViewName);
+        statusLabel = view.findViewById(R.id.activityAccountSettingsTextViewStatus);
         messagesSentLabel = view.findViewById(R.id.activityAccountSettingsTextViewSentMessages);
         apiCounterLabel = view.findViewById(R.id.activityAccountSettingsTextViewSentRequests);
         messagesReceivedLabel = view.findViewById(R.id.activityAccountSettingsTextViewReceivedMessages);
         apiErrorsLabel = view.findViewById(R.id.activityAccountSettingsTextViewApiErrors);
         enabledLabel = view.findViewById(R.id.tg_account_enabled_label);
+        backButton = view.findViewById(R.id.tg_account_back_button);
         enabledButton = view.findViewById(R.id.tg_account_enabled_button);
         chatEnabledLabel = view.findViewById(R.id.tg_account_chatenabled_label);
         chatEnabledButton = view.findViewById(R.id.tg_account_chatenabled_button);
@@ -65,10 +78,42 @@ public class AccountTgFragment extends Fragment {
 
 
 
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.onBackPressed();
+            }
+        });
         enabledButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                ArrayList<String> arrayList = new ArrayList<String>();
+                arrayList.add("Включить аккаунт");
+                arrayList.add("Выключить аккаунт");
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_1, arrayList);
+                DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                // Включить аккаунт
+                                tgAccount.setEnabled(true);
+                                refresh();
+                                break;
+                            case 1:
+                                // Выключить аккаунт
+                                tgAccount.setEnabled(false);
+                                refresh();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                };
+                builder.setAdapter(adapter, listener);
+                builder.show();
             }
         });
 
@@ -147,6 +192,49 @@ public class AccountTgFragment extends Fragment {
                 });
             }
         });
+        tgAccount.setOnStateChangedListener(new Runnable() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(tgAccount == null)
+                            return;
+                        if(statusLabel == null)
+                            return;
+                        statusLabel.setText(tgAccount.getState());
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    public void onPause() {
+        tgAccount.setApiErrorsChangedListener(null);
+        tgAccount.setApiCounterChangedListener(null);
+        tgAccount.setOnStateChangedListener(null);
+        tgAccount.getMessageProcessor().setOnMessagesSentCounterChangedListener(null);
+        tgAccount.getMessageProcessor().setOnMessagesReceivedCounterChangedListener(null);
+        super.onPause();
+    }
+
+
+
+    @Override
+    public void onAttach(Context context) {
+        Log.d(TAG, "Attached Accounts Tab...");
+        super.onAttach(context);
+    }
+
+    private void refresh(){
+        nameLabel.setText(tgAccount.getScreenName());
+        statusLabel.setText(tgAccount.getState());
+
+        messagesReceivedLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesReceivedCounter()));
+        messagesSentLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesSentCounter()));
+        apiCounterLabel.setText(String.valueOf(tgAccount.getApiCounter()));
+        apiErrorsLabel.setText(String.valueOf(tgAccount.getErrorCounter()));
 
         Resources resources = getResources();
         int green = resources.getColor(R.color.green_enabled);
@@ -174,29 +262,5 @@ public class AccountTgFragment extends Fragment {
             statusBroadcastingLabel.setTextColor(color);
             statusBroadcastingLabel.setText(text);
         }
-    }
-
-    @Override
-    public void onPause() {
-        tgAccount.setApiErrorsChangedListener(null);
-        tgAccount.setApiCounterChangedListener(null);
-        tgAccount.getMessageProcessor().setOnMessagesSentCounterChangedListener(null);
-        tgAccount.getMessageProcessor().setOnMessagesReceivedCounterChangedListener(null);
-        super.onPause();
-    }
-
-
-
-    @Override
-    public void onAttach(Context context) {
-        Log.d(TAG, "Attached Accounts Tab...");
-        super.onAttach(context);
-    }
-
-    private void refresh(){
-        messagesReceivedLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesReceivedCounter()));
-        messagesSentLabel.setText(String.valueOf(tgAccount.getMessageProcessor().getMessagesSentCounter()));
-        apiCounterLabel.setText(String.valueOf(tgAccount.getApiCounter()));
-        apiErrorsLabel.setText(String.valueOf(tgAccount.getErrorCounter()));
     }
 }
