@@ -1,4 +1,4 @@
-package com.fsoft.vktest.ViewsLayer;
+package com.fsoft.vktest.ViewsLayer.MessagesFragment;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -13,6 +13,7 @@ import com.fsoft.vktest.R;
 
 public class MessagesFragment extends Fragment {
     private String TAG = "MessagesFragment";
+
 
     public MessagesFragment() {
     }

@@ -17,6 +17,7 @@ import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.ViewsLayer.AccountTgFragment.AccountTgFragment;
 import com.fsoft.vktest.ViewsLayer.AccountsFragment.AccountsFragment;
+import com.fsoft.vktest.ViewsLayer.MessagesFragment.MessagesFragment;
 
 import java.util.ArrayList;
 
