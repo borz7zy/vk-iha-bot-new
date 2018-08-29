@@ -25,6 +25,7 @@ import com.fsoft.vktest.Modules.SecurityProvider;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.Parameters;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
+import com.fsoft.vktest.ViewsLayer.MessagesFragment.MessageHistory;
 
 import java.io.*;
 import java.util.*;
@@ -101,6 +102,7 @@ public class ApplicationManager extends CommandModule {
     private BotBrain brain;
     private Parameters parameters;
 
+    private MessageHistory messageHistory = null;
     private SecurityProvider securityProvider = null;
     private WifiManager.WifiLock wifiLock = null;
     private PowerManager.WakeLock wakeLock = null;
@@ -123,6 +125,7 @@ public class ApplicationManager extends CommandModule {
         brain = new BotBrain(ApplicationManager.this);
         databaseBackuper = new DatabaseBackuper(this);
         securityProvider = new SecurityProvider(this);
+        messageHistory = new MessageHistory(this);
         httpServer = new HttpServer(this);
         childCommands.add(new Version(this));
         childCommands.add(new Encode(this));
@@ -166,6 +169,9 @@ public class ApplicationManager extends CommandModule {
     }
     public HttpServer getHttpServer() {
         return httpServer;
+    }
+    public MessageHistory getMessageHistory() {
+        return messageHistory;
     }
     public boolean isRunning(){
         //если какой-то из модулей работает по таймеру, то эта проверка позволит ему понять что программа закрыта

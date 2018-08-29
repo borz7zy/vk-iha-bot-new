@@ -6,6 +6,7 @@ import com.fsoft.vktest.Communication.Account.AccountBase;
 import com.fsoft.vktest.Utils.User;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  *  * - Текст сообщения
@@ -104,6 +105,22 @@ public class MessageBase {
     @Override
     public String toString() {
         return "(" + source + ", " + text + ", "  + author + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MessageBase that = (MessageBase) o;
+        return message_id == that.message_id &&
+                Objects.equals(text, that.text) &&
+                Objects.equals(author, that.author);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(message_id, text, author);
     }
 
     public MessageBase withSource(String source) {

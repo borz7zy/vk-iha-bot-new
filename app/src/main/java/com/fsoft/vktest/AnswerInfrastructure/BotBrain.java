@@ -66,14 +66,13 @@ import java.util.*;
  * Изменено by Dr. Failov on 05.08.2014.
  */
 public class BotBrain extends CommandModule {
-    private interface OnMessageStatusChangedListener{
+    public interface OnMessageStatusChangedListener{
         //Это механизм "подписки" на обновления сообщений в реальном времени
         //Порядок такой:
         //                   received
         //           /          ||             \
         //   ignored          answered          error
         void messageReceived(Message message);
-        void messageAnswerSent(Message message);
         void messageAnswered(Message message); //ответ лежит в getAnswer()
         void messageError(Message message, Exception e);
         void messageIgnored(Message message);
@@ -389,6 +388,12 @@ public class BotBrain extends CommandModule {
     }
     public Filter getFilter() {
         return filter;
+    }
+    public void addMessageListener(OnMessageStatusChangedListener messageStatusChangedListener){
+        messageListeners.add(messageStatusChangedListener);
+    }
+    public void remMessageListener(OnMessageStatusChangedListener messageStatusChangedListener){
+        messageListeners.remove(messageStatusChangedListener);
     }
 
     private class Help extends CommandModule{
