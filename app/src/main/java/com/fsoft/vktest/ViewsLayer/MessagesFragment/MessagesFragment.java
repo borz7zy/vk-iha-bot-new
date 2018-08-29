@@ -3,100 +3,107 @@ package com.fsoft.vktest.ViewsLayer.MessagesFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.fsoft.vktest.AnswerInfrastructure.BotBrain;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.SimpleTimeZone;
 
 public class MessagesFragment extends Fragment {
     private String TAG = "MessagesFragment";
     private ApplicationManager applicationManager = null;
+    private MessagesAdapter messagesAdapter = null;
+    private ListView listView = null;
+    private Handler handler = null;
+    private SwipeRefreshLayout swipeRefreshLayout = null;
+    private BotBrain.OnMessageStatusChangedListener messagesListener = null;
 
 
     public MessagesFragment() {
         applicationManager = ApplicationManager.getInstance();
+        handler = new Handler();
     }
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_messages_list, container, false);
+        View view = inflater.inflate(R.layout.activity_messages_list, null, false);
+        listView = view.findViewById(R.id.activityMessagesListListView);
+        swipeRefreshLayout = view.findViewById(R.id.activityMessagesListPullToRefresh);
+        messagesAdapter = new MessagesAdapter(applicationManager);
+        listView.setAdapter(messagesAdapter);
+        return view;
     }
-
 
     @Override
-    public void onAttach(Context context) {
-        Log.d(TAG, "Attached Messages Tab...");
-        super.onAttach(context);
+    public void onResume() {
+        super.onResume();
+        if(messagesListener == null)
+            messagesListener = new BotBrain.OnMessageStatusChangedListener() {
+                @Override
+                public void messageReceived(Message message) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            messagesAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+
+                @Override
+                public void messageAnswered(Message message) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            messagesAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+
+                @Override
+                public void messageError(Message message, Exception e) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            messagesAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+
+                @Override
+                public void messageIgnored(Message message) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            messagesAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            };
+        applicationManager.getBrain().addMessageListener(messagesListener);
     }
 
-    class MessagesAdapter extends BaseAdapter{
-        private ArrayList<MessageHistory.MessageStatus> messageStatuses;
-        private LayoutInflater layoutInflater = null;
-
-        public MessagesAdapter() {
-            messageStatuses = applicationManager.getMessageHistory().getMessages();
-            layoutInflater = LayoutInflater.from(applicationManager.getContext());
-        }
-
-        @Override
-        public int getCount() {
-            if(messageStatuses == null)
-                return 0;
-            return messageStatuses.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            if(messageStatuses == null)
-                return null;
-            return messageStatuses.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            if(messageStatuses == null)
-                return 0;
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if(messageStatuses == null || layoutInflater == null)
-                return null;
-            View view = convertView;
-            if(view == null)
-                view = layoutInflater.inflate(R.layout.item_message_pair, null, false);
-            MessageHistory.MessageStatus message = messageStatuses.get(position);
-            view = fillView(view, message);
-            return view;
-        }
-
-        private View fillView(View view, MessageHistory.MessageStatus messageStatus){
-            TextView userNameLabel = view.findViewById(R.id.bubble_in_username);
-            TextView receivedTextLabel = view.findViewById(R.id.bubble_in_text);
-            ImageView userAvatarView = view.findViewById(R.id.bubble_in_avatar);
-            TextView timeLabel = view.findViewById(R.id.bubble_in_time);
-            ImageView checkView = view.findViewById(R.id.bubble_in_check);
-            TextView botNameLabel = view.findViewById(R.id.bubble_in_bot_name);
-            TextView botAnswerTextLabel = view.findViewById(R.id.bubble_in_bot_answer);
-            ImageView botAvatarView = view.findViewById(R.id.bubble_in_bot_avatar);
-            ProgressBar progressBarView = view.findViewById(R.id.bubble_in_bot_progressbar);
-
-            userNameLabel.setText(messageStatus.getMessage().getAuthor().getName());
-            receivedTextLabel.setText(messageStatus.getMessage().getText());
-        }
+    @Override
+    public void onPause() {
+        super.onPause();
+        applicationManager.getBrain().remMessageListener(messagesListener);
     }
 }

@@ -12,9 +12,11 @@ import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
 
+import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.BotService;
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
 import com.fsoft.vktest.R;
+import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.ViewsLayer.AccountTgFragment.AccountTgFragment;
 import com.fsoft.vktest.ViewsLayer.AccountsFragment.AccountsFragment;
 import com.fsoft.vktest.ViewsLayer.MessagesFragment.MessagesFragment;
@@ -57,11 +59,31 @@ public class MainActivity extends FragmentActivity {
         slideMenu = findViewById(R.id.main_slideMenu);
         configureSideMenu();
 
-        openMessagesTab();
         //проверить запущен ли сервис. если нет - запустить.
         Log.d(TAG, "Starting service...");
         Intent intent = new Intent(getApplicationContext(), BotService.class);
         startService(intent);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(ApplicationManager.getInstance() == null)
+                    F.sleep(10);
+                while(ApplicationManager.getInstance().getMessageHistory() == null)
+                    F.sleep(10);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        openMessagesTab();
+                    }
+                });
+            }
+        }).start();
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.fsoft.vktest.Communication;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
+import android.widget.ImageView;
 
 import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
@@ -12,6 +13,7 @@ import com.fsoft.vktest.Communication.Account.AccountBase;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.Command;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
+import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.Utils.TimeCounter;
@@ -123,6 +125,16 @@ public class HttpServer extends CommandModule implements AccountBase {
     @Override
     public void setToken_ok(boolean token_ok) {
 
+    }
+    public String getScreenName() {
+        return "HTTP сервер:"+port;
+    }
+    public void setScreenName(String screenName) {
+    }
+
+    @Override
+    public void fillAvatar(ImageView imageView) {
+        imageView.setImageResource(R.drawable.bot);
     }
 
 

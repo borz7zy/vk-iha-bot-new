@@ -1,9 +1,12 @@
 package com.fsoft.vktest.Communication.Account;
 
+import android.widget.ImageView;
+
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
+import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.FileStorage;
 import com.fsoft.vktest.Utils.CommandParser;
 
@@ -36,6 +39,8 @@ public class Account extends CommandModule implements AccountBase {
     private boolean running = false;
     //это - что-то наподобие временного комментария описывающего, что с этим аккаунтом происходит.
     private String state = "";
+    //Имя под которым можно отображать этот аккаунт в программе
+    private String screenName = null;
     private Runnable onStateChangedListener = null;
 
 
@@ -48,6 +53,7 @@ public class Account extends CommandModule implements AccountBase {
         enabled = getFileStorage().getBoolean("enabled", enabled);
         id = getFileStorage().getLong("id", id);
         token = getFileStorage().getString("token", token);
+        screenName = getFileStorage().getString("screenName", screenName);
 
         childCommands.add(new Status(applicationManager));
         childCommands.add(new Enabled(applicationManager));
@@ -122,6 +128,18 @@ public class Account extends CommandModule implements AccountBase {
         //именно это имя аккаунт получает при создании
         //эта функция нужна для того чтобы список аккаунтов можно было сохранить, не только загрузить
         return fileName;
+    }
+    public String getScreenName() {
+        return screenName;
+    }
+    public void setScreenName(String screenName) {
+        this.screenName = screenName;
+        getFileStorage().put("screenName", screenName).commit();
+    }
+
+    @Override
+    public void fillAvatar(ImageView imageView) {
+        imageView.setImageResource(R.drawable.bot);
     }
 
     //------------

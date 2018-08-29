@@ -136,6 +136,8 @@
                     android:layout_width="12dp"
                     android:layout_height="12dp"
                     android:layout_marginLeft="5dp"
+                    android:alpha="0.5"
+                    android:scaleType="fitCenter"
                     android:src="@drawable/ic_check"
                     android:id="@+id/bubble_in_check" />
             </LinearLayout>

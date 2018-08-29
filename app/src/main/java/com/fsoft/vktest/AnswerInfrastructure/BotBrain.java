@@ -181,11 +181,16 @@ public class BotBrain extends CommandModule {
                 messageListener.messageError(message, e);
         }
         finally {
-            for(OnMessageStatusChangedListener messageListener : messageListeners)
-                messageListener.messageAnswered(message);
             //отправить
-            if(message.getOnAnswerReady() != null && message.getAnswer() != null)
+            if(message.getOnAnswerReady() != null && message.getAnswer() != null) {
+                for(OnMessageStatusChangedListener messageListener : messageListeners)
+                    messageListener.messageAnswered(message);
                 message.getOnAnswerReady().sendAnswer(message);
+            }
+            else {
+                for(OnMessageStatusChangedListener messageListener : messageListeners)
+                    messageListener.messageIgnored(message);
+            }
         }
         return message;
     }

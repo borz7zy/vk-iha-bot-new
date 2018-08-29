@@ -6,6 +6,7 @@ import com.fsoft.vktest.Communication.Account.AccountBase;
 import com.fsoft.vktest.Utils.User;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -54,6 +55,7 @@ public class MessageBase {
     private long message_id = 0L;           //Если это сообщение, то ID сообщения, или же ID коммента на стене, или же...
     private String text = "";               //что в этой хуйне написано
     private User author = null;               //кто эту хуйню написал
+    private Date date = null;               //когда мы эту хуйню получили
     protected ArrayList<Attachment> attachments = new ArrayList<>();//что он к этой хуйне приложил
     protected ArrayList<User> mentions = new ArrayList<>();//Кого он в этой хуйне упомянул
     protected AccountBase botAccount = null;     // кто из ботов эту хуйню обнаружил
@@ -80,6 +82,7 @@ public class MessageBase {
         this.author = author;
         this.attachments = attachments;
         this.botAccount = botAccount;
+        this.date = new Date();
     }
 
     public MessageBase(MessageBase toCopy) {
@@ -100,6 +103,7 @@ public class MessageBase {
         this.comment_wall_id = toCopy.comment_wall_id;
         this.comment_reply_comment_id = toCopy.comment_reply_comment_id;
         this.comment_reply_user_id = toCopy.comment_reply_user_id;
+        this.date = new Date();
     }
 
     @Override
@@ -299,5 +303,11 @@ public class MessageBase {
     }
     public void setMentions(ArrayList<User> mentions) {
         this.mentions = mentions;
+    }
+    public Date getDate() {
+        return date;
+    }
+    public void setDate(Date date) {
+        this.date = date;
     }
 }

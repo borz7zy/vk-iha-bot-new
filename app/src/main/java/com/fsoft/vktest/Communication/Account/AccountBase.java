@@ -1,8 +1,11 @@
 package com.fsoft.vktest.Communication.Account;
 
+import android.widget.ImageView;
+
 import com.fsoft.vktest.Utils.FileStorage;
 
-public interface AccountBase {
+public interface AccountBase
+{
     public boolean remove();
     public void login();
     public void startAccount();
@@ -22,5 +25,8 @@ public interface AccountBase {
     public void setId(long id);
     public void setToken(String token);
     public void setToken_ok(boolean token_ok);
+    public String getScreenName();
+    public void setScreenName(String screenName);
+    public void fillAvatar(ImageView imageView); //заполнить где-то в окне программы свой аватар
     public String log(String text);
 }

@@ -65,7 +65,6 @@ public class TgAccountCore extends Account {
     //это имя пользователя которому принадлежит этот аккаунт. Оно хранится здесь временно.
     // Когда оно нам нужно, обращаемся к геттеру. если нужно получить имя аккаунта, обращаемся к toString()
     private String userName = null;
-    private String screenName = null;
     private String telegraphToken = "";//бот использует телеграф для отправки лонгридов
 
     private Runnable apiCounterChangedListener = null;
@@ -77,7 +76,6 @@ public class TgAccountCore extends Account {
     public TgAccountCore(ApplicationManager applicationManager, String fileName) {
         super(applicationManager, fileName);
         userName = getFileStorage().getString("userName", userName);
-        screenName = getFileStorage().getString("screenName", screenName);
         telegraphToken = getFileStorage().getString("telegraphToken", telegraphToken);
         queue = Volley.newRequestQueue(applicationManager.getContext().getApplicationContext());
         //Proxy proxy = new Proxy(Proxy.Type.SOCKS, InetSocketAddress.createUnresolved("192.168.1.11", 8118));
@@ -133,14 +131,11 @@ public class TgAccountCore extends Account {
 
     @Override
     public String toString() {
-        return screenName + "("+userName+", id="+getId()+")";
+        return getScreenName() + "("+userName+", id="+getId()+")";
     }
 
     public String getUserName() {
         return userName;
-    }
-    public String getScreenName() {
-        return screenName;
     }
     public long getApiCounter() {
         return apiCounter;
@@ -163,10 +158,6 @@ public class TgAccountCore extends Account {
     public void setUserName(String userName) {
         this.userName = userName;
         getFileStorage().put("userName", userName).commit();
-    }
-    public void setScreenName(String screenName) {
-        this.screenName = screenName;
-        getFileStorage().put("screenName", screenName).commit();
     }
     public void setTelegraphToken(String telegraphToken) {
         this.telegraphToken = telegraphToken;

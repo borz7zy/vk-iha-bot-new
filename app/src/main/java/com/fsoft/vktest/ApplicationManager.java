@@ -71,7 +71,7 @@ public class ApplicationManager extends CommandModule {
     //-------------- НЕ МЕНЯТЬ!!! Иначе надо будет переписывать хэш-суммы!!!!---------------------------------------
     static public String getVisibleName(){
         //обязательно должно содержать "Dr.Failov iHA bot"
-        return "Dr.Failov iHA bot™ v5.0 alpha 000004";
+        return "Dr.Failov iHA bot™ v5.0 alpha 000005";
     }
     static public String getShortName(){
         return "FP iHA bot";

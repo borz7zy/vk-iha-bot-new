@@ -196,6 +196,7 @@ public class MessageProcessor extends CommandModule {
                 tgAccount,
                 onAnswerReady
         );
+        brainMessage.setMessage_id(message.getMessage_id());
         brainMessage.setChat_id(message.getChat().getId());
         brainMessage.setChat_title(message.getChat().getTitle());
         if(message.getReply_to_message() != null && message.getReply_to_message().getFrom() != null) {
