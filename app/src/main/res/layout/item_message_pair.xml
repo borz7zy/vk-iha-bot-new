@@ -1,76 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/main_background"
-    android:gravity="left"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp">
+    android:background="@color/main_background">
 
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:id="@+id/bubble_in_avatar"
-            android:src="@drawable/example_avatar"/>
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/mask_round"/>
-    </FrameLayout>
-
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginLeft="10dp"
-        android:background="@drawable/bubble_in_background">
+        android:gravity="left"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="0dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="0dp"
-            android:paddingTop="0dp">
+            android:orientation="horizontal"
+            android:layout_gravity="left">
 
-            <TextView
-                android:id="@+id/bubble_in_username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:layout_marginRight="15dp"
-                android:text="User Name"
-                android:textColor="@color/header_text_color"
-                android:textSize="18sp" />
+            <FrameLayout
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="10dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/bubble_in_avatar"
+                    android:src="@drawable/example_avatar"/>
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/mask_round"/>
+            </FrameLayout>
 
-            <TextView
-                android:id="@+id/bubble_in_text"
-                android:layout_width="wrap_content"
+            <FrameLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:layout_marginRight="15dp"
-                android:text="Message text"
-                android:textColor="@color/main_text_color"
-                android:textSize="16sp" />
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp"
+                android:background="@drawable/bubble_in_background">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:orientation="horizontal">
-                <ProgressBar
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginTop="10dp"
-                    android:id="@+id/bubble_in_bot_progressbar"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -81,47 +54,37 @@
                     android:paddingTop="0dp">
 
                     <TextView
-                        android:id="@+id/bubble_in_bot_name"
+                        android:id="@+id/bubble_in_username"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
                         android:layout_marginRight="15dp"
-                        android:text="User Name"
+                        android:text="Вася Баранов"
                         android:textColor="@color/header_text_color"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/bubble_in_bot_answer"
+                        android:id="@+id/bubble_in_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
                         android:layout_marginRight="15dp"
-                        android:text="Message text"
+                        android:text="Бот, расскажи о себе что-то интересное?"
                         android:textColor="@color/main_text_color"
-                        android:textSize="12sp" />
+                        android:textSize="14sp" />
+
+
+
                 </LinearLayout>
 
-                <FrameLayout
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="5dp">
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:id="@+id/bubble_in_bot_avatar"
-                        android:src="@drawable/example_avatar"/>
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@drawable/mask_round_bubble"/>
-                </FrameLayout>
-            </LinearLayout>
-
+            </FrameLayout>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginTop="3dp"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="10dp"
                 android:gravity="center_vertical">
 
                 <TextView
@@ -141,8 +104,81 @@
                     android:src="@drawable/ic_check"
                     android:id="@+id/bubble_in_check" />
             </LinearLayout>
-
         </LinearLayout>
-    </FrameLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="5dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bubble_out_background">
+
+                    <ProgressBar
+                        android:id="@+id/bubble_in_bot_progressbar"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingBottom="0dp"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="0dp"
+                        android:paddingTop="0dp">
+
+                        <TextView
+                            android:id="@+id/bubble_in_bot_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="left"
+                            android:layout_marginRight="15dp"
+                            android:text="iHA bot"
+                            android:textColor="@color/header_text_color"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/bubble_in_bot_answer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="left"
+                            android:layout_marginRight="15dp"
+                            android:text="Вася, такой уж я парень."
+                            android:textColor="@color/main_text_color"
+                            android:textSize="12sp"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </LinearLayout>
+
+
+            <FrameLayout
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/bubble_in_bot_avatar"
+                    android:src="@drawable/bot"/>
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/mask_round"/>
+            </FrameLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/bubble_background"/>
 </LinearLayout>
