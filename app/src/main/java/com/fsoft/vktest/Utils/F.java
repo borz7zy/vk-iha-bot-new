@@ -12,11 +12,14 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -34,6 +37,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * В этом классе собраны все методы, которые могут быть полезны по всей программе и ни с чем не связаны
@@ -274,6 +279,56 @@ public class F {
         } finally {
             in.close();
             out.close();
+        }
+    }
+    public static void unzip(File zipFile, File targetDirectory) throws IOException {
+        try{
+            unzipWithEncoding(zipFile, targetDirectory, "UTF-8");
+        }
+        catch (IllegalArgumentException e){
+            try{
+                unzipWithEncoding(zipFile, targetDirectory, "CP866");
+            }
+            catch (IllegalArgumentException e1){
+                try{
+                    unzipWithEncoding(zipFile, targetDirectory, "CP437");
+                }
+                catch (IllegalArgumentException e2){
+                    throw  e2;
+                }
+            }
+        }
+    }
+    public static void unzipWithEncoding(File zipFile, File targetDirectory, String encoding) throws IOException {
+        ZipInputStream zis = new ZipInputStream(
+                new BufferedInputStream(new FileInputStream(zipFile)), Charset.forName(encoding));
+        try {
+            ZipEntry ze;
+            int count;
+            byte[] buffer = new byte[8192];
+            while ((ze = zis.getNextEntry()) != null) {
+                File file = new File(targetDirectory, ze.getName());
+                File dir = ze.isDirectory() ? file : file.getParentFile();
+                if (!dir.isDirectory() && !dir.mkdirs())
+                    throw new FileNotFoundException("Failed to ensure directory: " +
+                            dir.getAbsolutePath());
+                if (ze.isDirectory())
+                    continue;
+                FileOutputStream fout = new FileOutputStream(file);
+                try {
+                    while ((count = zis.read(buffer)) != -1)
+                        fout.write(buffer, 0, count);
+                } finally {
+                    fout.close();
+                }
+            /* if time should be restored as well
+            long time = ze.getTime();
+            if (time > 0)
+                file.setLastModified(time);
+            */
+            }
+        } finally {
+            zis.close();
         }
     }
     public static int countLines(String filename) {

@@ -2,6 +2,7 @@ package com.fsoft.vktest.Communication.Account.Telegram;
 
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -494,6 +495,60 @@ public class TgAccountCore extends Account {
         stringRequest.setRetryPolicy(new DefaultRetryPolicy( 50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+    public void sendPhoto(final SendMessageListener listener, final long chat_id, String text, java.io.File f){
+        try {
+            final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendPhoto";
+            log(". Sending request: " + url);
+            incrementApiCounter();
+            HashMap<String, String> headers = new HashMap<String, String>();
+//            headers.put("chat_id", String.valueOf(chat_id));
+//            headers.put("caption", text);
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("chat_id", String.valueOf(chat_id));
+            params.put("caption", text);
+            MultiPartReq mPR = new MultiPartReq(url, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    log(error.getClass().getName() + " while sending request: " + url);
+                    listener.error(error);
+                    error.printStackTrace();
+                    incrementErrorCounter();
+                }
+            }, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try{
+                        log(". Got response: " + response);
+                        JSONObject jsonObject = new JSONObject(response);
+                        if(!jsonObject.has("ok")) {
+                            incrementErrorCounter();
+                            listener.error(new Exception("No OK in response!"));
+                            return;
+                        }
+                        if(!jsonObject.getBoolean("ok")){
+                            incrementErrorCounter();
+                            listener.error(new Exception(jsonObject.optString("description", "No description")));
+                            return;
+                        }
+                        JSONObject result = jsonObject.getJSONObject("result");
+                        Message message = new Message(result);
+                        listener.sentMessage(message);
+                        state("Аккаунт работает");
+                    }
+                    catch (Exception e){
+                        listener.error(e);
+                        e.printStackTrace();
+                        incrementErrorCounter();
+                    }
+                }
+            }, f, "photo", params, headers);
+            queue.add(mPR);
+        }
+        catch (Exception e){
+            if(listener != null)
+                listener.error(e);
+        }
     }
 
     //TELEGRAPH

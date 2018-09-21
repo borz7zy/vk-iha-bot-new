@@ -172,7 +172,33 @@ public class MessageProcessor extends CommandModule {
                 log("\nОтправлено сообщений: " + messagesSentCounter);
                 log("\nВыполнено запросов к API: " + tgAccount.getApiCounter());
                 log("\nОшибок при доступе к API: " + tgAccount.getErrorCounter());
-                tgAccount.sendMessage(new TgAccountCore.SendMessageListener() {
+                java.io.File file = null;
+                if(!answer.getAnswer().attachments.isEmpty() && answer.getAnswer().attachments.get(0).isPhoto()) {
+                    try {
+                        file = answer.getAnswer().attachments.get(0).getFile();
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                        replyText = "Ошибка получения файла вложения: " + e.getMessage();
+                    }
+                }
+
+                if(file != null) {
+                    tgAccount.sendPhoto(new TgAccountCore.SendMessageListener() {
+                        @Override
+                        public void sentMessage(Message message) {
+                            log(". Отправлено сообщение: " + message);
+                            inctementMessagesSentCounter();
+                        }
+
+                        @Override
+                        public void error(Throwable error) {
+                            log(error.getClass().getName() + " while sending message");
+                        }
+                    }, message.getChat().getId(), replyText, file);
+                }
+                else
+                    tgAccount.sendMessage(new TgAccountCore.SendMessageListener() {
                     @Override
                     public void sentMessage(Message message) {
                         log(". Отправлено сообщение: " + message);

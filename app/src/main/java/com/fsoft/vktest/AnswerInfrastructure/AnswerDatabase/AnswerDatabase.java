@@ -1,6 +1,8 @@
 package com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase;
 
 
+import android.content.res.Resources;
+
 import com.fsoft.vktest.AnswerInfrastructure.Answer;
 import com.fsoft.vktest.AnswerInfrastructure.BotModule;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
@@ -237,7 +239,36 @@ public class AnswerDatabase extends BotModule {
 
     public AnswerDatabase(ApplicationManager applicationManager) throws Exception {
         super(applicationManager);
-        fileAnswers = new ResourceFileReader(applicationManager, R.raw.answer_database).getFile();
+        fileAnswers = new File(applicationManager.getHomeFolder(), "answer_database.txt");
+        if(!fileAnswers.isFile()){
+            log(". Файла базы нет. Загрузка файла answer_database.zip из ресурсов...");
+            //get resources
+            Resources resources = null;
+            if(applicationManager != null && applicationManager.getContext() != null)
+                resources = applicationManager.getContext().getResources();
+            //copy zip
+            File tmpZip = new File(applicationManager.getHomeFolder(), "answer_database.zip");
+            log(". Копирование файла answer_database.zip из ресурсов...");
+            F.copyFile(R.raw.answer_database, resources, tmpZip);
+            //unzip
+            log(". Распаковка файла answer_database.zip...");
+            try {
+                F.unzip(tmpZip, tmpZip.getParentFile());
+            }
+            catch (Exception e){
+                log("! Во время распаковки базы произошла ошибка: " + e.getMessage());
+                fileAnswers.delete();
+                log("Файл базы удалён после неудачной распаковки: " + !fileAnswers.isFile());
+            }
+            //check
+            if(fileAnswers.isFile()){
+                log(". Распаковка базы успешна, удаление временного архива...");
+                log(". Удаление временного архива: " + tmpZip.delete());
+            }
+            else {
+                throw new Exception(log("! В результате распаковки файл базы не был получен. Проверьте, чтобы в архиве обязательно был файл answer_database.txt. Если такого файла нет, архив повреждён, нужен другой."));
+            }
+        }
         answerUsageCounter = new AnswerUsageCounter(applicationManager);
         jaroWinkler = new JaroWinkler();
         messagePreparer = new MessagePreparer(applicationManager);
