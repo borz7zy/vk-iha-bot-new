@@ -1,6 +1,7 @@
 package com.fsoft.vktest.Utils;
 
 import android.content.res.Resources;
+import android.util.Log;
 
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.Utils.TimeUnit;
@@ -9,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +41,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * В этом классе собраны все методы, которые могут быть полезны по всей программе и ни с чем не связаны
@@ -329,6 +332,34 @@ public class F {
             }
         } finally {
             zis.close();
+        }
+    }
+    public void zip(String[] _files, String parentPath, String zipFileName) {
+        try {
+            int BUFFER = 1024;
+            BufferedInputStream origin = null;
+            FileOutputStream dest = new FileOutputStream(zipFileName);
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
+            byte data[] = new byte[BUFFER];
+
+            for (int i = 0; i < _files.length; i++) {
+                Log.d("Compress", "Adding: " + _files[i].replace(parentPath, ""));
+                FileInputStream fi = new FileInputStream(_files[i]);
+                origin = new BufferedInputStream(fi, BUFFER);
+
+                ZipEntry entry = new ZipEntry(_files[i].replace(parentPath, ""));
+                out.putNextEntry(entry);
+                int count;
+
+                while ((count = origin.read(data, 0, BUFFER)) != -1) {
+                    out.write(data, 0, count);
+                }
+                origin.close();
+            }
+
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     public static int countLines(String filename) {

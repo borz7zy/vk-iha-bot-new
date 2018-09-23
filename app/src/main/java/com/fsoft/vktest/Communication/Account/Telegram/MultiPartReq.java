@@ -15,8 +15,10 @@ import org.apache.http.entity.mime.content.StringBody;
 import android.util.Log;
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.toolbox.HttpHeaderParser;
@@ -58,24 +60,42 @@ public class MultiPartReq extends Request < NetworkResponse > {
     public byte[] getBody() throws AuthFailureError {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
+            Log.d("volley", ". Sending data to server...");
             entity.writeTo(bos);
-            String entityContentAsString = new String(bos.toByteArray());
-            Log.e("volley", entityContentAsString);
-        } catch (IOException e) {
-            VolleyLog.e("IOException writing to ByteArrayOutputStream");
+            //дебилы блять. Нахуя такое делать?!
+//            String entityContentAsString = new String(bos.toByteArray());
+//            Log.e("volley", entityContentAsString);
+        } catch (IOException e){
+            e.printStackTrace();
+            VolleyLog.e("IOException writing to ByteArrayOutputStream: " + e.getMessage());
         }
         return bos.toByteArray();
     }
 
     @Override
-    protected void deliverResponse(NetworkResponse arg0) {
-        // TODO Auto-generated method stub
+    protected Response<NetworkResponse> parseNetworkResponse(NetworkResponse response) {
+        try {
+            return Response.success( response, HttpHeaderParser.parseCacheHeaders(response));
+        } catch (Exception e) {
+            return Response.error(new ParseError(e));
+        }
     }
 
     @Override
-    protected Response<NetworkResponse> parseNetworkResponse(NetworkResponse response) {
-        return Response.success(response, HttpHeaderParser.parseCacheHeaders(response));
+    protected void deliverResponse(NetworkResponse response) {
+        try {
+            String string = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+            mListener.onResponse(string);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            mListener.onResponse("");
+        }
+    }
 
+    @Override
+    public void deliverError(VolleyError error) {
+        mEListener.onErrorResponse(error);
     }
 
     private void buildMultipartEntity() {

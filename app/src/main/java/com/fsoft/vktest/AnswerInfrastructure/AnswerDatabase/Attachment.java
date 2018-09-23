@@ -21,30 +21,25 @@ public class Attachment {
     public static String TYPE_VIDEO = "video";
     public static String NETWORK_TG = "TG";
     public static String NETWORK_VK = "VK";
-    public static ArrayList<Attachment> convertAttachments(ArrayList<com.perm.kate.api.Attachment> attachments){
-        ArrayList<Attachment> result = new ArrayList<>();
-        for(com.perm.kate.api.Attachment attachment:attachments)
-            result.add(new Attachment(attachment));
-        return result;
-    }
 
     private String type = "";      //тип вложения из списка выще
     private String filename = "";  //Имя файла если это вложение есть локально в папке attachments (часть базы).
-    private String network = "";   //(для входящих вложений) соцсеть откуда мы получили вложение
-    private String id = "";        //(для входящих вложений) идентификатор вложения внутри соцсети
+    private ArrayList<OnlineAttachment> online = new ArrayList<>();
     private File file = null;      //Ссылка на файл с вложением (для отправки)
 
     public Attachment (com.perm.kate.api.Attachment attachment){
-        network = NETWORK_VK;
+        OnlineAttachment onlineAttachment = new OnlineAttachment();
+        onlineAttachment.setNetwork(NETWORK_VK);
         type = attachment.type;
         if(type == TYPE_DOC)
-            id = attachment.document.owner_id + "_" + attachment.document.id + "_" + attachment.document.access_key;
+            onlineAttachment.setId(attachment.document.owner_id + "_" + attachment.document.id + "_" + attachment.document.access_key);
         if(type == TYPE_AUDIO)
-            id = attachment.audio.owner_id + "_" + attachment.audio.aid;
+            onlineAttachment.setId(attachment.audio.owner_id + "_" + attachment.audio.aid);
         if(type == TYPE_PHOTO)
-            id = attachment.photo.owner_id + "_" + attachment.photo.pid + "_" + attachment.photo.access_key;
+            onlineAttachment.setId(attachment.photo.owner_id + "_" + attachment.photo.pid + "_" + attachment.photo.access_key);
         if(type == TYPE_VIDEO)
-            id = attachment.video.owner_id + "_" + attachment.video.vid + "_" + attachment.video.access_key;
+            onlineAttachment.setId(attachment.video.owner_id + "_" + attachment.video.vid + "_" + attachment.video.access_key);
+        online.add(onlineAttachment);
     }
     public Attachment(String type, String filename) {
         this.type = type;
@@ -73,20 +68,21 @@ public class Attachment {
             if (downloads_folder == null)
                 downloads_folder = new File(ApplicationManager.getDownloadsFolder());
 
+            if (attachments_folder != null && !filename.isEmpty())
+                file = new File(attachments_folder, filename);
+
             //вот тут прикол. Надо скачать файл с соцсети.
-            if(!network.isEmpty() && !id.isEmpty()){
-                if(network.equals(NETWORK_VK)){
+            if(!online.isEmpty()){
+                if(online.get(0).network.equals(NETWORK_VK)){
                     file = applicationManager.getCommunicator().downloadVkAttachment(this);
                     return file;
                 }
-                if(network.equals(NETWORK_TG)){
+                if(online.get(0).network.equals(NETWORK_TG)){
                     file = applicationManager.getCommunicator().downloadTgAttachment(this);
                     return file;
                 }
             }
 
-            if (attachments_folder != null && !filename.isEmpty())
-                file = new File(attachments_folder, filename);
         }
         return file;
     }
@@ -135,16 +131,73 @@ public class Attachment {
     public void setFilename(String filename) {
         this.filename = filename;
     }
-    public String getNetwork() {
-        return network;
+    public ArrayList<OnlineAttachment> getOnline() {
+        return online;
     }
-    public void setNetwork(String network) {
-        this.network = network;
+    public boolean hasVkCache(){
+        for(OnlineAttachment onlineAttachment:online)
+            if(onlineAttachment.isVk())
+                return true;
+        return false;
     }
-    public String getId() {
-        return id;
+    public boolean hasTgCache(){
+        for(OnlineAttachment onlineAttachment:online)
+            if(onlineAttachment.isTg())
+                return true;
+        return false;
     }
-    public void setId(String id) {
-        this.id = id;
+    public OnlineAttachment getVkCache(){
+        for(OnlineAttachment onlineAttachment:online)
+            if(onlineAttachment.isVk())
+                return onlineAttachment;
+        return null;
+    }
+    public OnlineAttachment getTgCache(){
+        for(OnlineAttachment onlineAttachment:online)
+            if(onlineAttachment.isTg())
+                return onlineAttachment;
+        return null;
+    }
+
+    public class OnlineAttachment{
+        private String network = "";   //(для входящих вложений) соцсеть откуда мы получили вложение
+        private String id = "";        //(для входящих вложений) идентификатор вложения внутри соцсети
+
+        public OnlineAttachment() {
+        }
+
+        public OnlineAttachment(String network, String id) {
+            this.network = network;
+            this.id = id;
+        }
+
+        public String getNetwork() {
+            return network;
+        }
+
+        public void setNetwork(String network) {
+            this.network = network;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public boolean isVk(){
+            return network.equals(NETWORK_VK);
+        }
+        public boolean isTg(){
+            return network.equals(NETWORK_TG);
+        }
+    }
+    public static ArrayList<Attachment> convertAttachments(ArrayList<com.perm.kate.api.Attachment> attachments){
+        ArrayList<Attachment> result = new ArrayList<>();
+        for(com.perm.kate.api.Attachment attachment:attachments)
+            result.add(new Attachment(attachment));
+        return result;
     }
 }

@@ -1,5 +1,7 @@
 package com.fsoft.vktest.Communication.Account.Telegram;
 
+import com.android.volley.TimeoutError;
+import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment;
 import com.fsoft.vktest.AnswerInfrastructure.MessageBase;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.VK.VkAccount;
@@ -172,32 +174,45 @@ public class MessageProcessor extends CommandModule {
                 log("\nОтправлено сообщений: " + messagesSentCounter);
                 log("\nВыполнено запросов к API: " + tgAccount.getApiCounter());
                 log("\nОшибок при доступе к API: " + tgAccount.getErrorCounter());
-                java.io.File file = null;
-                if(!answer.getAnswer().attachments.isEmpty() && answer.getAnswer().attachments.get(0).isPhoto()) {
+                int attachmentsSent = 0;
+
+                final TgAccountCore.SendMessageListener listener = new TgAccountCore.SendMessageListener() {
+                    @Override
+                    public void sentMessage(Message message) {
+                        log(". Отправлено сообщение: " + message);
+                        inctementMessagesSentCounter();
+                    }
+
+                    @Override
+                    public void error(Throwable error) {
+                        log(error.getClass().getName() + " while sending message");
+                    }
+                };
+
+                //если в сообщении есть вложения, отправим их
+                for(Attachment attachment:answer.getAnswer().attachments){
                     try {
-                        file = answer.getAnswer().attachments.get(0).getFile();
+                        java.io.File file = attachment.getFile();
+                        if(attachment.isPhoto()) {
+                            tgAccount.sendPhoto(listener, message.getChat().getId(), replyText, file);
+                            attachmentsSent++;
+                        }
+                        if(attachment.isDoc()) {
+                            tgAccount.sendDocument(listener, message.getChat().getId(), replyText, file);
+                            attachmentsSent++;
+                        }
+                        if(attachment.isAudio()) {
+                            tgAccount.sendAudio(listener, message.getChat().getId(), replyText, file);
+                            attachmentsSent++;
+                        }
                     }
                     catch (Exception e){
                         e.printStackTrace();
-                        replyText = "Ошибка получения файла вложения: " + e.getMessage();
+                        log("! Ошибка получения файла вложения: " + e.getMessage());
                     }
                 }
-
-                if(file != null) {
-                    tgAccount.sendPhoto(new TgAccountCore.SendMessageListener() {
-                        @Override
-                        public void sentMessage(Message message) {
-                            log(". Отправлено сообщение: " + message);
-                            inctementMessagesSentCounter();
-                        }
-
-                        @Override
-                        public void error(Throwable error) {
-                            log(error.getClass().getName() + " while sending message");
-                        }
-                    }, message.getChat().getId(), replyText, file);
-                }
-                else
+                //если вложений нет, отправим текстом
+                if(attachmentsSent == 0)
                     tgAccount.sendMessage(new TgAccountCore.SendMessageListener() {
                     @Override
                     public void sentMessage(Message message) {

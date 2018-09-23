@@ -1147,22 +1147,24 @@ public class VkAccountCore extends Account {
     public File downloadAttachment(com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment attachment) throws Exception {
         if(attachment.isDoc()){
             Document document = new Document();
-            String id = attachment.getId();     //000_000_000      owner_docid_hash
+            if(!attachment.hasVkCache())
+                throw new Exception("! Данное вложение не сохранено в ВК.");
+            String id = attachment.getVkCache().getId();     //000_000_000      owner_docid_hash
             String[] splitted = id.split("_");
-            if(splitted.length > 0)
+            if (splitted.length > 0)
                 document.owner_id = Long.parseLong(splitted[0]);
-            if(splitted.length > 1)
+            if (splitted.length > 1)
                 document.id = Long.parseLong(splitted[1]);
-            if(splitted.length > 2)
+            if (splitted.length > 2)
                 document.access_key = splitted[2];
-            document.url = "https://vk.com/doc"+document.owner_id+"_"+document.id;
-            if(!document.access_key.isEmpty())
-                document.url += "?hash="+document.access_key;
+            document.url = "https://vk.com/doc" + document.owner_id + "_" + document.id;
+            if (!document.access_key.isEmpty())
+                document.url += "?hash=" + document.access_key;
             document.url += "&api=1";
             return downloadDocument(document);
         }
         else {
-            throw new Exception("Я ещё не умею качать этот тип вложений с ВК.");
+            throw new Exception("! Я ещё не умею качать этот тип вложений с ВК.");
         }
     }
     public File downloadDocument(Document document) throws Exception{

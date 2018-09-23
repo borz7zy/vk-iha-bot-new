@@ -2509,12 +2509,12 @@ public class AnswerDatabase extends BotModule {
             //sdcard\backups\database\backup_yyyy-MM-dd_HH-mm.bin
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.ENGLISH);
             String folderWithBackups = applicationManager.getHomeFolder() + File.separator +
-                    "backups" + File.separator +
-                    "database";
+                    "backups";
             String newAddress = folderWithBackups + File.separator +
-                    "backup_" + reason.replace(" ", "_") + "_" + sdf.format(new Date()) + ".bin";
+                    "database_" + reason.replace(" ", "_") + "_" + sdf.format(new Date()) + ".bin";
             File backupFile = new File(newAddress);
-            if(!backupFile.getParentFile().exists())
+            log(". Резервное копирование базы ответов по адресу: " + backupFile);
+            if(!backupFile.getParentFile().isDirectory())
                 if(!backupFile.getParentFile().mkdir()){
                     log("! Не могу сохранить резервную копию базы данных, потому что не могу создать папку для неё.");
                     return;
@@ -2523,6 +2523,8 @@ public class AnswerDatabase extends BotModule {
                 log("! Не могу сохранить резервную копию базы данных, потому что не могу пененести оригинальный файл в папку с бекапами.");
                 return;
             }
+            else
+                log(". Резервное копирование успешно: " + backupFile);
             if(clearOld)
                 backupsClear();
         }

@@ -6,16 +6,19 @@ import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.Account;
+import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
 
 import org.json.JSONArray;
@@ -362,7 +365,7 @@ public class TgAccountCore extends Account {
                 incrementErrorCounter();
             }
         });
-
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
@@ -492,22 +495,20 @@ public class TgAccountCore extends Account {
                 incrementErrorCounter();
             }
         });
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
-    public void sendPhoto(final SendMessageListener listener, final long chat_id, String text, java.io.File f){
+    public void sendDocument(final SendMessageListener listener, final long chat_id, final String text, final java.io.File f){
         try {
-            final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendPhoto";
+            final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendDocument";
             log(". Sending request: " + url);
             incrementApiCounter();
             HashMap<String, String> headers = new HashMap<String, String>();
-//            headers.put("chat_id", String.valueOf(chat_id));
-//            headers.put("caption", text);
             HashMap<String, String> params = new HashMap<String, String>();
             params.put("chat_id", String.valueOf(chat_id));
             params.put("caption", text);
-            MultiPartReq mPR = new MultiPartReq(url, new Response.ErrorListener() {
+            Response.ErrorListener errorListener =  new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     log(error.getClass().getName() + " while sending request: " + url);
@@ -515,9 +516,10 @@ public class TgAccountCore extends Account {
                     error.printStackTrace();
                     incrementErrorCounter();
                 }
-            }, new Response.Listener<String>() {
+            };
+            Response.Listener<String> responseListener = new Response.Listener<String>() {
                 @Override
-                public void onResponse(String response) {
+                public void onResponse(String  response) {
                     try{
                         log(". Got response: " + response);
                         JSONObject jsonObject = new JSONObject(response);
@@ -537,18 +539,301 @@ public class TgAccountCore extends Account {
                         state("Аккаунт работает");
                     }
                     catch (Exception e){
-                        listener.error(e);
                         e.printStackTrace();
                         incrementErrorCounter();
+                        listener.error(e);
                     }
                 }
-            }, f, "photo", params, headers);
+            };
+            MultiPartReq mPR = new MultiPartReq(url, errorListener, responseListener, f, "document", params, headers);
+            mPR.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             queue.add(mPR);
         }
         catch (Exception e){
             if(listener != null)
                 listener.error(e);
         }
+    }
+    public void sendDocument(final SendMessageListener listener, final long chat_id, String text, final String id){
+        //todo test it
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("chat_id", chat_id);
+            jsonObject.put("text", text);
+            jsonObject.put("document", id);
+        }
+        catch (Exception e){
+            log("! Error building JSON: " + e.toString());
+            e.printStackTrace();
+        }
+        final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendDocument";//?chat_id="+chat_id+"&text="+text;
+        log(". Sending request: " + url);
+        incrementApiCounter();
+        // Request a string response from the provided URL.
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try{
+                            log(". Got response: " + jsonObject.toString());
+                            //JSONObject jsonObject = new JSONObject(response);
+                            if(!jsonObject.has("ok")) {
+                                incrementErrorCounter();
+                                listener.error(new Exception("No OK in response!"));
+                                return;
+                            }
+                            if(!jsonObject.getBoolean("ok")){
+                                incrementErrorCounter();
+                                listener.error(new Exception(jsonObject.optString("description", "No description")));
+                                return;
+                            }
+                            JSONObject result = jsonObject.getJSONObject("result");
+                            Message message = new Message(result);
+                            listener.sentMessage(message);
+                            state("Аккаунт работает");
+                        }
+                        catch (Exception e){
+                            listener.error(e);
+                            e.printStackTrace();
+                            incrementErrorCounter();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                log(error.getClass().getName() + " while sending request: " + url);
+                error.printStackTrace();
+                listener.error(error);
+                incrementErrorCounter();
+            }
+        });
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+    public void sendAudio(final SendMessageListener listener, final long chat_id, final String text, final java.io.File f){
+        try {
+            final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendAudio";
+            log(". Sending request: " + url);
+            incrementApiCounter();
+            HashMap<String, String> headers = new HashMap<String, String>();
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("chat_id", String.valueOf(chat_id));
+            params.put("caption", text);
+            Response.ErrorListener errorListener =  new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    log(error.getClass().getName() + " while sending request: " + url);
+                    listener.error(error);
+                    error.printStackTrace();
+                    incrementErrorCounter();
+                }
+            };
+            Response.Listener<String> responseListener = new Response.Listener<String>() {
+                @Override
+                public void onResponse(String  response) {
+                    try{
+                        log(". Got response: " + response);
+                        JSONObject jsonObject = new JSONObject(response);
+                        if(!jsonObject.has("ok")) {
+                            incrementErrorCounter();
+                            listener.error(new Exception("No OK in response!"));
+                            return;
+                        }
+                        if(!jsonObject.getBoolean("ok")){
+                            incrementErrorCounter();
+                            listener.error(new Exception(jsonObject.optString("description", "No description")));
+                            return;
+                        }
+                        JSONObject result = jsonObject.getJSONObject("result");
+                        Message message = new Message(result);
+                        listener.sentMessage(message);
+                        state("Аккаунт работает");
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                        incrementErrorCounter();
+                        listener.error(e);
+                    }
+                }
+            };
+            MultiPartReq mPR = new MultiPartReq(url, errorListener, responseListener, f, "audio", params, headers);
+            mPR.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            queue.add(mPR);
+        }
+        catch (Exception e){
+            if(listener != null)
+                listener.error(e);
+        }
+    }
+    public void sendAudio(final SendMessageListener listener, final long chat_id, String text, final String id){
+        //todo test it
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("chat_id", chat_id);
+            jsonObject.put("text", text);
+            jsonObject.put("audio", id);
+        }
+        catch (Exception e){
+            log("! Error building JSON: " + e.toString());
+            e.printStackTrace();
+        }
+        final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendAudio";//?chat_id="+chat_id+"&text="+text;
+        log(". Sending request: " + url);
+        incrementApiCounter();
+        // Request a string response from the provided URL.
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try{
+                            log(". Got response: " + jsonObject.toString());
+                            //JSONObject jsonObject = new JSONObject(response);
+                            if(!jsonObject.has("ok")) {
+                                incrementErrorCounter();
+                                listener.error(new Exception("No OK in response!"));
+                                return;
+                            }
+                            if(!jsonObject.getBoolean("ok")){
+                                incrementErrorCounter();
+                                listener.error(new Exception(jsonObject.optString("description", "No description")));
+                                return;
+                            }
+                            JSONObject result = jsonObject.getJSONObject("result");
+                            Message message = new Message(result);
+                            listener.sentMessage(message);
+                            state("Аккаунт работает");
+                        }
+                        catch (Exception e){
+                            listener.error(e);
+                            e.printStackTrace();
+                            incrementErrorCounter();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                log(error.getClass().getName() + " while sending request: " + url);
+                error.printStackTrace();
+                listener.error(error);
+                incrementErrorCounter();
+            }
+        });
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+    public void sendPhoto(final SendMessageListener listener, final long chat_id, final String text, final java.io.File f){
+        try {
+            final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendPhoto";
+            log(". Sending request: " + url);
+            incrementApiCounter();
+            HashMap<String, String> headers = new HashMap<String, String>();
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("chat_id", String.valueOf(chat_id));
+            params.put("caption", text);
+            Response.ErrorListener errorListener =  new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    log(error.getClass().getName() + " while sending request: " + url);
+                    listener.error(error);
+                    error.printStackTrace();
+                    incrementErrorCounter();
+                }
+            };
+            Response.Listener<String> responseListener = new Response.Listener<String>() {
+                @Override
+                public void onResponse(String  response) {
+                    try{
+                        log(". Got response: " + response);
+                        JSONObject jsonObject = new JSONObject(response);
+                        if(!jsonObject.has("ok")) {
+                            incrementErrorCounter();
+                            listener.error(new Exception("No OK in response!"));
+                            return;
+                        }
+                        if(!jsonObject.getBoolean("ok")){
+                            incrementErrorCounter();
+                            listener.error(new Exception(jsonObject.optString("description", "No description")));
+                            return;
+                        }
+                        JSONObject result = jsonObject.getJSONObject("result");
+                        Message message = new Message(result);
+                        listener.sentMessage(message);
+                        state("Аккаунт работает");
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                        incrementErrorCounter();
+                        listener.error(e);
+                    }
+                }
+            };
+            MultiPartReq mPR = new MultiPartReq(url, errorListener, responseListener, f, "photo", params, headers);
+            mPR.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            queue.add(mPR);
+        }
+        catch (Exception e){
+            if(listener != null)
+                listener.error(e);
+        }
+    }
+    public void sendPhoto(final SendMessageListener listener, final long chat_id, String text, final String id){
+        //todo test it
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("chat_id", chat_id);
+            jsonObject.put("text", text);
+            jsonObject.put("photo", id);
+        }
+        catch (Exception e){
+            log("! Error building JSON: " + e.toString());
+            e.printStackTrace();
+        }
+        final String url ="https://api.telegram.org/bot"+getId()+":"+getToken()+"/sendPhoto";//?chat_id="+chat_id+"&text="+text;
+        log(". Sending request: " + url);
+        incrementApiCounter();
+        // Request a string response from the provided URL.
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try{
+                            log(". Got response: " + jsonObject.toString());
+                            //JSONObject jsonObject = new JSONObject(response);
+                            if(!jsonObject.has("ok")) {
+                                incrementErrorCounter();
+                                listener.error(new Exception("No OK in response!"));
+                                return;
+                            }
+                            if(!jsonObject.getBoolean("ok")){
+                                incrementErrorCounter();
+                                listener.error(new Exception(jsonObject.optString("description", "No description")));
+                                return;
+                            }
+                            JSONObject result = jsonObject.getJSONObject("result");
+                            Message message = new Message(result);
+                            listener.sentMessage(message);
+                            state("Аккаунт работает");
+                        }
+                        catch (Exception e){
+                            listener.error(e);
+                            e.printStackTrace();
+                            incrementErrorCounter();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                log(error.getClass().getName() + " while sending request: " + url);
+                error.printStackTrace();
+                listener.error(error);
+                incrementErrorCounter();
+            }
+        });
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     //TELEGRAPH
