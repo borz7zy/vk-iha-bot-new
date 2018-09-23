@@ -194,15 +194,24 @@ public class MessageProcessor extends CommandModule {
                     try {
                         java.io.File file = attachment.getFile();
                         if(attachment.isPhoto()) {
-                            tgAccount.sendPhoto(listener, message.getChat().getId(), replyText, file);
+                            if(attachment.hasTgCache())
+                                tgAccount.sendPhoto(listener, message.getChat().getId(), replyText, attachment.getTgCache().getId());
+                            else
+                                tgAccount.sendPhoto(listener, message.getChat().getId(), replyText, file);
                             attachmentsSent++;
                         }
                         if(attachment.isDoc()) {
-                            tgAccount.sendDocument(listener, message.getChat().getId(), replyText, file);
+                            if(attachment.hasTgCache())
+                                tgAccount.sendDocument(listener, message.getChat().getId(), replyText, attachment.getTgCache().getId());
+                            else
+                                tgAccount.sendDocument(listener, message.getChat().getId(), replyText, file);
                             attachmentsSent++;
                         }
                         if(attachment.isAudio()) {
-                            tgAccount.sendAudio(listener, message.getChat().getId(), replyText, file);
+                            if(attachment.hasTgCache())
+                                tgAccount.sendAudio(listener, message.getChat().getId(), replyText, attachment.getTgCache().getId());
+                            else
+                                tgAccount.sendAudio(listener, message.getChat().getId(), replyText, file);
                             attachmentsSent++;
                         }
                     }
