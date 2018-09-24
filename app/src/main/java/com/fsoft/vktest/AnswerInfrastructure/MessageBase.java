@@ -80,7 +80,8 @@ public class MessageBase {
         this.source = source;
         this.text = text;
         this.author = author;
-        this.attachments = attachments;
+        if(attachments != null)
+            this.attachments = attachments;
         this.botAccount = botAccount;
         this.date = new Date();
     }
@@ -147,7 +148,7 @@ public class MessageBase {
         return true;
     }
     public MessageBase withAttachments(ArrayList<Attachment> attachments) {
-        this.attachments = attachments;
+        setAttachments(attachments);
         return this;
     }
     public MessageBase withBotAccount(Account botAccount) {
@@ -205,7 +206,10 @@ public class MessageBase {
         return attachments;
     }
     public void setAttachments(ArrayList<Attachment> attachments) {
-        this.attachments = attachments;
+        if(attachments != null)
+            this.attachments = new ArrayList<>();
+        else
+            this.attachments = attachments;
     }
     public AccountBase getBotAccount() {
         return botAccount;

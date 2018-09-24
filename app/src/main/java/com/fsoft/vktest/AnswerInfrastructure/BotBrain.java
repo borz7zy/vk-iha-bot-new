@@ -149,6 +149,7 @@ public class BotBrain extends CommandModule {
                 log(". В сообщении обнаружена команда: " + message.getText());
                 String reply = applicationManager.processCommand(remCommandMark(message));
                 message.setAnswer(reply);
+                return message;
             }
             if(ignor.has(message.getAuthor())){
                 log(". Пользователь " + message.getAuthor() + " находится в игноре. Пропуск сообщения...");

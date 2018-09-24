@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -228,6 +229,7 @@ import java.util.Set;
  */
 public class AnswerDatabase extends BotModule {
     private File fileAnswers = null;
+    private File folderAttachments = null;
     private ArrayList<AnswerMicroElement> answers = new ArrayList<>();
     private JaroWinkler jaroWinkler = null;
     private MessagePreparer messagePreparer = null;
@@ -239,6 +241,7 @@ public class AnswerDatabase extends BotModule {
 
     public AnswerDatabase(ApplicationManager applicationManager) throws Exception {
         super(applicationManager);
+        folderAttachments = new File(applicationManager.getHomeFolder(), "attachments");
         fileAnswers = new File(applicationManager.getHomeFolder(), "answer_database.txt");
         if(!fileAnswers.isFile()){
             log(". Файла базы нет. Загрузка файла answer_database.zip из ресурсов...");
@@ -448,6 +451,9 @@ public class AnswerDatabase extends BotModule {
     }
     public ArrayList<AnswerMicroElement> getAnswers() {
         return answers;
+    }
+    public File getFolderAttachments() {
+        return folderAttachments;
     }
 
     private Answer getAnswer(Message message){
@@ -798,7 +804,7 @@ public class AnswerDatabase extends BotModule {
                 throw new Exception("Ответ для добавления содержит слишком много вложений");
         }
 
-        File fileTmp = new File(applicationManager.getHomeFolder(), "Answer_database.tmp");
+        File fileTmp = new File(applicationManager.getHomeFolder(), "answer_database.tmp");
         PrintWriter fileTmpWriter = new PrintWriter(fileTmp);
         BufferedReader bufferedReader = new BufferedReader(new FileReader(fileAnswers));
         String line;
@@ -809,7 +815,7 @@ public class AnswerDatabase extends BotModule {
         while ((line = bufferedReader.readLine()) != null) {
             lineNumber++;
             if (lineNumber % 1000 == 0)
-                log(". Добавление ответа в базу (" + lineNumber + " уже проверено)");
+                log(". Добавление ответа в базу (" + lineNumber + " уже перенесено)");
             try {
                 JSONObject jsonObject = new JSONObject(line);
                 AnswerElement currentAnswerElement = new AnswerElement(jsonObject);
@@ -836,6 +842,7 @@ public class AnswerDatabase extends BotModule {
         }
 
         //такого ответа в базе ещё нет
+        log(". Вношу ответ в новый файл...");
         for(AnswerElement answerElement:answerElements) {
             answerElement.setId(maxId + 1);
             maxId ++;
@@ -850,9 +857,11 @@ public class AnswerDatabase extends BotModule {
             log("! При загрузке базы ответов возникло ошибок: " + errors + ".");
         //Подменить файлы
         backupsManager.backupDatabase("после добавления");
+        log("! Удаляю текущий файл " + fileAnswers.getName() + "...");
         if(!fileAnswers.delete())
-            throw new Exception(log("! Не могу удалить текущий файл с базой " + fileAnswers.getName()));
-        if(fileTmp.renameTo(fileAnswers))
+            throw new Exception(log("! Не могу удалить старый файл базы "+fileAnswers.getName()+"! " +
+                    "Проверь, не запущена ли какая-то длительная процедура, типа фильтрации."));
+        if(!fileTmp.renameTo(fileAnswers))
             throw new Exception(log("! Не могу перенести новый файл на место старого! " +
                     "Проверь, не запущена ли какая-то длительная процедура, типа фильтрации."));
         return answerElements;
@@ -1361,6 +1370,7 @@ public class AnswerDatabase extends BotModule {
                             "Например: addspkpatt Как дела?*Нормально!\n" +
                             "Информация из справки: \n"+
                             F.commandDescToText(getHelp().get(0));
+                message.sendAnswer("Добавляю...");
                 try{
                     AnswerElement answerElement = new AnswerElement(message.getAuthor(), messages[0], messages[1]);
                     answerElement.setAnswerAttachments(message.getAttachments());
@@ -1368,7 +1378,8 @@ public class AnswerDatabase extends BotModule {
                     return "Ответ добавлен: " + answerElement.toString() + "\n";
                 }
                 catch (Exception e){
-                    return e.getMessage() + "\n";
+                    e.printStackTrace();
+                    return "Проблема добавления овтета в базу: " + e.getMessage() + "\n";
                 }
             }
             return "";
@@ -2506,25 +2517,36 @@ public class AnswerDatabase extends BotModule {
                 log("! Не могу сохранить резервную копию базы данных, потому что её на карте тупо нет.");
                 return;
             }
-            //sdcard\backups\database\backup_yyyy-MM-dd_HH-mm.bin
+            //sdcard\backups\database_reason_yyyy-MM-dd_HH-mm.bin
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.ENGLISH);
             String folderWithBackups = applicationManager.getHomeFolder() + File.separator +
                     "backups";
-            String newAddress = folderWithBackups + File.separator +
-                    "database_" + reason.replace(" ", "_") + "_" + sdf.format(new Date()) + ".bin";
-            File backupFile = new File(newAddress);
+            String backupAddress = folderWithBackups + File.separator +
+                    "database_" + reason.replace(" ", "_") + "_" + sdf.format(new Date()) + ".zip";
+            File backupFile = new File(backupAddress);
             log(". Резервное копирование базы ответов по адресу: " + backupFile);
-            if(!backupFile.getParentFile().isDirectory())
-                if(!backupFile.getParentFile().mkdir()){
-                    log("! Не могу сохранить резервную копию базы данных, потому что не могу создать папку для неё.");
-                    return;
-                }
-            if(!fileAnswers.renameTo(backupFile)){
-                log("! Не могу сохранить резервную копию базы данных, потому что не могу пененести оригинальный файл в папку с бекапами.");
+            String rootFolder = applicationManager.getHomeFolder();
+            ArrayList<File> filesToBackup = new ArrayList<>();
+            filesToBackup.add(fileAnswers);
+            if(folderAttachments.isDirectory())
+                filesToBackup.addAll(Arrays.asList(folderAttachments.listFiles()));
+            String[] pathsToBackup = new String[filesToBackup.size()];
+            for (int i = 0; i < filesToBackup.size(); i++)
+                pathsToBackup[i] = filesToBackup.get(i).getPath();
+            log(". Подготовлено для резервирования " + pathsToBackup.length + " файлов");
+            if(!backupFile.getParentFile().isDirectory() && !backupFile.getParentFile().mkdir()){
+                log("! Не могу сохранить резервную копию базы данных, потому что не могу создать папку для неё.");
                 return;
             }
-            else
+            try {
+                F.zip(pathsToBackup, rootFolder, backupAddress);
                 log(". Резервное копирование успешно: " + backupFile);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+                log("! Во время архивации базы данных произошла ошибка: " + e.getMessage());
+                return;
+            }
             if(clearOld)
                 backupsClear();
         }
@@ -2541,8 +2563,7 @@ public class AnswerDatabase extends BotModule {
                             "Когда количество резервных копий превышает это число, старые резервные копии автоматически удаляются.");
             log(". Нужно оставить максимум " + numberOfBackups + " бекапов.");
             String folderWithBackupsAddress = applicationManager.getHomeFolder() + File.separator +
-                    "backups" + File.separator +
-                    "database";
+                    "backups";
             log(". Папка с бекапами: " + folderWithBackupsAddress);
             File folderWithBackups = new File(folderWithBackupsAddress);
             if(!folderWithBackups.isDirectory()) {

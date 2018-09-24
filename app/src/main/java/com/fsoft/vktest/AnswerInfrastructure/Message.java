@@ -24,7 +24,7 @@ public class Message extends MessageBase{
         this.onAnswerReady = onAnswerReady;
     }
     public Message(String source, String text, User author, AccountBase botAccount, OnAnswerReady onAnswerReady) {
-        super(source, text, author, null, botAccount);
+        super(source, text, author, new ArrayList<Attachment>(), botAccount);
         this.onAnswerReady = onAnswerReady;
     }
 

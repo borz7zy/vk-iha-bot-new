@@ -69,8 +69,8 @@ public class AnswerElement{
     private User questionAuthor = null;
     private User createdAuthor = null;
     private User editedAuthor = null;
-    private String questionText = null;
-    private String answerText = null;
+    private String questionText = "";
+    private String answerText = "";
     private String questionAttachments = "";//ex. PPPM - 3 фото и один трек (PMVDRS = PhotoDocumentVideoMusicRecordSticker)
     private ArrayList<Attachment> answerAttachments = new ArrayList<>();
     private char botGender = '-'; //М\Ж\Н\-    Мужской\Женский\Нейтральный\Не указан
@@ -88,7 +88,8 @@ public class AnswerElement{
         this.questionText = questionText;
         this.answerText = answerText;
         this.questionAttachments = questionAttachments;
-        this.answerAttachments = answerAttachments;
+        if(answerAttachments != null)
+            this.answerAttachments = answerAttachments;
         this.botGender = botGender;
         this.userGender = userGender;
         this.timesUsed = timesUsed;
@@ -96,9 +97,11 @@ public class AnswerElement{
 
     public AnswerElement(User createdAuthor, String questionText, String answerText) {
         this.createdAuthor = createdAuthor;
+        this.questionAuthor = createdAuthor;
         this.questionText = questionText;
         this.answerText = answerText;
         createdDate = new Date();
+        questionDate = new Date();
     }
     public AnswerElement(UnknownMessage unknownMessage, Message answer){
         questionDate = unknownMessage.getDate();
@@ -110,7 +113,8 @@ public class AnswerElement{
         questionText = unknownMessage.getText();
         answerText = answer.getText();
         questionAttachments = unknownMessage.getAttachments();
-        answerAttachments = answer.getAttachments();
+        if(answer.getAttachments() != null)
+            answerAttachments = answer.getAttachments();
         botGender = '-';
         userGender = '-';
         timesUsed = 0;
@@ -128,9 +132,12 @@ public class AnswerElement{
             jsonObject.put("createdDate", sdf.format(createdDate));
         if(editedDate != null)
             jsonObject.put("editedDate", sdf.format(editedDate));
-        jsonObject.put("questionAuthor", questionAuthor.toJson());
-        jsonObject.put("createdAuthor", createdAuthor.toJson());
-        jsonObject.put("editedAuthor", editedAuthor.toJson());
+        if(questionAuthor != null)
+            jsonObject.put("questionAuthor", questionAuthor.toJson());
+        if(createdAuthor != null)
+            jsonObject.put("createdAuthor", createdAuthor.toJson());
+        if(editedAuthor != null)
+            jsonObject.put("editedAuthor", editedAuthor.toJson());
         if(questionText != null)
             jsonObject.put("questionText", questionText);
         if(answerText != null)
@@ -175,12 +182,11 @@ public class AnswerElement{
             userGender = (char)jsonObject.getInt("userGender");
         if(jsonObject.has("timesUsed"))
             timesUsed = jsonObject.getInt("timesUsed");
+        answerAttachments.clear();
         if(jsonObject.has("answerAttachments")) {
             JSONArray jsonArray = jsonObject.getJSONArray("answerAttachments");
-            for (int i = 0; i < jsonArray.length(); i++) {
+            for (int i = 0; i < jsonArray.length(); i++)
                 answerAttachments.add(new Attachment(jsonArray.getJSONObject(i)));
-            }
-            //answerAttachments.addAll(Attachment.parseAttachments(jsonArray, 0, 0, null));
         }
     }
     @Override
@@ -365,7 +371,10 @@ public class AnswerElement{
         return true;
     }
     public void setAnswerAttachments(ArrayList<Attachment> answerAttachments) {
-        this.answerAttachments = answerAttachments;
+        if(answerAttachments == null)
+            this.answerAttachments.clear();
+        else
+            this.answerAttachments = answerAttachments;
     }
     public char getBotGender() {
         return botGender;

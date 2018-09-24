@@ -334,12 +334,13 @@ public class F {
             zis.close();
         }
     }
-    public void zip(String[] _files, String parentPath, String zipFileName) {
+    public static void zip(String[] _files, String parentPath, String zipFileName) throws Exception {
+        ZipOutputStream out = null;
         try {
             int BUFFER = 1024;
             BufferedInputStream origin = null;
             FileOutputStream dest = new FileOutputStream(zipFileName);
-            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
+            out = new ZipOutputStream(new BufferedOutputStream(dest));
             byte data[] = new byte[BUFFER];
 
             for (int i = 0; i < _files.length; i++) {
@@ -356,10 +357,9 @@ public class F {
                 }
                 origin.close();
             }
-
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } finally {
+            if(out != null)
+                out.close();
         }
     }
     public static int countLines(String filename) {

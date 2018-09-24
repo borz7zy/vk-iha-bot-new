@@ -245,6 +245,7 @@ public class TgAccountCore extends Account {
             }
         });
         // Add the request to the RequestQueue.
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(stringRequest);
     }
     public void getUpdates(final GetUpdatesListener listener, long offset, int timeout){
@@ -294,7 +295,7 @@ public class TgAccountCore extends Account {
                 incrementErrorCounter();
             }
         });
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 50000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
@@ -886,6 +887,7 @@ public class TgAccountCore extends Account {
             }
         });
         // Add the request to the RequestQueue.
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(stringRequest);
     }
     public void createTelegraphPage(final CreateTelegraphPageListener listener, final String name, final String text){
@@ -959,6 +961,7 @@ public class TgAccountCore extends Account {
 
 
         // Add the request to the RequestQueue.
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy( 30000, 5, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         queue.add(stringRequest);
     }
 
