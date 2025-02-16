@@ -37,7 +37,6 @@ import java.util.regex.Pattern;
 public class Communicator extends CommandModule {
     private ArrayList<VkAccount> vkAccounts = new ArrayList<>();
     private ArrayList<TgAccount> tgAccounts = new ArrayList<>();
-    private WallManager wallManager = null;
     private FileStorage file = null;
     private boolean running = false;
 //    private Context context; // Add Context
@@ -46,7 +45,6 @@ public class Communicator extends CommandModule {
         super(applicationManager);
 //        this.context = applicationManager.getContext(); // Get context from ApplicationManager
         file = new FileStorage("communicator", applicationManager);
-        wallManager = new WallManager(this);
 
         childCommands.add(new Status(applicationManager));
         childCommands.add(new Save(applicationManager));
@@ -92,17 +90,11 @@ public class Communicator extends CommandModule {
     public void startModule(){
         log("Запуск коммуникатора...");
         running = true;
-        wallManager.startModule();
-        for(VkAccount vkAccount:vkAccounts)
-            vkAccount.startAccount();
         for(TgAccount tgAccount:tgAccounts)
             tgAccount.startAccount();
     }
     public void stopModule(){
         running = false;
-        wallManager.stopModule();
-        for(VkAccount vkAccount:vkAccounts)
-            vkAccount.stopAccount();
         for(TgAccount tgAccount:tgAccounts)
             tgAccount.stopAccount();
     }

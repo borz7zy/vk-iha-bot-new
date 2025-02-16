@@ -17,10 +17,6 @@ import java.util.Locale;
  * Created by Dr. Failov on 21.04.2017.
  */
 public class AnswerMicroElement {
-    public static final char GENDER_MALE = 'М';
-    public static final char GENDER_FEMALE = 'Ж';
-    public static final char GENDER_NEUTRAL = 'Н';
-    public static final char GENDER_UNDEFINED = '-';
 
     /** Какая инфа про ответ должна хранится для подбора ответа:
      * + ID ответа (id, long. В случае коллизий генерировать новые)
@@ -32,8 +28,6 @@ public class AnswerMicroElement {
      * + количество вложений видео в вопросе
      * + количество вложений документов в вопросе
      * + количество вложений музыки в вопросе
-     * + пол бота (bot_gender, М\Ж\-)
-     * + пол собеседника (user_gender, М\Ж\-)
      * */
     private long id = 0;
     private String questionTextPrepared = null;
@@ -46,20 +40,25 @@ public class AnswerMicroElement {
     private int questionStickers = 0;
     private String answerText = null;
     private ArrayList<Attachment> answerAttachments = new ArrayList<>();
-    private char botGender = '-'; //М\Ж\Н\-    Мужской\Женский\Нейтральный\Не указан
-    private char userGender = '-'; //М\Ж\Н\-
     private boolean validated = true;
 
     public AnswerMicroElement(JSONObject jsonObject, MessagePreparer preparer) throws JSONException, ParseException{
         if(jsonObject.has("id"))
             id = jsonObject.getLong("id");
-        if(jsonObject.has("questionText")) {
-            String questionText = jsonObject.getString("questionText");
-            questionTextPrepared = preparer.prepare(questionText);
-            questionLength = questionText.length();
+        if(jsonObject.has("questionMessage")) {
+            JSONObject questionMessage = jsonObject.getJSONObject("questionMessage");
+            if(questionMessage.has("text")) {
+                String questionText = questionMessage.getString("text");
+                questionTextPrepared = preparer.prepare(questionText);
+                questionLength = questionText.length();
+            }
         }
-        if(jsonObject.has("answerText"))
-            answerText = jsonObject.getString("answerText");
+        if(jsonObject.has("answerMessage")) {
+            JSONObject answerMessage = jsonObject.getJSONObject("answerMessage");
+            if(answerMessage.has("text")) {
+                answerText = answerMessage.getString("text");
+            }
+        }
         if(jsonObject.has("questionAttachments")) {
             String questionAttachments = jsonObject.getString("questionAttachments");
             questionPhotos = questionAttachments.length() - questionAttachments.replace("P", "").length();
@@ -69,10 +68,6 @@ public class AnswerMicroElement {
             questionRecords = questionAttachments.length() - questionAttachments.replace("R", "").length();
             questionStickers = questionAttachments.length() - questionAttachments.replace("S", "").length();
         }
-        if(jsonObject.has("botGender"))
-            botGender = (char)jsonObject.getInt("botGender");
-        if(jsonObject.has("userGender"))
-            userGender = (char)jsonObject.getInt("userGender");
         if(jsonObject.has("validated"))
             validated = jsonObject.getBoolean("validated");
         if(jsonObject.has("answerAttachments")) {
@@ -129,14 +124,14 @@ public class AnswerMicroElement {
 
         result += " -> " + answerText;
 
-        if(answerAttachments.size() > 0)
+        if(!answerAttachments.isEmpty())
             result += " (+";
         for (int i = 0; i < answerAttachments.size(); i++) {
             result += answerAttachments.get(i).getType();
             if(i < answerAttachments.size() - 1)
                 result += ", ";
         }
-        if(answerAttachments.size() > 0)
+        if(!answerAttachments.isEmpty())
             result += ")";
         return result;
     }
@@ -215,18 +210,6 @@ public class AnswerMicroElement {
     }
     public void setAnswerAttachments(ArrayList<Attachment> answerAttachments) {
         this.answerAttachments = answerAttachments;
-    }
-    public char getBotGender() {
-        return botGender;
-    }
-    public void setBotGender(char botGender) {
-        this.botGender = botGender;
-    }
-    public char getUserGender() {
-        return userGender;
-    }
-    public void setUserGender(char userGender) {
-        this.userGender = userGender;
     }
     public boolean isValidated() {
         return validated;
