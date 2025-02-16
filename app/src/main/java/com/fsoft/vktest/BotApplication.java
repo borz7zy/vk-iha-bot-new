@@ -1,6 +1,7 @@
 package com.fsoft.vktest;
 
 import android.app.Application;
+import android.content.Intent;
 import android.content.res.Configuration;
 
 import com.fsoft.vktest.ViewsLayer.MainActivity;
@@ -18,6 +19,8 @@ public class BotApplication extends Application
         super.onCreate();
         // Required initialization logic here!
         instance = this;
+        Intent serviceIntent = new Intent(this, BotService.class);
+        startForegroundService(serviceIntent);
     }
 
     public static BotApplication getInstance() {

@@ -21,8 +21,10 @@ public class BootReceiver extends BroadcastReceiver {
             Log.d("BOT", "BOOT COMPLETED EVENT. Scheduling bot running after 15 seconds...");
 
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            Intent intent1 = new Intent(context, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent1, 0);
+            Intent intent1 = new Intent(context, BotService.class);
+            context.startForegroundService(intent1);
+            Intent intent2 = new Intent(context, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent2, 0);
             alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 15000, pendingIntent);
         }
     }

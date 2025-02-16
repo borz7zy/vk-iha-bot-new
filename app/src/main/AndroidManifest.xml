@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
     <!-- Для работы с внешним хранилищем на Android 11 и выше -->
@@ -25,13 +26,22 @@
             android:theme="@style/CustomTheme">
 
         <!-- Сервис для бота -->
-        <service android:name=".BotService"/>
+        <service android:name=".BotService"
+                 android:enabled="true"
+                 android:exported="false"
+                 android:foregroundServiceType="connectedDevice" >
+        </service>
+
 
         <!-- Приемник для загрузки при старте системы -->
-        <receiver android:name=".BootReceiver">
+        <receiver android:name=".BootReceiver"
+                  android:enabled="true"
+                  android:exported="true"
+                  android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <category android:name="android.intent.category.HOME" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+<!--                <category android:name="android.intent.category.HOME" />-->
             </intent-filter>
         </receiver>
 
@@ -41,7 +51,8 @@
                   android:launchMode="singleTop"
                   android:screenOrientation="nosensor"
                   android:theme="@style/Theme.AppCompat.Light"
-                  android:icon="@drawable/bot">
+                  android:icon="@drawable/bot"
+                  android:exported="true">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
