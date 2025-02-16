@@ -2,6 +2,7 @@ package com.fsoft.vktest.Modules;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Context;
 
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
@@ -22,6 +23,8 @@ public class Autoreboot extends CommandModule {
     private boolean enabled = false;
     private long interval = 172800000; //2 days
     private Timer timer = null;
+//    private Context context; // Add Context
+
 
     public Autoreboot(ApplicationManager applicationManager) {
         super(applicationManager);

@@ -1,11 +1,13 @@
 package com.fsoft.vktest.ViewsLayer.MessagesFragment;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +26,6 @@ import com.fsoft.vktest.R;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.SimpleTimeZone;
 
 public class MessagesFragment extends Fragment {
     private String TAG = "MessagesFragment";
@@ -35,17 +36,15 @@ public class MessagesFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout = null;
     private BotBrain.OnMessageStatusChangedListener messagesListener = null;
 
-
     public MessagesFragment() {
         applicationManager = ApplicationManager.getInstance();
         handler = new Handler();
     }
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_messages_list, null, false);
+        View view = inflater.inflate(R.layout.activity_messages_list, container, false);
         listView = view.findViewById(R.id.activityMessagesListListView);
         swipeRefreshLayout = view.findViewById(R.id.activityMessagesListPullToRefresh);
         messagesAdapter = new MessagesAdapter(applicationManager);
@@ -56,46 +55,26 @@ public class MessagesFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(messagesListener == null)
+        if (messagesListener == null)
             messagesListener = new BotBrain.OnMessageStatusChangedListener() {
                 @Override
                 public void messageReceived(Message message) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            messagesAdapter.notifyDataSetChanged();
-                        }
-                    });
+                    handler.post(() -> messagesAdapter.notifyDataSetChanged());
                 }
 
                 @Override
                 public void messageAnswered(Message message) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            messagesAdapter.notifyDataSetChanged();
-                        }
-                    });
+                    handler.post(() -> messagesAdapter.notifyDataSetChanged());
                 }
 
                 @Override
                 public void messageError(Message message, Exception e) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            messagesAdapter.notifyDataSetChanged();
-                        }
-                    });
+                    handler.post(() -> messagesAdapter.notifyDataSetChanged());
                 }
 
                 @Override
                 public void messageIgnored(Message message) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            messagesAdapter.notifyDataSetChanged();
-                        }
-                    });
+                    handler.post(() -> messagesAdapter.notifyDataSetChanged());
                 }
             };
         applicationManager.getBrain().addMessageListener(messagesListener);

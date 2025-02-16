@@ -1,12 +1,9 @@
 package com.fsoft.vktest.ViewsLayer.AccountsFragment;
 
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Dimension;
-import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -15,14 +12,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.annotation.Dimension;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.BotService;
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccount;
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccountCore;
+import com.fsoft.vktest.Communication.Communicator;
 import com.fsoft.vktest.R;
 import com.fsoft.vktest.Utils.F;
 import com.fsoft.vktest.ViewsLayer.MainActivity;
@@ -36,16 +37,15 @@ public class AccountsFragment extends Fragment {
     private MainActivity activity = null;
     private View addAccountButton = null;
     private LinearLayout accountsList = null;
-    private  LayoutInflater layoutInflater = null;
+    private LayoutInflater layoutInflater = null;
     private SwipeRefreshLayout swipeRefreshLayout = null;
     private Handler handler = new Handler();
 
-    public AccountsFragment() {
-        applicationManager = BotService.applicationManager;
+    public AccountsFragment(ApplicationManager applicationManager) {
+        this.applicationManager = applicationManager;
         activity = MainActivity.getInstance();
         layoutInflater = LayoutInflater.from(activity);
     }
-
 
     @Nullable
     @Override
@@ -77,14 +77,25 @@ public class AccountsFragment extends Fragment {
 
     @Override
     public void onPause() {
-        //сбросить лисененов, чтобы программа не вылетела после смены экрана
-        ArrayList<TgAccount> tgAccounts = applicationManager.getCommunicator().getTgAccounts();
-        for(TgAccount tgAccount:tgAccounts){
-            tgAccount.setApiCounterChangedListener(null);
-            tgAccount.setApiErrorsChangedListener(null);
-            tgAccount.setOnStateChangedListener(null);
-            tgAccount.getMessageProcessor().setOnMessagesSentCounterChangedListener(null);
-            tgAccount.getMessageProcessor().setOnMessagesReceivedCounterChangedListener(null);
+        // Сбросить лисенеров, чтобы программа не вылетела после смены экрана
+        Communicator communicator = applicationManager.getCommunicator();
+        if (communicator != null) {
+            ArrayList<TgAccount> tgAccounts = communicator.getTgAccounts();
+            if (tgAccounts != null) {
+                for (TgAccount tgAccount : tgAccounts) {
+                    if (tgAccount != null) {
+                        tgAccount.setApiCounterChangedListener(null);
+                        tgAccount.setApiErrorsChangedListener(null);
+                        tgAccount.setOnStateChangedListener(null);
+                        tgAccount.getMessageProcessor().setOnMessagesSentCounterChangedListener(null);
+                        tgAccount.getMessageProcessor().setOnMessagesReceivedCounterChangedListener(null);
+                    }
+                }
+            } else {
+                Log.w("onPause", "TgAccounts is null");
+            }
+        } else {
+            Log.w("onPause", "Communicator is null");
         }
         super.onPause();
     }
@@ -95,8 +106,14 @@ public class AccountsFragment extends Fragment {
         super.onAttach(context);
     }
 
-    public void addAccount(){
-        TgAccount tgAccount = new TgAccount(applicationManager, "tg"+System.currentTimeMillis());
+    public void addAccount() {
+        //Проверка на null для ApplicationManager
+        if (ApplicationManager.getInstance() == null || ApplicationManager.getInstance().getContext() == null) {
+            activity.showMessage("ApplicationManager еще не инициализирован. Попробуйте позже.");
+            return; // Прерываем выполнение, чтобы избежать NullPointerException
+        }
+
+        TgAccount tgAccount = new TgAccount(applicationManager, "tg" + System.currentTimeMillis());
         applicationManager.getCommunicator().addAccount(tgAccount);
         tgAccount.login(new Runnable() {
             @Override
@@ -106,33 +123,32 @@ public class AccountsFragment extends Fragment {
         });
     }
 
-    private void refresh(){
+    private void refresh() {
         swipeRefreshLayout.setRefreshing(true);
         fill();
         swipeRefreshLayout.setRefreshing(false);
     }
 
-
-
-    private  void fill() {
-        if(applicationManager == null || activity == null || accountsList == null)
+    private void fill() {
+        if (applicationManager == null || activity == null || accountsList == null)
             return;
         accountsList.removeAllViews();
         //получить список
         ArrayList<TgAccount> tgAccounts = applicationManager.getCommunicator().getTgAccounts();
 
-        if(tgAccounts.isEmpty()){
+        if (tgAccounts.isEmpty()) {
             accountsList.addView(getEmptyView());
             return;
         }
         //заполнить
-        for(TgAccount tgAccount:tgAccounts){
+        for (TgAccount tgAccount : tgAccounts) {
             accountsList.addView(getTgAccount(tgAccount));
         }
 
         accountsList.addView(getTextView("Нажми на аккаунт, чтобы изменить его настройки"));
     }
-    private View getTgAccount(final TgAccount tgAccount){
+
+    private View getTgAccount(final TgAccount tgAccount) {
         View view = layoutInflater.inflate(R.layout.item_account_tg, null, false);
         view.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -245,20 +261,23 @@ public class AccountsFragment extends Fragment {
 
         return view;
     }
-    private TextView getTextView(String text){
+
+    private TextView getTextView(String text) {
         TextView endText = new TextView(activity);
         endText.setText(text);
-        endText.setTextColor(activity.getResources().getColor(R.color.hint_text_color, activity.getTheme()));
+        endText.setTextColor(ContextCompat.getColor(activity, R.color.hint_text_color));
         endText.setTextSize(Dimension.SP, 12);
         endText.setGravity(Gravity.CENTER);
         endText.setPadding(F.dp(10), F.dp(10), F.dp(10), F.dp(10));
         endText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return endText;
     }
-    private View getEmptyView(){
+
+    private View getEmptyView() {
         return getTextView("Не добавлено ни одного аккаунта. Чтобы добавить аккаунт, нажми на \"+\" вверху.");
     }
-    private void showAccountMenu(final TgAccount tgAccount, View v){
+
+    private void showAccountMenu(final TgAccount tgAccount, View v) {
         PopupMenu popupMenu = new PopupMenu(activity, v);
         popupMenu.getMenu().add("Удалить аккаунт").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override

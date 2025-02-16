@@ -1,9 +1,11 @@
 package com.fsoft.vktest.Communication.Account;
 
 import android.widget.ImageView;
+import android.content.Context;
 
 import com.fsoft.vktest.AnswerInfrastructure.Message;
 import com.fsoft.vktest.ApplicationManager;
+import com.fsoft.vktest.BotApplication;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 import com.fsoft.vktest.R;
@@ -42,11 +44,15 @@ public class Account extends CommandModule implements AccountBase {
     //Имя под которым можно отображать этот аккаунт в программе
     private String screenName = null;
     private Runnable onStateChangedListener = null;
+//    private Context context; // Add Context
 
 
     public Account(ApplicationManager applicationManager, String fileName) {
         super(applicationManager);
+
         this.fileName = fileName;
+//        this.context = applicationManager.getContext();
+//        this.context = BotApplication.getInstance().getApplicationManager().getContext();
         fileStorage = new FileStorage(fileName, applicationManager);
         log(". Создан аккаунт: " + fileName);
 
@@ -129,6 +135,11 @@ public class Account extends CommandModule implements AccountBase {
         //эта функция нужна для того чтобы список аккаунтов можно было сохранить, не только загрузить
         return fileName;
     }
+
+    protected FileStorage getStorage() { // Make sure getStorage is protected
+        return fileStorage;
+    }
+
     public String getScreenName() {
         return screenName;
     }

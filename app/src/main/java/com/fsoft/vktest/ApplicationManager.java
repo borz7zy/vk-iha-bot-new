@@ -1,5 +1,6 @@
 package com.fsoft.vktest;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
@@ -109,20 +110,22 @@ public class ApplicationManager extends CommandModule {
     private DatabaseBackuper databaseBackuper = null;
     private HttpServer httpServer = null;
 
-
     private long startedTime = 0; //нужен для учёта времени аптайма
     private boolean standby = false;
+
+    private Context context; // Add Context
 
     public ApplicationManager(BotService service) throws Exception{
         super();
         applicationManager = this;
         applicationManagerInstance = this;
         this.service = service;
+        this.context = service.getApplicationContext(); // Get application context
         startedTime = System.currentTimeMillis();
         parameters = new Parameters(this);
         CommandParser.applicationManager = this;
         communicator = new Communicator(this);
-        brain = new BotBrain(ApplicationManager.this);
+        brain = new BotBrain(this, context); // Pass context to BotBrain
         databaseBackuper = new DatabaseBackuper(this);
         securityProvider = new SecurityProvider(this);
         messageHistory = new MessageHistory(this);
@@ -148,9 +151,15 @@ public class ApplicationManager extends CommandModule {
     public static String getDownloadsFolder(){
         return getHomeFolder() + File.separator + "downloads";
     }
+
     public Context getContext(){
-        return service;
+        return context;
     }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
     public String log(String text){
         Log.d("VK iHA bot", text);
         return text;
@@ -187,7 +196,7 @@ public class ApplicationManager extends CommandModule {
         stopWiFiLock();
     }
 
-
+    @SuppressLint("InvalidWakeLockTag")
     private void startWiFiLock(){
         try {
             if(wifiLock == null) {
@@ -227,5 +236,4 @@ public class ApplicationManager extends CommandModule {
             log("Ошибка разблокировки Wi-Fi: " + e.toString());
         }
     }
-
 }

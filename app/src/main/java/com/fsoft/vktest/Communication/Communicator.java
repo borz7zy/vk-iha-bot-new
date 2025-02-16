@@ -1,5 +1,7 @@
 package com.fsoft.vktest.Communication;
 
+import android.content.Context; // Import Context
+
 import com.fsoft.vktest.AnswerInfrastructure.*;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.Modules.Time;
 import com.fsoft.vktest.AnswerInfrastructure.Message;
@@ -38,9 +40,11 @@ public class Communicator extends CommandModule {
     private WallManager wallManager = null;
     private FileStorage file = null;
     private boolean running = false;
+//    private Context context; // Add Context
 
     public Communicator(ApplicationManager applicationManager) {
         super(applicationManager);
+//        this.context = applicationManager.getContext(); // Get context from ApplicationManager
         file = new FileStorage("communicator", applicationManager);
         wallManager = new WallManager(this);
 

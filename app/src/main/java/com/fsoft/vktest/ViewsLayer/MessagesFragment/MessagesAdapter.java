@@ -23,45 +23,43 @@ class MessagesAdapter extends BaseAdapter {
 
     public MessagesAdapter(ApplicationManager applicationManager) {
         this.applicationManager = applicationManager;
-        messageStatuses = applicationManager.getMessageHistory().getMessages();
+        // Если getMessages() возвращает null, используем пустой список
+        messageStatuses = applicationManager.getMessageHistory() != null ? applicationManager.getMessageHistory().getMessages() : new ArrayList<>();
         layoutInflater = LayoutInflater.from(applicationManager.getContext());
         sdf = new SimpleDateFormat("HH:mm");
     }
 
     @Override
     public int getCount() {
-        if(messageStatuses == null)
-            return 0;
-        return messageStatuses.size();
+        return (messageStatuses != null) ? messageStatuses.size() : 0;
     }
 
     @Override
     public Object getItem(int position) {
-        if(messageStatuses == null)
-            return null;
-        return messageStatuses.get(position);
+        return (messageStatuses != null && position >= 0 && position < messageStatuses.size()) ? messageStatuses.get(position) : null;
     }
 
     @Override
     public long getItemId(int position) {
-        if(messageStatuses == null)
-            return 0;
-        return position;
+        return (messageStatuses != null && position >= 0 && position < messageStatuses.size()) ? position : -1;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(messageStatuses == null || layoutInflater == null)
+        if (messageStatuses == null || position < 0 || position >= messageStatuses.size()) {
             return null;
+        }
         View view = convertView;
-        if(view == null)
+        if (view == null)
             view = layoutInflater.inflate(R.layout.item_message_pair, null, false);
+
         MessageStatus message = messageStatuses.get(position);
-        view = fillView(view, message);
-        return view;
+        return fillView(view, message);
     }
 
-    private View fillView(View view, MessageStatus messageStatus){
+    private View fillView(View view, MessageStatus messageStatus) {
+        if (messageStatus == null) return view; // Если messageStatus null, возвращаем view без изменений
+
         TextView userNameLabel = view.findViewById(R.id.bubble_in_username);
         TextView receivedTextLabel = view.findViewById(R.id.bubble_in_text);
         ImageView userAvatarView = view.findViewById(R.id.bubble_in_avatar);
@@ -72,32 +70,34 @@ class MessagesAdapter extends BaseAdapter {
         ImageView botAvatarView = view.findViewById(R.id.bubble_in_bot_avatar);
         ProgressBar progressBarView = view.findViewById(R.id.bubble_in_bot_progressbar);
 
-        userNameLabel.setText(messageStatus.getMessage().getAuthor().getName());
-        receivedTextLabel.setText(messageStatus.getMessage().getText());
-        timeLabel.setText(sdf.format(messageStatus.getMessage().getDate()));
-        botNameLabel.setText(messageStatus.getMessage().getBotAccount().getScreenName());
-        messageStatus.getMessage().getBotAccount().fillAvatar(botAvatarView);
-        if(messageStatus.isReceived()) {
+        if (messageStatus.getMessage() != null) {
+            userNameLabel.setText(messageStatus.getMessage().getAuthor().getName());
+            receivedTextLabel.setText(messageStatus.getMessage().getText());
+            timeLabel.setText(sdf.format(messageStatus.getMessage().getDate()));
+            botNameLabel.setText(messageStatus.getMessage().getBotAccount().getScreenName());
+            messageStatus.getMessage().getBotAccount().fillAvatar(botAvatarView);
+        }
+
+        // Остальная логика для состояния
+        if (messageStatus.isReceived()) {
             checkView.setImageResource(R.drawable.ic_clock_white);
             progressBarView.setVisibility(View.VISIBLE);
             botAnswerTextLabel.setText("Подготовка ответа...");
-        }
-        if(messageStatus.isAnswered()) {
+        } else if (messageStatus.isAnswered()) {
             checkView.setImageResource(R.drawable.ic_check);
             progressBarView.setVisibility(View.GONE);
             botAnswerTextLabel.setText(messageStatus.getMessage().getAnswer().toString());
-        }
-        if(messageStatus.isIgnored()) {
+        } else if (messageStatus.isIgnored()) {
             checkView.setImageResource(R.drawable.ic_minus);
             progressBarView.setVisibility(View.GONE);
             botAnswerTextLabel.setText("Пропуск");
-        }
-        if(messageStatus.isError()){
-            checkView.setImageResource(R.drawable.ic_cross);
+        } else if (messageStatus.isError()) {
+            checkView.setImageResource(R.drawable.ic_cross_n_v);
             progressBarView.setVisibility(View.GONE);
             botAnswerTextLabel.setText("Ошибка подбора ответа");
         }
 
         return view;
     }
+
 }

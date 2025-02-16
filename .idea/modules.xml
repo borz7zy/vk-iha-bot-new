@@ -5,6 +5,15 @@
       <module fileurl="file://$PROJECT_DIR$/VK_iHA_bot.iml" filepath="$PROJECT_DIR$/VK_iHA_bot.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/mycheckboxview/mycheckboxview.iml" filepath="$PROJECT_DIR$/mycheckboxview/mycheckboxview.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vk-iha-bot-new.iml" filepath="$PROJECT_DIR$/.idea/modules/vk-iha-bot-new.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/vk-iha-bot-new.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/vk-iha-bot-new.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/vk-iha-bot-new.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/vk-iha-bot-new.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/vk-iha-bot-new.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/vk-iha-bot-new.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/vk-iha-bot-new.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/vk-iha-bot-new.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mycheckboxview/vk-iha-bot-new.mycheckboxview.iml" filepath="$PROJECT_DIR$/.idea/modules/mycheckboxview/vk-iha-bot-new.mycheckboxview.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mycheckboxview/vk-iha-bot-new.mycheckboxview.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/mycheckboxview/vk-iha-bot-new.mycheckboxview.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mycheckboxview/vk-iha-bot-new.mycheckboxview.main.iml" filepath="$PROJECT_DIR$/.idea/modules/mycheckboxview/vk-iha-bot-new.mycheckboxview.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mycheckboxview/vk-iha-bot-new.mycheckboxview.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/mycheckboxview/vk-iha-bot-new.mycheckboxview.unitTest.iml" />
     </modules>
   </component>
 </project>

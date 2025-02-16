@@ -1,5 +1,7 @@
 package com.fsoft.vktest.AnswerInfrastructure;
 
+import android.content.Context; // Импорт Context
+
 import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.AnswerDatabase;
 import com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.UnknownMessagesDatabase;
 import com.fsoft.vktest.AnswerInfrastructure.Functions.FunctionProcessor;
@@ -46,6 +48,7 @@ import java.util.*;
  *
  * Ответ подбирает AnswerDatabase. На вход он получает полный текст сообщения "бот, привет"
  * Обращение модуль сам должен убрать при помощи функции в BotBrain
+ * Он же проверяет факт наличия обращения
  *
  *
  *
@@ -78,7 +81,6 @@ public class BotBrain extends CommandModule {
         void messageIgnored(Message message);
     }
 
-
     private AnswerDatabase answerDatabase;
     private UnknownMessagesDatabase unknownMessages;
     private PatternProcessor patternProcessor;
@@ -91,11 +93,12 @@ public class BotBrain extends CommandModule {
     private Learning learning = null;
     private Filter filter = null;
     private ArrayList<OnMessageStatusChangedListener> messageListeners = new ArrayList<>();
+    private Context context; // Добавляем Context
 
-
-    public BotBrain(ApplicationManager applicationManager) throws Exception {
+    public BotBrain(ApplicationManager applicationManager, Context context) throws Exception {
         super(applicationManager);
-        fileStorage = new FileStorage("iHA_Brain", applicationManager);
+        this.context = context; // Сохраняем Context
+        fileStorage = new FileStorage("iHA_Brain", applicationManager); // Передаём Context
         answerDatabase = new AnswerDatabase(applicationManager);
         learning = new Learning(applicationManager);
         unknownMessages = new UnknownMessagesDatabase(applicationManager);
@@ -196,10 +199,10 @@ public class BotBrain extends CommandModule {
         return message;
     }
     /*ОБРАЩЕНИЯ
-    * Они хранятся в том виде в котором будут использоваться. если надо чтобы было с запятой - будет с запятой.
-    * если вписать без запятой, то бот будет реагировать без запятой.
-    * Обращения хранятся в памяти без пробела
-    * в сообщении между обращением и текстом пробел обязателен (если нет другого знака)*/
+     * Они хранятся в том виде в котором будут использоваться. если надо чтобы было с запятой - будет с запятой.
+     * если вписать без запятой, то бот будет реагировать без запятой.
+     * Обращения хранятся в памяти без пробела
+     * в сообщении между обращением и текстом пробел обязателен (если нет другого знака)*/
     public boolean hasTreatment(Message message){
         //Эта функция должна принимать на вход сообщение и определять есть ли в нём обращение к боту
         //то есть, надо ли на это сообщение отвечать в разговоре

@@ -1,16 +1,20 @@
 package com.fsoft.vktest.ViewsLayer;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
+import com.fsoft.vktest.BotApplication;
+import com.google.android.material.snackbar.Snackbar;
 
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.BotService;
@@ -23,19 +27,7 @@ import com.fsoft.vktest.ViewsLayer.MessagesFragment.MessagesFragment;
 
 import java.util.ArrayList;
 
-import me.tangke.slidemenu.SlideMenu;
-
-/**
- * Created by Dr. Failov on 28.11.2017.
- */
-
-
-//todo Надо чтобы "отправитель", "автор" были у нас Stringами, потому что в том же телеграме это строка
-    //примеры vk:id1488    tg:drfailov
-
-
-
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends AppCompatActivity {
     private static MainActivity instance = null;
     public static MainActivity getInstance() {
         return instance;
@@ -44,38 +36,44 @@ public class MainActivity extends FragmentActivity {
     private String TAG = "MainActivity";
     private Handler handler = new Handler();
     private FrameLayout mainFrame = null;
-    private SlideMenu slideMenu = null;
+    private DrawerLayout drawerLayout = null;
 
-    private ArrayList<Fragment> fragmentQueue = new ArrayList<>(); //zero activity = active,    first = last,     second = prelast
-
+    private ArrayList<Fragment> fragmentQueue = new ArrayList<>(); // zero activity = active, first = last, second = prelast
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+
         mainFrame = findViewById(R.id.main_frame);
-        slideMenu = findViewById(R.id.main_slideMenu);
+        drawerLayout = findViewById(R.id.drawer_layout);
+
         configureSideMenu();
 
-        //проверить запущен ли сервис. если нет - запустить.
+        // Проверка, запущен ли сервис. Если нет — запуск.
         Log.d(TAG, "Starting service...");
         Intent intent = new Intent(getApplicationContext(), BotService.class);
-        startService(intent);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            startForegroundService(intent); // Использование startForegroundService для API 26 и выше
+        } else {
+            startService(intent);
+        }
 
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
+        // Get instance of ApplicationManager and pass the context
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while(ApplicationManager.getInstance() == null)
+                //while (ApplicationManager.getInstance() == null) {
+                while (BotApplication.getInstance().getApplicationManager() == null) {
                     F.sleep(10);
-                while(ApplicationManager.getInstance().getMessageHistory() == null)
+                }
+                // Pass context to ApplicationManager
+                ApplicationManager.getInstance().setContext(getApplicationContext());
+
+                while (ApplicationManager.getInstance().getMessageHistory() == null) {
                     F.sleep(10);
+                }
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -87,34 +85,36 @@ public class MainActivity extends FragmentActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-//        if(BotService.applicationManager != null)
-//            BotService.applicationManager.setActivity(this);
     }
 
     @Override
     protected void onDestroy() {
         instance = null;
         super.onDestroy();
-        //сообщить сервису что активити больше не
     }
 
     @Override
     public void onBackPressed() {
-        if(fragmentQueue.size() <= 1) {
+        if (fragmentQueue.size() <= 1) {
             finish();
             return;
         }
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.remove(fragmentQueue.get(0));
         fragmentQueue.remove(0);
         fragmentTransaction.add(R.id.main_frame, fragmentQueue.get(0));
         fragmentTransaction.commit();
-        //super.onBackPressed();
     }
 
-    public void showMessage(final String text){
+    public void showMessage(final String text) {
         Log.d(TAG, "Message: " + text);
         handler.post(new Runnable() {
             @Override
@@ -123,7 +123,8 @@ public class MainActivity extends FragmentActivity {
             }
         });
     }
-    public void configureSideMenu(){
+
+    public void configureSideMenu() {
         try {
             findViewById(R.id.side_menu_button_accounts).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -140,47 +141,49 @@ public class MainActivity extends FragmentActivity {
             findViewById(R.id.side_menu_button_close).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(BotService.applicationManager != null)
+                    if (BotService.applicationManager != null)
                         BotService.applicationManager.stop();
                     stopService(new Intent(MainActivity.this, BotService.class));
                     finish();
                 }
             });
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             showMessage("Ошибка настройки бокового меню: " + e.getMessage());
         }
     }
 
-    public void openMessagesTab(){
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        if(!fragmentQueue.isEmpty())
+    public void openMessagesTab() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        if (!fragmentQueue.isEmpty())
             fragmentTransaction.remove(fragmentQueue.get(0));
         fragmentQueue.clear();
         fragmentQueue.add(0, new MessagesFragment());
         fragmentTransaction.add(R.id.main_frame, fragmentQueue.get(0));
         fragmentTransaction.commit();
-        slideMenu.close(true);
+        drawerLayout.closeDrawers();
     }
-    public void openAccountsTab(){
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        if(!fragmentQueue.isEmpty())
+
+    public void openAccountsTab() {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        if (!fragmentQueue.isEmpty())
             fragmentTransaction.remove(fragmentQueue.get(0));
         fragmentQueue.clear();
-        fragmentQueue.add(0, new AccountsFragment());
+        fragmentQueue.add(0, new AccountsFragment(BotApplication.getInstance().getApplicationManager()));
         fragmentTransaction.add(R.id.main_frame, fragmentQueue.get(0));
         fragmentTransaction.commit();
-        slideMenu.close(true);
+        drawerLayout.closeDrawers();
     }
-    public void openAccountTab(TgAccount tgAccount){
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        if(!fragmentQueue.isEmpty())
+
+    public void openAccountTab(TgAccount tgAccount) {
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+
+        if (!fragmentQueue.isEmpty())
             fragmentTransaction.remove(fragmentQueue.get(0));
-        //fragmentQueue.clear();
-        fragmentQueue.add(0, new AccountTgFragment(tgAccount));
+
+        fragmentQueue.add(0, new AccountTgFragment(tgAccount, BotApplication.getInstance().getApplicationManager()));
         fragmentTransaction.add(R.id.main_frame, fragmentQueue.get(0));
         fragmentTransaction.commit();
-        slideMenu.close(true);
+        drawerLayout.closeDrawers();
     }
 }

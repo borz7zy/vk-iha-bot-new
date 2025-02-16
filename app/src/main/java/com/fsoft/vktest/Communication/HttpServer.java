@@ -45,7 +45,7 @@ public class HttpServer extends CommandModule implements AccountBase {
     private FileStorage fileStorage = null;
     private Thread serverThread = null;
     private ServerSocket ss = null;
-
+    private Context context; // Add Context
 
     public HttpServer(ApplicationManager applicationManager) {
         super(applicationManager);

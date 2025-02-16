@@ -10,6 +10,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import android.content.Context;
+
 /**
  * Класс, который занимается хранением различных параметров программы, которые может менять пользователь.
  * Список парамеров формируется автоматически основываясь на заросах значений параметров из программы
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 public class Parameters extends CommandModule{
     private FileStorage storage = null;
     private ArrayList<Parameter> parameters = null;
+//    private Context context; // Add Context
 
     public Parameters(ApplicationManager applicationManager){
         super(applicationManager);
@@ -155,7 +158,7 @@ public class Parameters extends CommandModule{
         //сложная для понимания хуйня.
         //Эта функция находит параметры, в которых встречаются все слова из поискового запроса в любых комбинациях
         //Сначала запрос разбивается на слова, после чего выполняется простой поиск по параметрам для каждого из слов.
-        //Резуотиаиы поиска по словам объединяются в общий массив при помощи функции intersect
+        //Резуотиаиты поиска по словам объединяются в общий массив при помощи функции intersect
         String[] words = query.split(" ");
         if(words.length == 0)
             return parameters;

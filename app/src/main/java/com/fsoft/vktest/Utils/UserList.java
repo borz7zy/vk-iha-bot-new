@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
+import android.content.Context;
+
 /**
  * Универсальное решение для хранения разных всяких там список пользователей
  * Created by Dr. Failov on 01.01.2015.
@@ -32,6 +34,7 @@ public class UserList extends CommandModule {
     private String shortDescription; //Список игнорируемых пользователей
     private String description; //Список пользователей, которым бот не будет отвечать. Кроме того, ....
     private FileStorage file;
+//    private Context context; // Add Context
 
     public UserList(String name, String shortDescription, String description, ApplicationManager applicationManager) {
         super(applicationManager);

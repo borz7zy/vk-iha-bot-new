@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.content.Context;
+
 /**
  * Класс, который занимается чтением стены автономно
  * Created by Dr. Failov on 11.03.2017.
@@ -62,6 +64,7 @@ public class Wall extends CommandModule {
         * а дальше загружаем ровно СТОЛЬКО комментариев, на сколько увеличилось число. Это и есть новые комментарии.
         *
         * */
+//    private Context context; // Add Context
 
     public Wall(long id, Communicator communicator) {
         super(communicator.getApplicationManager());

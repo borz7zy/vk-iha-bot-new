@@ -388,7 +388,7 @@
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:src="@drawable/ic_cross" />
+                    android:src="@drawable/ic_cross_n_v" />
 
                 <TextView
                     android:layout_width="wrap_content"

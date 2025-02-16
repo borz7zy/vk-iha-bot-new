@@ -1,14 +1,13 @@
 package com.fsoft.vktest.ViewsLayer.AccountTgFragment;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable; // Заменено на androidx.annotation.Nullable
 
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.BotService;
@@ -34,7 +35,6 @@ public class AccountTgFragment extends Fragment {
     private MainActivity activity = null;
     private Handler handler = null;
 
-
     private ImageView avatarView = null;
     private TextView nameLabel = null;
     private TextView statusLabel = null;
@@ -50,9 +50,8 @@ public class AccountTgFragment extends Fragment {
     private View statusBroadcastingButton = null;
     private TextView statusBroadcastingLabel = null;
 
-
-    public AccountTgFragment(TgAccount tgAccount) {
-        applicationManager = BotService.applicationManager;
+    public AccountTgFragment(TgAccount tgAccount, ApplicationManager applicationManager) {
+        this.applicationManager = applicationManager;
         activity = MainActivity.getInstance();
         handler = new Handler();
         this.tgAccount = tgAccount;
@@ -78,45 +77,29 @@ public class AccountTgFragment extends Fragment {
         statusBroadcastingLabel = view.findViewById(R.id.tg_account_broadcaststatus_label);
         statusBroadcastingButton = view.findViewById(R.id.tg_account_broadcaststatus_button);
 
-
-
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.onBackPressed();
-            }
-        });
-        enabledButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                ArrayList<String> arrayList = new ArrayList<String>();
-                arrayList.add("Включить аккаунт");
-                arrayList.add("Выключить аккаунт");
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(activity, android.R.layout.simple_list_item_1, arrayList);
-                DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                // Включить аккаунт
-                                tgAccount.setEnabled(true);
-                                refresh();
-                                break;
-                            case 1:
-                                // Выключить аккаунт
-                                tgAccount.setEnabled(false);
-                                refresh();
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                };
-                builder.setAdapter(adapter, listener);
-                builder.show();
-            }
+        backButton.setOnClickListener(v -> activity.onBackPressed());
+        enabledButton.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            ArrayList<String> arrayList = new ArrayList<>();
+            arrayList.add("Включить аккаунт");
+            arrayList.add("Выключить аккаунт");
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(activity, android.R.layout.simple_list_item_1, arrayList);
+            DialogInterface.OnClickListener listener = (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        tgAccount.setEnabled(true);
+                        refresh();
+                        break;
+                    case 1:
+                        tgAccount.setEnabled(false);
+                        refresh();
+                        break;
+                    default:
+                        break;
+                }
+            };
+            builder.setAdapter(adapter, listener);
+            builder.show();
         });
 
         refresh();
@@ -129,86 +112,35 @@ public class AccountTgFragment extends Fragment {
         refresh();
         if(tgAccount == null)
             return;
-        //Настройка чтобы работало обновление полей с текстом в реальном времени
-        tgAccount.setApiCounterChangedListener(new Runnable() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(tgAccount == null)
-                            return;
-                        if(apiCounterLabel == null)
-                            return;
-                        long counter = tgAccount.getApiCounter();
-                        apiCounterLabel.setText(String.valueOf(counter));
-                    }
-                });
-            }
-        });
-        tgAccount.setApiErrorsChangedListener(new Runnable() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(tgAccount == null)
-                            return;
-                        if(apiErrorsLabel == null)
-                            return;
-                        long counter = tgAccount.getErrorCounter();
-                        apiErrorsLabel.setText(String.valueOf(counter));
-                    }
-                });
-            }
-        });
-        tgAccount.getMessageProcessor().setOnMessagesReceivedCounterChangedListener(new Runnable() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(tgAccount == null)
-                            return;
-                        if(messagesReceivedLabel == null)
-                            return;
-                        long counter = tgAccount.getMessageProcessor().getMessagesReceivedCounter();
-                        messagesReceivedLabel.setText(String.valueOf(counter));
-                    }
-                });
-            }
-        });
-        tgAccount.getMessageProcessor().setOnMessagesSentCounterChangedListener(new Runnable() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(tgAccount == null)
-                            return;
-                        if(messagesSentLabel == null)
-                            return;
-                        long counter = tgAccount.getMessageProcessor().getMessagesSentCounter();
-                        messagesSentLabel.setText(String.valueOf(counter));
-                    }
-                });
-            }
-        });
-        tgAccount.setOnStateChangedListener(new Runnable() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(tgAccount == null)
-                            return;
-                        if(statusLabel == null)
-                            return;
-                        statusLabel.setText(tgAccount.getState());
-                    }
-                });
-            }
-        });
+
+        tgAccount.setApiCounterChangedListener(() -> handler.post(() -> {
+            if(tgAccount == null || apiCounterLabel == null) return;
+            long counter = tgAccount.getApiCounter();
+            apiCounterLabel.setText(String.valueOf(counter));
+        }));
+
+        tgAccount.setApiErrorsChangedListener(() -> handler.post(() -> {
+            if(tgAccount == null || apiErrorsLabel == null) return;
+            long counter = tgAccount.getErrorCounter();
+            apiErrorsLabel.setText(String.valueOf(counter));
+        }));
+
+        tgAccount.getMessageProcessor().setOnMessagesReceivedCounterChangedListener(() -> handler.post(() -> {
+            if(tgAccount == null || messagesReceivedLabel == null) return;
+            long counter = tgAccount.getMessageProcessor().getMessagesReceivedCounter();
+            messagesReceivedLabel.setText(String.valueOf(counter));
+        }));
+
+        tgAccount.getMessageProcessor().setOnMessagesSentCounterChangedListener(() -> handler.post(() -> {
+            if(tgAccount == null || messagesSentLabel == null) return;
+            long counter = tgAccount.getMessageProcessor().getMessagesSentCounter();
+            messagesSentLabel.setText(String.valueOf(counter));
+        }));
+
+        tgAccount.setOnStateChangedListener(() -> handler.post(() -> {
+            if(tgAccount == null || statusLabel == null) return;
+            statusLabel.setText(tgAccount.getState());
+        }));
     }
 
     @Override
@@ -221,15 +153,13 @@ public class AccountTgFragment extends Fragment {
         super.onPause();
     }
 
-
-
     @Override
     public void onAttach(Context context) {
         Log.d(TAG, "Attached Accounts Tab...");
         super.onAttach(context);
     }
 
-    private void refresh(){
+    private void refresh() {
         nameLabel.setText(tgAccount.getScreenName());
         statusLabel.setText(tgAccount.getState());
         tgAccount.getUserPhoto(new TgAccountCore.GetUserPhotoListener() {
@@ -252,26 +182,27 @@ public class AccountTgFragment extends Fragment {
         Resources resources = getResources();
         int green = resources.getColor(R.color.green_enabled);
         int red = resources.getColor(R.color.red_disabled);
+
         if(enabledLabel != null) {
             boolean value = tgAccount.isEnabled();
-            String text = value?"Вкл":"Выкл";
-            int color = value?green:red;
+            String text = value ? "Вкл" : "Выкл";
+            int color = value ? green : red;
             enabledLabel.setTextColor(color);
             enabledLabel.setText(text);
         }
 
         if(chatEnabledLabel != null) {
             boolean value = tgAccount.getMessageProcessor().isChatsEnabled();
-            String text = value?"Вкл":"Выкл";
-            int color = value?green:red;
+            String text = value ? "Вкл" : "Выкл";
+            int color = value ? green : red;
             chatEnabledLabel.setTextColor(color);
             chatEnabledLabel.setText(text);
         }
 
         if(statusBroadcastingLabel != null) {
             boolean value = false;
-            String text = value?"Вкл":"Выкл";
-            int color = value?green:red;
+            String text = value ? "Вкл" : "Выкл";
+            int color = value ? green : red;
             statusBroadcastingLabel.setTextColor(color);
             statusBroadcastingLabel.setText(text);
         }

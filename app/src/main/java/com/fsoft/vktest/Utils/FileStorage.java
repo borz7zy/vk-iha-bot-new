@@ -1,6 +1,8 @@
 package com.fsoft.vktest.Utils;
 
+import android.content.Context;
 
+import android.util.Log;
 import com.fsoft.vktest.ApplicationManager;
 
 import org.json.JSONArray;
@@ -9,7 +11,9 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -23,18 +27,21 @@ public class FileStorage {
     private String fileName = null;
     private String filePath = null;
     private JSONObject jsonObject = null;
+    private Context context; // Добавляем контекст
 
     public static boolean exists(String fileName, ApplicationManager applicationManager){
-        return new File(applicationManager.getHomeFolder() + File.separator + fileName).exists();
+        return new File(applicationManager.getContext().getExternalFilesDir(null), fileName).exists();
     }
     public static boolean delete(String fileName, ApplicationManager applicationManager){
-        return new File(applicationManager.getHomeFolder() + File.separator + fileName).delete();
+        return new File(applicationManager.getContext().getExternalFilesDir(null), fileName).delete();
     }
 
-    public FileStorage(String fileName, ApplicationManager applicationManager){
+    public FileStorage(String fileName, ApplicationManager applicationManager){ // Добавляем контекст
         this.fileName = fileName;
         this.applicationManager = applicationManager;
-        filePath = applicationManager.getHomeFolder() + File.separator + fileName;
+        this.context = applicationManager.getContext(); // Сохраняем контекст
+        Log.d("FileStorage", "Creating FileStorage with context: " + context);
+        filePath = new File(context.getExternalFilesDir(null), fileName).getAbsolutePath(); // Используем context.getExternalFilesDir()
         String fileData = readFromFile(filePath);
         try {
             jsonObject = new JSONObject(fileData);
@@ -288,7 +295,7 @@ public class FileStorage {
                 //log(". Файл отсутствует: " + fileName);
                 return "";
             }
-            BufferedReader br = new BufferedReader(new java.io.FileReader(file));
+            BufferedReader br = new BufferedReader(new FileReader(file));
             try {
                 StringBuilder sb = new StringBuilder();
                 String line = br.readLine();

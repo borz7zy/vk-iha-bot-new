@@ -5,7 +5,11 @@ import android.content.res.Configuration;
 
 import com.fsoft.vktest.ViewsLayer.MainActivity;
 
-public class BotApplication extends Application {
+public class BotApplication extends Application
+{
+
+    private ApplicationManager applicationManager;
+    private static BotApplication instance;
 
     // Called when the application is starting, before any other application objects have been created.
     // Overriding this method is totally optional!
@@ -13,6 +17,19 @@ public class BotApplication extends Application {
     public void onCreate() {
         super.onCreate();
         // Required initialization logic here!
+        instance = this;
+    }
+
+    public static BotApplication getInstance() {
+        return instance;
+    }
+
+    public ApplicationManager getApplicationManager() {
+        return applicationManager;
+    }
+
+    public void setApplicationManager(ApplicationManager applicationManager) {
+        this.applicationManager = applicationManager;
     }
 
     // Called by the system when the device configuration changes while your component is running.

@@ -8,6 +8,8 @@ import com.fsoft.vktest.Utils.FileStorage;
 
 import java.util.ArrayList;
 
+import android.content.Context;
+
 /**
  * От этого ебаного класса должно наследоваться всё, что может принимать решения про ответ на сообщение
  *
@@ -44,6 +46,7 @@ public class BotModule extends CommandModule {
     private ArrayList<BotModule> childModules = new ArrayList<>();
     private boolean enabled = true;
     private FileStorage storage = null;
+//    private Context context; // Add Context
 
     public BotModule(ApplicationManager applicationManager) {
         super(applicationManager);

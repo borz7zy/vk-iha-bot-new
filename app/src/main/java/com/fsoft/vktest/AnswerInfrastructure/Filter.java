@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import android.content.Context;
+
 /**
  * Этот класс фильтрует базар бота, чтобы он не сказал ничего запрещенного.
  *
@@ -60,6 +62,7 @@ public class Filter extends BotModule{
     private String allowedSymbols = null;
     private FileStorage storage = null;
     private boolean enabled = true;
+//    private Context context; // Add Context
 
     public Filter(ApplicationManager applicationManager) throws Exception {
         super(applicationManager);

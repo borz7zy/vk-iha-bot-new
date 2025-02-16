@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<me.tangke.slidemenu.SlideMenu
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:slidemenudemo="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_slideMenu"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    slidemenudemo:slideDirection="right">
-
-    <FrameLayout
+<androidx.drawerlayout.widget.DrawerLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        slidemenudemo:layout_role="content"
-        android:id="@+id/main_frame"
-        android:background="@color/main_background"/>
+        android:layout_height="match_parent">
 
-    <include
-        android:layout_width="300dip"
-        android:layout_height="match_parent"
-        slidemenudemo:layout_role="primaryMenu"
-        layout="@layout/side_menu"/>
+    <!-- Основное содержимое -->
+    <FrameLayout
+            android:id="@+id/main_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/main_background"/>
 
-</me.tangke.slidemenu.SlideMenu>
+    <!-- Боковое меню -->
+    <LinearLayout
+            android:id="@+id/side_menu"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:orientation="vertical"
+            android:layout_gravity="end">
+
+        <include layout="@layout/side_menu"/>
+    </LinearLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>

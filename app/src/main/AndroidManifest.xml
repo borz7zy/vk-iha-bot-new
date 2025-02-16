@@ -1,19 +1,33 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.fsoft.vktest">
 
-    package="com.fsoft.vktest">
-
+    <!-- Права доступа -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
-    <application
-        android:name=".BotApplication"
-        android:allowBackup="true"
-        android:label="@string/app_name">
+    <!-- Для работы с внешним хранилищем на Android 11 и выше -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
+    <!-- Для работы с внешним хранилищем на Android 10 (API 29) и выше -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+
+    <!-- Разрешения для работы с приложениями на Android 14+ -->
+    <application
+            android:name=".BotApplication"
+            android:allowBackup="true"
+            android:label="@string/app_name"
+            android:icon="@drawable/bot"
+            android:theme="@style/CustomTheme">
+
+        <!-- Сервис для бота -->
+        <service android:name=".BotService"/>
+
+        <!-- Приемник для загрузки при старте системы -->
         <receiver android:name=".BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -21,17 +35,19 @@
             </intent-filter>
         </receiver>
 
+        <!-- Основная активность -->
         <activity android:name=".ViewsLayer.MainActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTop"
-            android:screenOrientation="nosensor"
-            android:icon="@drawable/bot">
+                  android:label="@string/app_name"
+                  android:launchMode="singleTop"
+                  android:screenOrientation="nosensor"
+                  android:theme="@style/Theme.AppCompat.Light"
+                  android:icon="@drawable/bot">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <service android:name=".BotService"/>
 
     </application>
 

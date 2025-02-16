@@ -1,22 +1,16 @@
 package com.fsoft.vktest;
 
-import android.app.AlarmManager;
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.app.Service;
+import android.app.*;
 import android.content.Intent;
 import android.os.*;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import androidx.core.app.NotificationCompat;
 
 import com.fsoft.vktest.ViewsLayer.MainActivity;
 
-/**
- *
- * Created by Dr. Failov on 28.12.2014.
- */
 public class BotService extends Service {
     static public ApplicationManager applicationManager = null;
+    private static final String CHANNEL_ID = "vk_bot_service";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -27,42 +21,53 @@ public class BotService extends Service {
     public void onCreate() {
         super.onCreate();
         try {
-            applicationManager = new ApplicationManager(this);
+            applicationManager = new ApplicationManager(BotService.this);
+            BotApplication.getInstance().setApplicationManager(applicationManager);
+
+            ApplicationManager.getInstance().setContext(getApplicationContext());
+
+            createNotificationChannel(); // Создаем канал уведомлений для Android 8+
 
             Intent notificationIntent = new Intent(this, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    this, 0, notificationIntent,
+                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+            );
 
-            Notification notification = new NotificationCompat.Builder(this)
+            Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                     .setSmallIcon(R.drawable.bot_noti)
                     .setContentTitle("VK iHA bot")
                     .setContentText(ApplicationManager.getShortName() + " работает")
-                    .setContentIntent(pendingIntent).build();
+                    .setContentIntent(pendingIntent)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .build();
+
             startForeground(1, notification);
+        } catch (Exception e) {
+            Log.e("iHA bot", "Ошибка запуска сервиса: " + e.getMessage(), e);
         }
-        catch (Exception e){
-            Log.d("iHA bot", "Error starting service: " + e.getMessage());
-            e.printStackTrace();
-        }
-//            Log.d("BOT", "Планирование перезапуска...");
-//            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-//            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-//            alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 8000, pendingIntent);
-//            stopForeground(true);
-//            stopSelf();
     }
 
-
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel serviceChannel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "VK Bot Service",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(serviceChannel);
+            }
+        }
+    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d("BOT", "ON SERVICE Destroy");
-        if(applicationManager!= null && applicationManager.isRunning()) {
+        if (applicationManager != null && applicationManager.isRunning()) {
             applicationManager.stop();
-//            applicationManager.activity.scheduleRestart();//запланируем перезапуск))))
-//            applicationManager.activity.sleep(1000);
-//            android.os.Process.killProcess(android.os.Process.myPid());
         }
     }
 }
