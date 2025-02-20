@@ -15,7 +15,7 @@ import com.android.volley.toolbox.Volley;
 import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Communication.Account.Account;
 import com.fsoft.vktest.Utils.FileStorage;
-import com.fsoft.vktest.ViewsLayer.MainActivity;
+import com.fsoft.vktest.NewViewsLayer.MainActivity;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

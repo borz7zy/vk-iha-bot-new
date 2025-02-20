@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import com.fsoft.vktest.Utils.FileStorage;
-import com.fsoft.vktest.ViewsLayer.MainActivity;
+import com.fsoft.vktest.NewViewsLayer.MainActivity;
 
 /**
  * Служит для обработки события перезагрузки устройства

@@ -4,7 +4,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.content.res.Configuration;
 
-import com.fsoft.vktest.ViewsLayer.MainActivity;
+import com.fsoft.vktest.NewViewsLayer.MainActivity;
 
 public class BotApplication extends Application
 {

@@ -5,7 +5,7 @@ import com.fsoft.vktest.ApplicationManager;
 import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.Parameters;
-import com.fsoft.vktest.ViewsLayer.MainActivity;
+import com.fsoft.vktest.NewViewsLayer.MainActivity;
 import com.fsoft.vktest.Modules.Commands.CommandDesc;
 
 import java.text.SimpleDateFormat;

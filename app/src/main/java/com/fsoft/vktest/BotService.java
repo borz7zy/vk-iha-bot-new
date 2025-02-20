@@ -7,7 +7,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.fsoft.vktest.ViewsLayer.MainActivity;
+import com.fsoft.vktest.NewViewsLayer.MainActivity;
 //import kotlin.ULong;
 
 import java.util.concurrent.ExecutorService;
