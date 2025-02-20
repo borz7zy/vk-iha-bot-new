@@ -96,8 +96,10 @@ public class LoginWindow extends CommandModule {
     }
     private void saveButton() {
         //проверить и если валидно сохранить
-        if(tokenField == null)
+        if(tokenField == null) {
+            Toast.makeText(context, "Токен не введён!", Toast.LENGTH_SHORT).show();
             return;
+        }
         String tokenString = tokenField.getText().toString();
         String[] parts = tokenString.split(":");
         if(parts.length != 2) {

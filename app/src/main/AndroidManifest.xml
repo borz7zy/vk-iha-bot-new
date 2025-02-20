@@ -46,7 +46,7 @@
         </receiver>
 
         <!-- Основная активность -->
-        <activity android:name=".ViewsLayer.MainActivity"
+        <activity android:name=".NewViewsLayer.MainActivity"
                   android:label="@string/app_name"
                   android:launchMode="singleTop"
                   android:screenOrientation="nosensor"

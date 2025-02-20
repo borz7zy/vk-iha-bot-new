@@ -25,8 +25,8 @@ import com.fsoft.vktest.Communication.HttpServer;
 import com.fsoft.vktest.Modules.SecurityProvider;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.Parameters;
-import com.fsoft.vktest.ViewsLayer.MainActivity;
-import com.fsoft.vktest.ViewsLayer.MessagesFragment.MessageHistory;
+//import com.fsoft.vktest.ViewsLayer.MainActivity;
+import com.fsoft.vktest.NewViewsLayer.MessagesFragment.MessageHistory;
 
 import java.io.*;
 import java.util.*;
@@ -68,31 +68,13 @@ import java.util.*;
  * Created by Dr. Failov on 14.08.2018.
  */
 public class ApplicationManager extends CommandModule {
-    static public String programName = "DrFailov_iHA_bot";
-    //-------------- НЕ МЕНЯТЬ!!! Иначе надо будет переписывать хэш-суммы!!!!---------------------------------------
+    static public String programName = "FP_iHA_bot";
     static public String getVisibleName(){
-        //обязательно должно содержать "Dr.Failov iHA bot"
-        return "Dr.Failov iHA bot™ v5.0 alpha 000005";
+        return getShortName();
     }
     static public String getShortName(){
         return "FP iHA bot";
     }
-    static public String getGroupLink(){
-        return "http://vk.com/ihabotclub";
-    }
-    static public String getFullVersionLink(){
-        return "market://details?id=com.fsoft.ihabotdonate";
-    }
-    static public String getDevelopersList(){
-        return "Dr. Failov - Главный разработчик. Сделал почти всё сам и с нуля.\n" +
-                "CyberTailor - во многом помог, в частности, разработал визуальный облик символов для модуля \"напиши\".\n" +
-                "Shmeile - Тестировка, полезные советы, помощь в организации сообщества, обучение, помощь в чистке базы.\n" +
-                "FaNtA_DDD - Тестировка, полезные советы, помог решить проблему с выключенным экраном.\n" +
-                "melnik_arthur - Тестировка, полезные советы, обучение бота, помог очистить базу.\n" +
-                "koshatikvk - Учитель.\n" +
-                "И еще несколько:)";
-    }
-    //-------------- НЕ МЕНЯТЬ!!! Иначе надо будет переписывать хэш-суммы!!!!---------------------------------------
     private static ApplicationManager applicationManagerInstance = null;
     public static ApplicationManager getInstance(){
         return applicationManagerInstance;

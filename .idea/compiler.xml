@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="21">
+      <module name="FP_iHA_Bot.mycheckboxview" target="21" />
+      <module name="Stas.vk-iha-bot-new.app" target="21" />
+      <module name="Stas.vk-iha-bot-new.mycheckboxview" target="21" />
       <module name="vk-iha-bot-new.app" target="17" />
       <module name="vk-iha-bot-new.mycheckboxview" target="17" />
     </bytecodeTargetLevel>

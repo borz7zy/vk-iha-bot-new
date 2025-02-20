@@ -594,7 +594,7 @@ public class AnswerDatabase extends BotModule {
                 }
             }
             bufferedReader.close();
-            log(". Загружено " + answers.size() + " щаблонов ответа.");
+            log(". Загружено " + answers.size() + " шаблонов ответа.");
             if(errors != 0)
                 log("! При загрузке базы ответов возникло ошибок: " + errors + ".");
         }

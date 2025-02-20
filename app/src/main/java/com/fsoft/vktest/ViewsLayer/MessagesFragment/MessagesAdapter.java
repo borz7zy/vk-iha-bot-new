@@ -24,7 +24,7 @@ class MessagesAdapter extends BaseAdapter {
     public MessagesAdapter(ApplicationManager applicationManager) {
         this.applicationManager = applicationManager;
         // Если getMessages() возвращает null, используем пустой список
-        messageStatuses = applicationManager.getMessageHistory() != null ? applicationManager.getMessageHistory().getMessages() : new ArrayList<>();
+//        messageStatuses = applicationManager.getMessageHistory() != null ? applicationManager.getMessageHistory().getMessages() : new ArrayList<>();
         layoutInflater = LayoutInflater.from(applicationManager.getContext());
         sdf = new SimpleDateFormat("HH:mm");
     }

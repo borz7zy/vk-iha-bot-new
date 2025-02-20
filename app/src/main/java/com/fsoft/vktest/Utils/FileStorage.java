@@ -36,7 +36,7 @@ public class FileStorage {
         return new File(applicationManager.getContext().getExternalFilesDir(null), fileName).delete();
     }
 
-    public FileStorage(String fileName, ApplicationManager applicationManager){ // Добавляем контекст
+    public FileStorage(String fileName, ApplicationManager applicationManager){
         this.fileName = fileName;
         this.applicationManager = applicationManager;
         this.context = applicationManager.getContext(); // Сохраняем контекст
