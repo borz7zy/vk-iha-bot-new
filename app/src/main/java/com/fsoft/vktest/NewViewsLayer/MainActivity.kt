@@ -40,26 +40,12 @@ import com.fsoft.vktest.NewViewsLayer.MessagesFragment.MessagesScreen
 import com.fsoft.vktest.Utils.F
 
 class MainActivity : AppCompatActivity() {
-    private companion object {
-        private const val TAG = "MainActivity"
-    }
-
+    private val TAG = "MainActivity"
     private var isServiceRunning = mutableStateOf(false)
     private lateinit var applicationManager: ApplicationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        applicationManager = ApplicationManager.getInstance() ?: ApplicationManager(applicationContext)
-
-        // Проверка, запущен ли сервис. Если нет — запуск.
-        Log.d(TAG, "Starting service...")
-        val intent = Intent(applicationContext, BotService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent) // Использование startForegroundService для API 26 и выше
-        } else {
-            startService(intent)
-        }
 
         // Get instance of ApplicationManager and pass the context
         Thread { //while (ApplicationManager.getInstance() == null) {
@@ -73,6 +59,15 @@ class MainActivity : AppCompatActivity() {
                 F.sleep(10)
             }
         }.start()
+
+        // Проверка, запущен ли сервис. Если нет — запуск.
+        Log.d(TAG, "Starting service...")
+        val intent = Intent(applicationContext, BotService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent) // Использование startForegroundService для API 26 и выше
+        } else {
+            startService(intent)
+        }
 
         setContent {
             MainScreen()

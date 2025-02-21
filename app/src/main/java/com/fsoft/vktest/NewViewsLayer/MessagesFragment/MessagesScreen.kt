@@ -41,6 +41,9 @@ fun MessagesScreen() {
     LaunchedEffect(Unit) {
         isLoading = true
         coroutineScope.launch {
+            while (applicationManager == null) {
+                kotlinx.coroutines.delay(10)
+            }
             while (applicationManager.getMessageHistory() == null) {
                 kotlinx.coroutines.delay(10)
             }
@@ -79,9 +82,9 @@ fun MessagesScreen() {
     }
 
     DisposableEffect(Unit) {
-        applicationManager.getBrain().addMessageListener(messageListener)
+        applicationManager?.getBrain()?.addMessageListener(messageListener)
         onDispose {
-            applicationManager.getBrain().remMessageListener(messageListener)
+            applicationManager?.getBrain()?.remMessageListener(messageListener)
         }
     }
 

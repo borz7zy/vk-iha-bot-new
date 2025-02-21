@@ -48,7 +48,6 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.fsoft.vktest.ApplicationManager
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccount
-import com.fsoft.vktest.Communication.Account.Telegram.TgAccountCore
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccountCore.GetMeListener
 import com.fsoft.vktest.Communication.Account.Telegram.User
 import com.fsoft.vktest.R
@@ -56,11 +55,10 @@ import com.fsoft.vktest.R
 @Composable
 fun AccountsScreenCompose(applicationManager: ApplicationManager) {
     val tgAccounts = remember { mutableStateListOf<TgAccount>() }
-    val tgAccountC: TgAccountCore? = null
     val context = LocalContext.current
     val activity = context as? MainActivity
     var showDialog by remember { mutableStateOf(false) }
-    var tgToken by remember { mutableStateOf("") } // Store the new account name
+    var tgToken by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         loadAccounts(applicationManager, tgAccounts)
