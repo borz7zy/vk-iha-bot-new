@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="CustomTheme" parent="android:Theme.Black">
-        <item name="android:windowTitleSize">20dip</item>
-    </style>
+    <style name="CustomTheme" parent="Theme.Material3.Light.NoActionBar" />
 </resources>

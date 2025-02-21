@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,17 +54,22 @@ import com.fsoft.vktest.Communication.Account.Telegram.TgAccount
 import com.fsoft.vktest.Communication.Account.Telegram.TgAccountCore.GetMeListener
 import com.fsoft.vktest.Communication.Account.Telegram.User
 import com.fsoft.vktest.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AccountsScreenCompose(applicationManager: ApplicationManager) {
     val tgAccounts = remember { mutableStateListOf<TgAccount>() }
     val context = LocalContext.current
-    val activity = context as? MainActivity
     var showDialog by remember { mutableStateOf(false) }
     var tgToken by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        loadAccounts(applicationManager, tgAccounts)
+        while (true) {
+            loadAccounts(applicationManager, tgAccounts)
+            delay(5000) // Обновлять каждые 5 секунд
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -91,7 +99,7 @@ fun AccountsScreenCompose(applicationManager: ApplicationManager) {
                         "ApplicationManager еще не инициализирован. Попробуйте позже.",
                         Toast.LENGTH_SHORT
                     ).show()
-                }else{
+                } else {
                     showDialog = true
                 }
             },
@@ -127,7 +135,7 @@ fun AccountsScreenCompose(applicationManager: ApplicationManager) {
                     val idString = parts[0]
                     val token = parts[1]
                     var id: Long = 0
-                    if(bad == false) {
+                    if (bad == false) {
                         try {
                             id = idString.toLong()
                         } catch (e: Exception) {
@@ -145,6 +153,11 @@ fun AccountsScreenCompose(applicationManager: ApplicationManager) {
                         override fun gotUser(user: User) {
                             Toast.makeText(context, "Вход выполнен!", Toast.LENGTH_SHORT).show()
                             tgAccount.startAccount()
+
+                            //Обновление списка аккаунтов после добавления
+                            coroutineScope.launch {
+                                loadAccounts(applicationManager, tgAccounts)
+                            }
                         }
 
                         override fun error(error: Throwable) {
@@ -198,24 +211,25 @@ fun AccountsListView(
 
 @Composable
 fun AccountItem(account: TgAccount, applicationManager: ApplicationManager) {
-    var expanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val activity = context as? MainActivity // Cast to MainActivity
-
+    var showMenu by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            /*.clickable {
-                activity?.openAccountTab(account)  // Call openAccountTab if activity is MainActivity
-            }*/
+            .padding(10.dp)
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-
+        Column(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Аватарка
                 val painter = rememberAsyncImagePainter(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(/*account.userPhotoUrl ?: */R.drawable.ic_ban) // Используйте ic_ban как placeholder
+                        .data(/*account.userPhotoUrl ?: */R.drawable.ic_ban)
                         .crossfade(true)
                         .build()
                 )
@@ -226,22 +240,61 @@ fun AccountItem(account: TgAccount, applicationManager: ApplicationManager) {
                     contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = account.toString(), modifier = Modifier.weight(1f))
 
-                IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "Account Menu")
+                // Название и статус
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = account.toString(), style = MaterialTheme.typography.titleMedium)
+                    Text(text = "${account.state}", style = MaterialTheme.typography.bodySmall)
+                }
+                Box(contentAlignment = Alignment.TopEnd) {
+                    IconButton(onClick = { showMenu = !showMenu }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Account Menu")
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(text = { Text("Настройки") }, onClick = { /*TODO*/ })
+                        DropdownMenuItem(text = { Text("Удалить аккаунт") }, onClick = {
+                            applicationManager.communicator.remTgAccount(account)
+                        })
+                    }
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Text(text = "${account.state}")
-            Text(text = "Отправлено сообщений: ${account.messageProcessor.messagesSentCounter}")
-            Text(text = "Принято сообщений: ${account.messageProcessor.messagesReceivedCounter}")
-            Text(text = "API Counter: ${account.apiCounter}")
-            Text(text = "Запросов с ошибкой: ${account.errorCounter}")
-            Text(text = "Ответ инструкцией: Включено")
-            Text(text = "Отвечать в беседах: Включено")
-            Text(text = "Трансляция статуса: Выключено")
+            // Таблица статы
+            Column(modifier = Modifier.fillMaxWidth()) {
+                DataRow(name = "Отправлено сообщений", value = "${account.messageProcessor.messagesSentCounter}")
+                DataRow(name = "Принято сообщений", value = "${account.messageProcessor.messagesReceivedCounter}")
+                DataRow(name = "Выполнено запросов", value = "${account.apiCounter}")
+                DataRow(name = "Запросов с ошибкой", value = "${account.errorCounter}")
+                var value: Boolean = account.isEnabled
+                var text = if (value) "Включено" else "Выключено"
+                DataRow(name = "Ответ инструкцией", value = text)
+                value = account.getMessageProcessor().isChatsEnabled()
+                text = if (value) "Включено" else "Выключено"
+                DataRow(name = "Отвечать в беседах", value = text)
+//                value = account.getMessageProcessor().isChatsEnabled()
+//                text = if (value) "Включено" else "Выключено"
+//                DataRow(name = "Трансляция статуса", value = text)
+            }
         }
+    }
+}
+
+@Composable
+fun DataRow(name: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = name, modifier = Modifier.weight(1f))
+        Text(text = value, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
     }
 }
 
@@ -263,10 +316,12 @@ fun AddTgAccountDialog(
             ) {
                 Text(text = "Введи токен для Telegram бота", style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Для работы с Telegram требуется создать аккаунт бота. " +
-                        "Чтобы это сделать, найди в телеграме бота @BotFather и следуй инструкции. " +
-                        "Ты получишь от него токен. Его и надо ввести сюда, чтобы бот заработал.",
-                     style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = "Для работы с Telegram требуется создать аккаунт бота. " +
+                            "Чтобы это сделать, найди в телеграме бота @BotFather и следуй инструкции. " +
+                            "Ты получишь от него токен. Его и надо ввести сюда, чтобы бот заработал.",
+                    style = MaterialTheme.typography.bodySmall
+                )
 
                 OutlinedTextField(
                     value = textInputValue,

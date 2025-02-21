@@ -186,17 +186,21 @@ public class Account extends CommandModule implements AccountBase {
         if(onStateChangedListener != null)
             onStateChangedListener.run();
     }
+
     public void setId(long id) {
         this.id = id;
         getFileStorage().put("id", id).commit();
     }
+
     public void setToken(String token) {
         this.token = token;
         getFileStorage().put("token", token).commit();
     }
+
     public void setToken_ok(boolean token_ok) {
         this.token_ok = token_ok;
     }
+
     public void setOnStateChangedListener(Runnable onStateChangedListener) {
         this.onStateChangedListener = onStateChangedListener;
     }
