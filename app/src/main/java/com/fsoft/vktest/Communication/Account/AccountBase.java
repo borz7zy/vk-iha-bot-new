@@ -27,6 +27,6 @@ public interface AccountBase
     public void setToken_ok(boolean token_ok);
     public String getScreenName();
     public void setScreenName(String screenName);
-    public void fillAvatar(ImageView imageView); //заполнить где-то в окне программы свой аватар
+//    public void fillAvatar(ImageView imageView); //заполнить где-то в окне программы свой аватар
     public String log(String text);
 }

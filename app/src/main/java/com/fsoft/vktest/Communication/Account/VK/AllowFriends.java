@@ -89,11 +89,11 @@ public class AllowFriends extends CommandModule {
                     "но у тебя не включена отписка от них! \n" +
                     "Отправка удалившихся друзей в ЧС будет работать только в том случае, " +
                     "если включена отписка от удалившихся друзей!"));
-        if(!applicationManager.isDonated())
-            messageBox(log("! Внимание! Ты включил отправку удалившихся друзей в ЧС, " +
-                    "но у тебя не куплена донатка. \n" +
-                    "Отправка удалившихся друзей в ЧС будет работать только в том случае, " +
-                    "если куплена донатка для бота."));
+//        if(!applicationManager.isDonated())
+//            messageBox(log("! Внимание! Ты включил отправку удалившихся друзей в ЧС, " +
+//                    "но у тебя не куплена донатка. \n" +
+//                    "Отправка удалившихся друзей в ЧС будет работать только в том случае, " +
+//                    "если куплена донатка для бота."));
     }
     public void startModule(){
         if(acceptFriendRequestsEnabled)
@@ -225,7 +225,7 @@ public class AllowFriends extends CommandModule {
                     }
                     else
                         log(". ("+vkAccount+") " + i + "/" + users.size() + " oшибка принятия заявки от " + id + " : " + result);
-                    if(blacklistDeletedFriendsEnabled && applicationManager.isDonated()) {
+                    if(blacklistDeletedFriendsEnabled) {
                         log(". Внесение пользователя " + id + " в чёрный список...");
                         vkAccount.addToBlacklist(id);
                         increment_blacklistedDeletedFriendsCounter();
@@ -367,10 +367,6 @@ public class AllowFriends extends CommandModule {
                     if(commandParser.getWord().toLowerCase().equals("blacklistfollowers")) {
                         setBlacklistDeletedFriendsEnabled(commandParser.getBoolean());
                         if(blacklistDeletedFriendsEnabled) {
-                            if(!applicationManager.isDonated())
-                                return "(" + vkAccount + ") Внесение удалившихся друзей в чёрный список включено, " +
-                                        "но оно будет работать только если ты купишь донатку. " +
-                                        "Без донатки ты можешь только отписываться от удалившихся друзей.";
                             if(!rejectDeletedFriendsEnabled)
                                 return "(" + vkAccount + ") Внесение удалившихся друзей в чёрный список включено, " +
                                         "но оно будет работать только если ты включишь отписку от удалившихся друзей.";

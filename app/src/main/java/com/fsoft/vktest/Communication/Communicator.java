@@ -47,7 +47,6 @@ public class Communicator extends CommandModule {
         file = new FileStorage("communicator", applicationManager);
 
         childCommands.add(new Status(applicationManager));
-        childCommands.add(new Save(applicationManager));
         childCommands.add(new SendPost(applicationManager));
         childCommands.add(new SendComment(applicationManager));
         childCommands.add(new AddLikes(applicationManager));
@@ -62,12 +61,14 @@ public class Communicator extends CommandModule {
         childCommands.add(new HttpGet(applicationManager));
 
         String accountList[] = file.getStringArray("VKaccounts", new String[0]);
-        for (String acc:accountList)
+        for (String acc:accountList) {
             vkAccounts.add(new VkAccount(applicationManager, acc));
+        }
 
         accountList = file.getStringArray("TGaccounts", new String[0]);
-        for (String acc:accountList)
+        for (String acc:accountList) {
             tgAccounts.add(new TgAccount(applicationManager, acc));
+        }
 
         new Timer().schedule(new TimerTask() {
             @Override
@@ -87,41 +88,50 @@ public class Communicator extends CommandModule {
     public FileStorage getFile() {
         return file;
     }
+
     public void startModule(){
         log("Запуск коммуникатора...");
         running = true;
         for(TgAccount tgAccount:tgAccounts)
             tgAccount.startAccount();
     }
+
     public void stopModule(){
         running = false;
         for(TgAccount tgAccount:tgAccounts)
             tgAccount.stopAccount();
     }
+
     public boolean containsVkAccount(long id){
         return getVkAccount(id) != null;
     }
+
     public boolean containsTgAccount(long id){
         return getTgAccount(id) != null;
     }
+
     public VkAccount getVkAccount(long id){
         for (VkAccount account : vkAccounts)
             if (account.getId() == id)
                 return account;
         return null;
     }
+
     public TgAccount getTgAccount(long id){
         for (TgAccount account : tgAccounts)
             if (account.getId() == id)
                 return account;
         return null;
     }
+
     public ArrayList<VkAccount> getVkAccounts() {
         return vkAccounts;
     }
+
     public ArrayList<TgAccount> getTgAccounts() {
         return tgAccounts;
     }
+
     public VkAccount getActiveVkAccount(){
         int cycles = 0;
         while(cycles ++ < 1000) {
@@ -132,6 +142,7 @@ public class Communicator extends CommandModule {
         }
         return null;
     }
+
     public String addAccount(VkAccount vkAccount){
         if(vkAccount == null)
             return "Аккаунт не получен";
@@ -140,11 +151,13 @@ public class Communicator extends CommandModule {
         vkAccounts.add(vkAccount);
 
         String[] accountList = new String[vkAccounts.size()];
-        for (int i = 0; i < vkAccounts.size(); i++)
+        for (int i = 0; i < vkAccounts.size(); i++) {
             accountList[i] = vkAccounts.get(i).getFileName();
+        }
         file.put("VKaccounts", accountList).commit();
         return "Аккаунт " + vkAccount.getId() + " добавлен. Список аккаунтов сохранён.";
     }
+
     public String addAccount(TgAccount tgAccount){
         if(tgAccount == null)
             return "Аккаунт не получен";
@@ -153,45 +166,61 @@ public class Communicator extends CommandModule {
         tgAccounts.add(tgAccount);
 
         String[] accountList = new String[tgAccounts.size()];
-        for (int i = 0; i < tgAccounts.size(); i++)
+        for (int i = 0; i < tgAccounts.size(); i++) {
             accountList[i] = tgAccounts.get(i).getFileName();
+        }
         file.put("TGaccounts", accountList).commit();
         return "Аккаунт " + tgAccount.getId() + " добавлен. Список аккаунтов сохранён.";
     }
+
     public String remVkAccount(long id){
         VkAccount accountToRemove = getVkAccount(id);
-        if(accountToRemove == null)
-            return "Аккаунта с ID="+id+" нет.";
-        if(running)
+
+        if(accountToRemove == null) {
+            return "Аккаунта с ID=" + id + " нет.";
+        }
+
+        if(running) {
             accountToRemove.stopAccount();
+        }
+
         vkAccounts.remove(accountToRemove);
 
         String[] accountList = new String[vkAccounts.size()];
-        for (int i = 0; i < vkAccounts.size(); i++)
+        for (int i = 0; i < vkAccounts.size(); i++) {
             accountList[i] = vkAccounts.get(i).getFileName();
+        }
         file.put("VKaccounts", accountList).commit();
 
-        if(accountToRemove.remove())
+        if(accountToRemove.remove()) {
             return "Аккаунт VK " + id + " успешно удалён.";
-        else
+        } else {
             return "Аккаунт VK " + id + " удалён из списка, но его файл удалить не получается.";
+        }
     }
-    public String remTgAccount(TgAccountCore accountToRemove){
-        if(accountToRemove == null)
+
+    public String remTgAccount(TgAccountCore accountToRemove) {
+        if(accountToRemove == null) {
             return log("Функция удаления TG аккаунта вызвана с аргументом null");
-        if(running)
+        }
+
+        if(running) {
             accountToRemove.stopAccount();
+        }
+
         tgAccounts.remove(accountToRemove);
 
         String[] accountList = new String[tgAccounts.size()];
-        for (int i = 0; i < tgAccounts.size(); i++)
+        for (int i = 0; i < tgAccounts.size(); i++) {
             accountList[i] = tgAccounts.get(i).getFileName();
+        }
         file.put("TGaccounts", accountList).commit();
 
-        if(accountToRemove.remove())
+        if(accountToRemove.remove()) {
             return "Аккаунт TG " + accountToRemove + " успешно удалён.";
-        else
+        } else {
             return "Аккаунт TG " + accountToRemove + " удалён из списка, но его файл удалить не получается.";
+        }
     }
 
     //todo кажется логичным засунуть сюда функции которые нужны для разных соцсетей, чтобы он сам решал где достать аккаунт
@@ -205,7 +234,6 @@ public class Communicator extends CommandModule {
     public File downloadTgAttachment(com.fsoft.vktest.AnswerInfrastructure.AnswerDatabase.Attachment attachment) throws Exception{
         throw new Exception("Я ещё не умею качать файлы с телеграма.");
     }
-
 
     private class Status extends CommandModule{
         public Status(ApplicationManager applicationManager) {
@@ -224,24 +252,7 @@ public class Communicator extends CommandModule {
             return new ArrayList<>();
         }
     }
-    private class Save extends CommandModule{
-        public Save(ApplicationManager applicationManager) {
-            super(applicationManager);
-        }
 
-        @Override
-        public String processCommand(Message message) {
-            if(message.getText().toLowerCase().equals("save"))
-                return "Начиная с версии 5.0 команда сохранения больше не требуется. " +
-                        "Все изменения в настройках программы сохраняются автоматически в момент изменения.";
-            return "";
-        }
-
-        @Override
-        public ArrayList<CommandDesc> getHelp() {
-            return new ArrayList<>();
-        }
-    }
     private class SendPost extends CommandModule{
         public SendPost(ApplicationManager applicationManager) {
             super(applicationManager);
@@ -668,6 +679,7 @@ public class Communicator extends CommandModule {
             return result;
         }
     }
+
     private class RemAccount extends CommandModule{
         public RemAccount(ApplicationManager applicationManager) {
             super(applicationManager);
@@ -698,6 +710,7 @@ public class Communicator extends CommandModule {
             return result;
         }
     }
+
     private class GetAccountList extends CommandModule{
         public GetAccountList(ApplicationManager applicationManager) {
             super(applicationManager);

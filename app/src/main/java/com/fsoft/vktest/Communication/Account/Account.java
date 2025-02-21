@@ -44,15 +44,12 @@ public class Account extends CommandModule implements AccountBase {
     //Имя под которым можно отображать этот аккаунт в программе
     private String screenName = null;
     private Runnable onStateChangedListener = null;
-//    private Context context; // Add Context
-
+    /*============================================================================================*/
 
     public Account(ApplicationManager applicationManager, String fileName) {
         super(applicationManager);
 
         this.fileName = fileName;
-//        this.context = applicationManager.getContext();
-//        this.context = BotApplication.getInstance().getApplicationManager().getContext();
         fileStorage = new FileStorage(fileName, applicationManager);
         log(". Создан аккаунт: " + fileName);
 
@@ -66,14 +63,17 @@ public class Account extends CommandModule implements AccountBase {
         childCommands.add(new GetToken(applicationManager));
         childCommands.add(new SetToken(applicationManager));
     }
+
     public boolean remove(){
         //удалить файл аккаунта
         return new File(fileStorage.getFilePath()).delete();
     }
+
     public void login(){
         //открывает процедуру (пере)логина.
         // По итогу задает значение для token
     }
+
     public void startAccount(){
         //если токен есть, эта функция его проверяет. Если токен валидный,
         //эта функция запускает работу во всех службах аккаунта, если isEnabled.
@@ -82,6 +82,7 @@ public class Account extends CommandModule implements AccountBase {
         setState("Запускается...");
         //token_ok = true; //кажется, это не всегда связано
     }
+
     public void stopAccount(){
         //эта функция останавливает работу во всех службах аккаунта
         running = false;
@@ -89,15 +90,18 @@ public class Account extends CommandModule implements AccountBase {
         setState("Остановлен.");
         // token_ok = false; ////кажется, это не всегда связано
     }
+
     protected interface OnTokenValidityCheckedListener{
         void onTokenPass();
         void onTokenFail();
     }
+
     protected void checkTokenValidity(OnTokenValidityCheckedListener listener){
         //запускать проверку и вызывать лисенер...
         log(". Аккаунт " + toString() + " проверяется...");
         setState("Проверяется...");
     }
+
     public boolean isMine(String commandTreatment){
         //Эта функция должна отвечать за то, чтобы при обращении в команде
         // можно было понять что обращение именно к этому аккаунту
@@ -112,24 +116,31 @@ public class Account extends CommandModule implements AccountBase {
     public boolean isToken_ok() {
         return token_ok;
     }
+
     public boolean isEnabled() {
         return enabled;
     }
+
     public boolean isRunning() {
         return running;
     }
+
     public String getState() {
         return state;
     }
+
     public FileStorage getFileStorage() {
         return fileStorage;
     }
+
     public long getId() {
         return id;
     }
+
     public String getToken() {
         return token;
     }
+
     public String getFileName() {
         //именно это имя аккаунт получает при создании
         //эта функция нужна для того чтобы список аккаунтов можно было сохранить, не только загрузить
@@ -143,15 +154,16 @@ public class Account extends CommandModule implements AccountBase {
     public String getScreenName() {
         return screenName;
     }
+
     public void setScreenName(String screenName) {
         this.screenName = screenName;
         getFileStorage().put("screenName", screenName).commit();
     }
 
-    @Override
-    public void fillAvatar(ImageView imageView) {
-        imageView.setImageResource(R.drawable.bot);
-    }
+//    @Override
+//    public void fillAvatar(ImageView imageView) {
+//        imageView.setImageResource(R.drawable.bot);
+//    }
 
     //------------
     public void setEnabled(boolean enabled) {
@@ -162,10 +174,12 @@ public class Account extends CommandModule implements AccountBase {
         if(!isRunning() && isEnabled())
             startAccount();
     }
+
     public String state(String state) {
         setState(state);
         return state;
     }
+
     public void setState(String state) {
         String time = new SimpleDateFormat("HH:mm").format(new Date());
         this.state = time + " " + state;
@@ -187,10 +201,13 @@ public class Account extends CommandModule implements AccountBase {
         this.onStateChangedListener = onStateChangedListener;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "Аккаунт " + id;
     }
-    @Override public boolean equals(Object o) {
+
+    @Override
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
@@ -200,7 +217,9 @@ public class Account extends CommandModule implements AccountBase {
 
         return true;
     }
-    @Override public int hashCode() {
+
+    @Override
+    public int hashCode() {
         return (int) (getId() ^ (getId() >>> 32));
     }
 
@@ -241,10 +260,12 @@ public class Account extends CommandModule implements AccountBase {
             return result;
         }
     }
+
     class Status extends CommandModule{
         public Status(ApplicationManager applicationManager) {
             super(applicationManager);
         }
+
         public @Override String processCommand(com.fsoft.vktest.AnswerInfrastructure.Message message) {
             if(message.getText().equals("status") || message.getText().equals("acc status"))
                 return  "Аккаунт " + Account.this + " id: "+getId() + "\n" +
@@ -254,10 +275,12 @@ public class Account extends CommandModule implements AccountBase {
                         "Аккаунт " + Account.this + " токен в норме: "+(isToken_ok()?"да":"нет") + "\n";
             return "";
         }
+
         public @Override ArrayList<CommandDesc> getHelp() {
             return new ArrayList<>();
         }
     }
+
     class GetToken extends CommandModule{
         public GetToken(ApplicationManager applicationManager) {
             super(applicationManager);
@@ -307,6 +330,7 @@ public class Account extends CommandModule implements AccountBase {
             return result;
         }
     }
+
     class SetToken extends CommandModule{
         public SetToken(ApplicationManager applicationManager) {
             super(applicationManager);

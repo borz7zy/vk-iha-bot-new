@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.fsoft.vktest.NewViewsLayer.MainActivity;
-//import kotlin.ULong;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,8 +37,8 @@ public class BotService extends Service {
         }
     }
 
-    public int onStartCommand(Intent intent, int flags, int startId){
-        createNotificationChannel(); // Создаем канал уведомлений для Android 8+
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        createNotificationChannel();
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -52,7 +51,7 @@ public class BotService extends Service {
                 .setContentTitle("VK iHA bot")
                 .setContentText(ApplicationManager.getShortName() + " работает")
                 .setContentIntent(pendingIntent)
-//                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .build();
 
         startForeground(1, notification);

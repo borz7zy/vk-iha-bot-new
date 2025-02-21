@@ -110,12 +110,11 @@ fun AccountsScreenCompose(applicationManager: ApplicationManager) {
                     tgToken = inputText
 
                     val tgAccount = TgAccount(applicationManager, "tg" + System.currentTimeMillis())
-//                    applicationManager.communicator.addAccount(tgAccount)
-//                    tgAccount.login { loadAccounts(applicationManager, tgAccounts) }
+                    applicationManager.communicator.addAccount(tgAccount)
 
                     //проверить и если валидно сохранить
                     var bad: Boolean? = false
-                    if (tgToken == null) {
+                    if (tgToken.toString().isEmpty()) {
                         Toast.makeText(context, "Токен не введён!", Toast.LENGTH_SHORT).show()
                         bad = true
                     }
@@ -142,18 +141,13 @@ fun AccountsScreenCompose(applicationManager: ApplicationManager) {
                     }
                     tgAccount.id = id
                     tgAccount.token = token
-//                    tgAccount.login{ loadAccounts(applicationManager, tgAccounts) }
                     tgAccount.getMe(object : GetMeListener {
                         override fun gotUser(user: User) {
                             Toast.makeText(context, "Вход выполнен!", Toast.LENGTH_SHORT).show()
-//                            closeLoginWindow()
                             tgAccount.startAccount()
-//                            if (howToRefresh != null) howToRefresh.run()
                         }
 
                         override fun error(error: Throwable) {
-//                            saveButton.setEnabled(true)
-//                            saveButton.setText("Сохранить")
                             tgAccount.id = 0
                             tgAccount.token = ""
                             Toast.makeText(
@@ -170,10 +164,6 @@ fun AccountsScreenCompose(applicationManager: ApplicationManager) {
         }
     }
 }
-
-//private fun checkAccount(applicationManager: ApplicationManager){
-//
-//}
 
 private fun loadAccounts(
     applicationManager: ApplicationManager,
@@ -243,14 +233,14 @@ fun AccountItem(account: TgAccount, applicationManager: ApplicationManager) {
                 }
             }
 
-            Text(text = "Status: ${account.state}")
-            Text(text = "Messages Received: ${account.messageProcessor.messagesReceivedCounter}")
-            Text(text = "Messages Sent: ${account.messageProcessor.messagesSentCounter}")
+            Text(text = "${account.state}")
+            Text(text = "Отправлено сообщений: ${account.messageProcessor.messagesSentCounter}")
+            Text(text = "Принято сообщений: ${account.messageProcessor.messagesReceivedCounter}")
             Text(text = "API Counter: ${account.apiCounter}")
-            Text(text = "API Errors: ${account.errorCounter}")
-            Text(text = "Reply Instruction: Выключено")
-            Text(text = "Chats Enabled: Включено")
-            Text(text = "Broadcast Status: Выключено")
+            Text(text = "Запросов с ошибкой: ${account.errorCounter}")
+            Text(text = "Ответ инструкцией: Включено")
+            Text(text = "Отвечать в беседах: Включено")
+            Text(text = "Трансляция статуса: Выключено")
         }
     }
 }

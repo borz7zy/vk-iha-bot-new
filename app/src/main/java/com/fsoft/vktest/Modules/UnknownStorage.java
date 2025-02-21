@@ -4,7 +4,7 @@ import com.fsoft.vktest.ApplicationManager;
 
 import java.io.File;
 import java.util.ArrayList;
-
+// TODO: реализовать (borz7zy 21.02.2025)
 /**
  * этот класс занимается хранением неизвестных.
  * позволяет:

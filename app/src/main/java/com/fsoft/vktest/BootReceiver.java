@@ -15,6 +15,7 @@ import com.fsoft.vktest.NewViewsLayer.MainActivity;
  * Created by Dr. Failov on 28.12.2014.
  */
 public class BootReceiver extends BroadcastReceiver {
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if(isRun(context)) {
@@ -28,6 +29,7 @@ public class BootReceiver extends BroadcastReceiver {
             alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 15000, pendingIntent);
         }
     }
+
     public static boolean isRun(Context context){
         try {
             SharedPreferences sharedPreferences = context.getSharedPreferences(ApplicationManager.programName, Context.MODE_PRIVATE);
@@ -38,6 +40,7 @@ public class BootReceiver extends BroadcastReceiver {
             return true;
         }
     }
+
     public static void setRun(Context context, boolean newVelue){
         try {
 

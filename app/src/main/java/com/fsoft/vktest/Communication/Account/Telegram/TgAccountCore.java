@@ -45,24 +45,14 @@ public class TgAccountCore extends Account {
     private Context context; // Add Context
     private long id = 0;
 
-
     public TgAccountCore(ApplicationManager applicationManager, String fileName) {
         super(applicationManager, fileName);
         this.context = applicationManager.getContext(); // Get the context
-        userName = getFileStorage().getString("userName", userName);
+        userName = getFileStorage().getString("tguserName", userName);
+        token = getFileStorage().getString("tgtoken", token);
+        id = getFileStorage().getLong("tgid", id);
         telegraphToken = getFileStorage().getString("telegraphToken", telegraphToken);
         queue = Volley.newRequestQueue(context.getApplicationContext()); // Use the context
-    }
-
-    public void login(Runnable howToRefresh) {
-        super.login();
-        new LoginWindow(applicationManager, this, howToRefresh);
-    }
-
-    @Override
-    public void login() {
-        super.login();
-        new LoginWindow(applicationManager, this, null);
     }
 
     @Override
@@ -134,7 +124,7 @@ public class TgAccountCore extends Account {
 
     public void setUserName(String userName) {
         this.userName = userName;
-        getFileStorage().put("userName", userName).commit();
+        getFileStorage().put("tguserName", userName).commit();
     }
 
     public void setTelegraphToken(String telegraphToken) {
@@ -942,7 +932,7 @@ public class TgAccountCore extends Account {
 
     public void setToken(String token) {
         this.token = token;
-        getStorage().put("token", token).commit();
+        getStorage().put("tgtoken", token).commit();
     }
 
     public long getId() {
@@ -951,6 +941,7 @@ public class TgAccountCore extends Account {
 
     public void setId(long id) {
         this.id = id;
+        getStorage().put("tgid", id).commit();
     }
 
     public interface SendMessageListener {

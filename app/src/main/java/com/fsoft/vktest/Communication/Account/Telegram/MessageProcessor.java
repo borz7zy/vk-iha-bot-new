@@ -45,6 +45,7 @@ public class MessageProcessor extends CommandModule {
             }
         }).start();
     }
+
     public void stopModule(){
         log("Обработка сообщений для аккаунта "+tgAccount+" останавливается...");
         isRunning = false;
@@ -53,22 +54,27 @@ public class MessageProcessor extends CommandModule {
     public int getMessagesReceivedCounter() {
         return messagesReceivedCounter;
     }
+
     public void inctementMessagesReceivedCounter(){
         messagesReceivedCounter++;
         if(onMessagesReceivedCounterChangedListener != null)
             onMessagesReceivedCounterChangedListener.run();
     }
+
     public int getMessagesSentCounter() {
         return messagesSentCounter;
     }
+
     public void inctementMessagesSentCounter(){
         messagesSentCounter++;
         if(onMessagesSentCounterChangedListener != null)
             onMessagesSentCounterChangedListener.run();
     }
+
     public boolean isChatsEnabled() {
         return isChatsEnabled;
     }
+
     public void setChatsEnabled(boolean chatsEnabled) {
         isChatsEnabled = chatsEnabled;
         tgAccount.getFileStorage().put("chatsEnabled", isChatsEnabled).commit();
@@ -77,6 +83,7 @@ public class MessageProcessor extends CommandModule {
     public void setOnMessagesReceivedCounterChangedListener(Runnable onMessagesReceivedCounterChangedListener) {
         this.onMessagesReceivedCounterChangedListener = onMessagesReceivedCounterChangedListener;
     }
+
     public void setOnMessagesSentCounterChangedListener(Runnable onMessagesSentCounterChangedListener) {
         this.onMessagesSentCounterChangedListener = onMessagesSentCounterChangedListener;
     }
@@ -89,6 +96,7 @@ public class MessageProcessor extends CommandModule {
             }
         }).start();
     }
+
     public void updateAsync(){
         log(". Sending request for "+tgAccount+" update...");
         tgAccount.getUpdates(new TgAccountCore.GetUpdatesListener() {
@@ -149,6 +157,7 @@ public class MessageProcessor extends CommandModule {
             }
         }
     }
+
     public void processMessage(final Message message){
         log(". ПОЛУЧЕНО СООБЩЕНИЕ: " + message);
         inctementMessagesReceivedCounter();

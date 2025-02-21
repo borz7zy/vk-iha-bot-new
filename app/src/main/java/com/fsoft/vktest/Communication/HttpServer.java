@@ -129,13 +129,12 @@ public class HttpServer extends CommandModule implements AccountBase {
     public String getScreenName() {
         return "HTTP сервер:"+port;
     }
-    public void setScreenName(String screenName) {
-    }
+    public void setScreenName(String screenName) {}
 
-    @Override
-    public void fillAvatar(ImageView imageView) {
-        imageView.setImageResource(R.drawable.bot);
-    }
+//    @Override
+//    public void fillAvatar(ImageView imageView) {
+//        imageView.setImageResource(R.drawable.bot);
+//    }
 
 
     public int getPort() {

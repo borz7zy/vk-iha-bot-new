@@ -27,22 +27,27 @@ public class PhotoSize {
 
     public JSONObject toJson() throws JSONException {
         JSONObject jsonObject = new JSONObject();
-        if(file_id != null)
+        if(file_id != null) {
             jsonObject.put("file_id", file_id);
+        }
         jsonObject.put("file_size", file_size);
         jsonObject.put("height", height);
         jsonObject.put("width", width);
         return jsonObject;
     }
     private void fromJson(JSONObject jsonObject)throws JSONException, ParseException {
-        if(jsonObject.has("file_id"))
+        if(jsonObject.has("file_id")) {
             file_id = jsonObject.getString("file_id");
-        if(jsonObject.has("file_size"))
+        }
+        if(jsonObject.has("file_size")) {
             file_size = jsonObject.getLong("file_size");
-        if(jsonObject.has("height"))
+        }
+        if(jsonObject.has("height")) {
             height = jsonObject.getInt("height");
-        if(jsonObject.has("width"))
+        }
+        if(jsonObject.has("width")) {
             width = jsonObject.getInt("width");
+        }
     }
 
     public String getFile_id() {

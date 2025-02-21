@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -62,9 +63,6 @@ public class MultiPartReq extends Request < NetworkResponse > {
         try {
             Log.d("volley", ". Sending data to server...");
             entity.writeTo(bos);
-            //дебилы блять. Нахуя такое делать?!
-//            String entityContentAsString = new String(bos.toByteArray());
-//            Log.e("volley", entityContentAsString);
         } catch (IOException e){
             e.printStackTrace();
             VolleyLog.e("IOException writing to ByteArrayOutputStream: " + e.getMessage());
@@ -101,8 +99,9 @@ public class MultiPartReq extends Request < NetworkResponse > {
     private void buildMultipartEntity() {
         entity.addPart(mStringPart, new FileBody(mFilePart));
         try {
-            for (String key : parameters.keySet())
-                entity.addPart(key, new StringBody(parameters.get(key), Charset.forName("UTF-8")));
+            for (String key : parameters.keySet()) {
+                entity.addPart(key, new StringBody(parameters.get(key), StandardCharsets.UTF_8));
+            }
         } catch (UnsupportedEncodingException e) {
             VolleyLog.e("UnsupportedEncodingException");
         }

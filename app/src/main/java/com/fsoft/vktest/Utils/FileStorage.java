@@ -51,10 +51,12 @@ public class FileStorage {
             jsonObject = new JSONObject();
         }
     }
+
     public boolean commit(){
         String data = jsonObject.toString();
         return writeToFile(filePath, data);
     }
+
     public String getFilePath(){
         return filePath;
     }

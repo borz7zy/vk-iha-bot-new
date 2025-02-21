@@ -22,10 +22,8 @@ import com.fsoft.vktest.Modules.CommandModule;
 import com.fsoft.vktest.Modules.DatabaseBackuper;
 import com.fsoft.vktest.Modules.FileManager;
 import com.fsoft.vktest.Communication.HttpServer;
-import com.fsoft.vktest.Modules.SecurityProvider;
 import com.fsoft.vktest.Utils.CommandParser;
 import com.fsoft.vktest.Utils.Parameters;
-//import com.fsoft.vktest.ViewsLayer.MainActivity;
 import com.fsoft.vktest.NewViewsLayer.MessagesFragment.MessageHistory;
 
 import java.io.*;
@@ -69,13 +67,16 @@ import java.util.*;
  */
 public class ApplicationManager extends CommandModule {
     static public String programName = "FP_iHA_bot";
+    private static ApplicationManager applicationManagerInstance = null;
+
     static public String getVisibleName(){
         return getShortName();
     }
+
     static public String getShortName(){
         return "FP iHA bot";
     }
-    private static ApplicationManager applicationManagerInstance = null;
+
     public static ApplicationManager getInstance(){
         return applicationManagerInstance;
     }
@@ -86,14 +87,13 @@ public class ApplicationManager extends CommandModule {
     private Parameters parameters;
 
     private MessageHistory messageHistory = null;
-    private SecurityProvider securityProvider = null;
     private WifiManager.WifiLock wifiLock = null;
     private PowerManager.WakeLock wakeLock = null;
     private DatabaseBackuper databaseBackuper = null;
     private HttpServer httpServer = null;
 
     private long startedTime = 0; //нужен для учёта времени аптайма
-    private boolean standby = false;
+//    private boolean standby = false;
 
     private Context context; // Add Context
 
@@ -109,7 +109,6 @@ public class ApplicationManager extends CommandModule {
         communicator = new Communicator(this);
         brain = new BotBrain(this, context); // Pass context to BotBrain
         databaseBackuper = new DatabaseBackuper(this);
-        securityProvider = new SecurityProvider(this);
         messageHistory = new MessageHistory(this);
         httpServer = new HttpServer(this);
         childCommands.add(new Version(this));
@@ -123,13 +122,13 @@ public class ApplicationManager extends CommandModule {
         childCommands.add(communicator);
         childCommands.add(parameters);
         childCommands.add(databaseBackuper);
-        childCommands.add(securityProvider);
         childCommands.add(httpServer);
     }
 
     public static String getHomeFolder(){
         return Environment.getExternalStorageDirectory() + File.separator + programName;
     }
+
     public static String getDownloadsFolder(){
         return getHomeFolder() + File.separator + "downloads";
     }
@@ -146,24 +145,27 @@ public class ApplicationManager extends CommandModule {
         Log.d("VK iHA bot", text);
         return text;
     }
-    public boolean isDonated(){
-        return true;//// TODO: 13.12.2017 это блять заглушка!  securityProvider.isDonated();
-    }
+
     public Communicator getCommunicator() {
         return communicator;
     }
+
     public BotBrain getBrain() {
         return brain;
     }
+
     public Parameters getParameters() {
         return parameters;
     }
+
     public HttpServer getHttpServer() {
         return httpServer;
     }
+
     public MessageHistory getMessageHistory() {
         return messageHistory;
     }
+
     public boolean isRunning(){
         //если какой-то из модулей работает по таймеру, то эта проверка позволит ему понять что программа закрыта
         return service != null;
@@ -178,28 +180,28 @@ public class ApplicationManager extends CommandModule {
         stopWiFiLock();
     }
 
-    @SuppressLint("InvalidWakeLockTag")
-    private void startWiFiLock(){
-        try {
-            if(wifiLock == null) {
-                log(". Блокировка состояния Wi-Fi...");
-                WifiManager wifiManager = (WifiManager) getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-                wifiLock = wifiManager.createWifiLock(programName);
-                wifiLock.acquire();
-            }
-
-            if(wakeLock == null) {
-                log(". Блокировка состояния CPU...");
-                PowerManager pm = (PowerManager) getContext().getApplicationContext().getSystemService(Context.POWER_SERVICE);
-                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
-                wakeLock.acquire();
-            }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            log("Ошибка блокировки Wi-Fi: " + e.toString());
-        }
-    }
+//    @SuppressLint("InvalidWakeLockTag")
+//    private void startWiFiLock(){
+//        try {
+//            if(wifiLock == null) {
+//                log(". Блокировка состояния Wi-Fi...");
+//                WifiManager wifiManager = (WifiManager) getContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+//                wifiLock = wifiManager.createWifiLock(programName);
+//                wifiLock.acquire();
+//            }
+//
+//            if(wakeLock == null) {
+//                log(". Блокировка состояния CPU...");
+//                PowerManager pm = (PowerManager) getContext().getApplicationContext().getSystemService(Context.POWER_SERVICE);
+//                wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
+//                wakeLock.acquire();
+//            }
+//        }
+//        catch (Exception e){
+//            e.printStackTrace();
+//            log("Ошибка блокировки Wi-Fi: " + e.toString());
+//        }
+//    }
     private void stopWiFiLock(){
         try {
             if(wifiLock != null) {

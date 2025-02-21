@@ -75,7 +75,7 @@ class MessagesAdapter extends BaseAdapter {
             receivedTextLabel.setText(messageStatus.getMessage().getText());
             timeLabel.setText(sdf.format(messageStatus.getMessage().getDate()));
             botNameLabel.setText(messageStatus.getMessage().getBotAccount().getScreenName());
-            messageStatus.getMessage().getBotAccount().fillAvatar(botAvatarView);
+//            messageStatus.getMessage().getBotAccount().fillAvatar(botAvatarView);
         }
 
         // Остальная логика для состояния
